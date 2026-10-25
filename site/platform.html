@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Codigo IDE</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script>window.react = window.React;</script>
+<script src="https://unpkg.com/lucide-react@0.460.0/dist/umd/lucide-react.min.js"></script>
+<script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        ink: { 950: "#06080E", 900: "#0A0D16", 850: "#0D111C", 800: "#111623", 750: "#151B2B", 700: "#1C2338", 600: "#283150", 500: "#3A4569" },
+        fog: { 100: "#E6EAF5", 300: "#B4BCD4", 400: "#8A93B0", 500: "#646D8C" },
+        neon: { DEFAULT: "#3CF5A6", soft: "#3CF5A61A", dim: "#1FB87A" },
+        plasma: { DEFAULT: "#A579FF", soft: "#A579FF1F", deep: "#6D3FE0" },
+        ember: "#FF9F4A",
+        danger: "#FF5C7A"
+      },
+      fontFamily: {
+        display: ["Unbounded", "Arial Black", "sans-serif"],
+        ui: ["Nunito", "Segoe UI", "Roboto", "sans-serif"],
+        mono: ["JetBrains Mono", "Consolas", "Courier New", "monospace"]
+      }
+    }
+  }
+};
+</script>
+<style>
+/* Layout: VS Code pəncərəsi tünd fonda üzür. Üstdə oyun status zolağı, solda yol + AI tutor, mərkəzdə kvest və editor, altda PowerShell terminalı, ən altda status bar. Yalnız tünd tema (istifadəçinin seçimi). */
+:root {
+  --bg: #06080E;
+  --panel: #0D111C;
+  --neon: #3CF5A6;
+  --plasma: #A579FF;
+  --ember: #FF9F4A;
+  --fg: #E6EAF5;
+  --mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: radial-gradient(1200px 600px at 15% -10%, rgba(165,121,255,0.16), transparent 60%),
+              radial-gradient(900px 500px at 100% 110%, rgba(60,245,166,0.10), transparent 60%), var(--bg);
+  color: var(--fg); font-family: "Nunito", "Segoe UI", Roboto, sans-serif;
+}
+#root { height: 100%; }
+.shell {
+  height: 100%;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 16px;
+}
+@media (max-width: 1023px) { html, body, #root, .shell { height: auto; } }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #283150; border-radius: 10px; border: 2px solid #0D111C; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Editor overlay */
+.ed-layer { position: absolute; inset: 0; margin: 0; padding: 14px 16px 72px; font: 13.5px/1.75 var(--mono); white-space: pre; tab-size: 4; letter-spacing: 0; }
+.ed-pre { overflow: hidden; pointer-events: none; color: #D7DEF2; }
+.ed-ta { overflow: auto; color: transparent; caret-color: var(--neon); background: transparent; resize: none; border: 0; outline: none; }
+.ed-ta::selection { background: rgba(165,121,255,0.35); color: transparent; }
+.gutter { font: 13.5px/1.75 var(--mono); padding: 14px 10px 72px 0; overflow: hidden; text-align: right; user-select: none; }
+.tk-kw { color: #C792EA; }
+.tk-bi { color: #82AAFF; }
+.tk-fn { color: #3CF5A6; }
+.tk-str { color: #FFCB6B; }
+.tk-num { color: #F78C6C; }
+.tk-com { color: #5C6788; font-style: italic; }
+
+/* XP bar */
+.xp-fill { background: linear-gradient(90deg, #6D3FE0, #A579FF 45%, #3CF5A6); transition: width 1s cubic-bezier(.2,.8,.2,1); position: relative; overflow: hidden; }
+.xp-fill::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 20%, rgba(255,255,255,0.45) 50%, transparent 80%); transform: translateX(-100%); animation: shimmer 2.6s ease-in-out infinite; }
+@keyframes shimmer { 60%, 100% { transform: translateX(100%); } }
+
+.float-xp { animation: floatUp 1.6s ease-out forwards; }
+@keyframes floatUp { 0% { opacity: 0; transform: translateY(6px) scale(.9); } 15% { opacity: 1; transform: translateY(0) scale(1.05); } 100% { opacity: 0; transform: translateY(-26px); } }
+
+.toast-in { animation: toastIn .45s cubic-bezier(.2,.9,.3,1.3) both; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(-14px) scale(.96); } to { opacity: 1; transform: none; } }
+
+.run-btn { background: linear-gradient(135deg, #3CF5A6, #22D08A 50%, #A579FF 140%); box-shadow: 0 0 0 1px rgba(60,245,166,.5), 0 8px 30px -6px rgba(60,245,166,.55), inset 0 1px 0 rgba(255,255,255,.35); }
+.run-btn:hover { box-shadow: 0 0 0 1px rgba(60,245,166,.8), 0 10px 40px -4px rgba(60,245,166,.75), inset 0 1px 0 rgba(255,255,255,.35); }
+.run-btn:active { transform: translateY(1px); }
+
+.burst span { position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; border-radius: 2px; animation: burst .9s ease-out forwards; }
+@keyframes burst { from { transform: translate(-50%, -50%) rotate(0deg); opacity: 1; } to { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(220deg); opacity: 0; } }
+
+.pulse-ring { animation: ring 2s ease-out infinite; }
+@keyframes ring { 0% { box-shadow: 0 0 0 0 rgba(60,245,166,.55); } 70%, 100% { box-shadow: 0 0 0 9px rgba(60,245,166,0); } }
+.cursor-blink { animation: blink 1.05s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.flame-pop { animation: pop .6s ease-out; }
+@keyframes pop { 40% { transform: scale(1.35); } }
+.typing span { animation: typing 1.2s infinite; display: inline-block; }
+.typing span:nth-child(2) { animation-delay: .15s; } .typing span:nth-child(3) { animation-delay: .3s; }
+@keyframes typing { 0%, 60%, 100% { opacity: .25; transform: none; } 30% { opacity: 1; transform: translateY(-2px); } }
+.line-in { animation: lineIn .2s ease-out both; }
+@keyframes lineIn { from { opacity: 0; transform: translateX(-4px); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .xp-fill, .xp-fill::after, .float-xp, .toast-in, .burst span, .pulse-ring, .cursor-blink, .flame-pop, .typing span, .line-in { animation: none !important; transition: none !important; }
+}
+:focus-visible { outline: 2px solid var(--plasma); outline-offset: 2px; }
+</style>
+
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+(function () {
+const { useState, useEffect, useRef, useCallback } = React;
+const html = htm.bind(React.createElement);
+const Lc = window.LucideReact || {};
+function Icon({ name, ...p }) { const C = Lc[name]; return C ? html`<${C} ...${p} />` : null; }
+
+// ---------- Python sintaksis rəngləmə ----------
+const KW = new Set(["def","for","in","if","elif","else","while","return","import","from","as","and","or","not","True","False","None","class","break","continue","pass","lambda","with","try","except"]);
+const BI = new Set(["print","range","len","max","min","sum","list","dict","str","int","float","enumerate","abs","round","sorted"]);
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function highlight(src) {
+  const re = /(#[^\n]*)|([fFrRbB]?"(?:[^"\\\n]|\\.)*"?|[fFrRbB]?'(?:[^'\\\n]|\\.)*'?)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)(?=\s*\()|([A-Za-z_]\w*)/g;
+  let out = "", last = 0, m;
+  while ((m = re.exec(src))) {
+    out += esc(src.slice(last, m.index));
+    const t = m[0];
+    if (m[1]) out += '<span class="tk-com">' + esc(t) + "</span>";
+    else if (m[2]) out += '<span class="tk-str">' + esc(t) + "</span>";
+    else if (m[3]) out += '<span class="tk-num">' + t + "</span>";
+    else if (KW.has(t)) out += '<span class="tk-kw">' + t + "</span>";
+    else if (BI.has(t)) out += '<span class="tk-bi">' + t + "</span>";
+    else if (m[4]) out += '<span class="tk-fn">' + t + "</span>";
+    else out += t;
+    last = re.lastIndex;
+  }
+  return out + esc(src.slice(last)) + "\n";
+}
+
+// ---------- Kvestlər (simulyasiya olunan icra) ----------
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function rangeCount(code) {
+  const m = code.match(/range\s*\(\s*(-?\d+)\s*(?:,\s*(-?\d+)\s*)?\)/);
+  if (!m) return 0;
+  const a = m[2] !== undefined ? +m[1] : 0, b = m[2] !== undefined ? +m[2] : +m[1];
+  return Math.max(0, b - a);
+}
+const meter = (i, n) => "[" + "■".repeat(i) + "□".repeat(Math.max(0, n - i)) + "]";
+
+const QUESTS = [
+  {
+    id: "shields", module: "loops", code_no: "3.2", file: "shields.py", reward: 250, level: "Orta",
+    title: "5 enerji qalxanı yarat",
+    story: "Kodi-nin gəmisinə meteor yağışı yaxınlaşır. for dövrü ilə düz 5 enerji qalxanı yarat və hər birini aktivləşdir.",
+    objectives: ["for dövründən istifadə et", "range() ilə dəqiq 5 qalxan yarat", "Hər qalxanı ekrana çap et"],
+    reason: "off-by-one zəifliyinə görə",
+    code: `# Kvest 3.2: 5 enerji qalxanı yarat
+shields = []
+
+for i in range(5):
+    shield = f"Qalxan-{i + 1}"
+    shields.append(shield)
+    print(f"{shield} aktivləşdi")
+
+print(f"Cəmi qalxan: {len(shields)}")
+`,
+    run(code) {
+      const hasFor = /\bfor\s+\w+\s+in\s+range\s*\(/.test(code);
+      const hasPrint = /print\s*\(/.test(code);
+      const n = hasFor ? rangeCount(code) : 0;
+      const lines = [];
+      if (hasFor && hasPrint) for (let i = 1; i <= Math.min(n, 12); i++) lines.push({ t: "⚡ Qalxan-" + i + " aktivləşdi   " + meter(i, Math.max(n, 5)), c: "text-neon" });
+      lines.push({ t: "Cəmi qalxan: " + n });
+      const tests = [
+        { ok: hasFor, text: hasFor ? "for dövrü tapıldı" : "for dövrü tapılmadı" },
+        { ok: n === 5, text: n === 5 ? "Dəqiq 5 qalxan yarandı" : "5 qalxan gözlənilirdi, " + n + " yarandı" },
+        { ok: hasPrint, text: hasPrint ? "Qalxanlar ekrana çap olundu" : "print() tapılmadı" }
+      ];
+      let diagnosis = "";
+      if (!hasFor) diagnosis = "Kodda for dövrü görmürəm. Qalxanları bir-bir yazmaq əvəzinə dövrdən istifadə et. Hansı funksiya sənə ardıcıl ədədlər verir?";
+      else if (n === 4 || n === 6) diagnosis = "Yenə off-by-one! Dövr " + n + " dəfə işlədi. range() son ədədi daxil etmir. 5 qalxan üçün sərhədi necə yazmalısan?";
+      else if (n !== 5) diagnosis = "range() sənə " + n + " təkrar verdi. Başlanğıc və son ədədi yoxla: neçə ədəd arasında dövr edirsən?";
+      else if (!hasPrint) diagnosis = "Qalxanlar yaranır, amma ekrana çıxmır. Hər qalxanı aktivləşdirəndə nə çağırmalısan?";
+      return { lines, tests, diagnosis, success: "Əla! 5/5 qalxan aktivdir. range() sərhədini düz qurdun və off-by-one zəifliyi bağlandı. Dövrlər modulu 100%-ə çatdı." };
+    }
+  },
+  {
+    id: "crystals", module: "lists", code_no: "4.1", file: "crystals.py", reward: 300, level: "Orta",
+    title: "Ən güclü kristalı tap",
+    story: "Mağarada 5 enerji kristalı var. Siyahını dövrlə gəz və ən güclüsünü tap. max() olmadan, öz əlinlə müqayisə et.",
+    objectives: ["Siyahını for ilə gəz", "Hər kristalı ən güclü ilə müqayisə et", "Nəticəni çap et"],
+    reason: "Dövrlərdən sonra növbəti addım",
+    code: `# Kvest 4.1: Ən güclü kristalı tap
+crystals = [42, 87, 15, 99, 63]
+
+strongest = crystals[0]
+for power in crystals:
+    if power > strongest:
+        strongest = power
+
+print(f"Ən güclü kristal: {strongest}")
+`,
+    run(code) {
+      const hasFor = /\bfor\s+\w+\s+in\s+\w+/.test(code);
+      const hasCmp = /if\s+.*[<>]/.test(code);
+      const usesMax = /\bmax\s*\(/.test(code);
+      const lm = code.match(/crystals\s*=\s*\[([^\]]*)\]/);
+      const nums = lm ? lm[1].split(",").map(s => Number(s.trim())).filter(n => !isNaN(n)) : [];
+      const best = nums.length ? Math.max(...nums) : 0;
+      const lines = [];
+      if (hasFor) nums.forEach(n => lines.push({ t: "  ◆ kristal " + String(n).padStart(3) + (n === best ? "   ← yeni rekord" : ""), c: n === best ? "text-plasma" : "text-fog-400" }));
+      lines.push({ t: "Ən güclü kristal: " + (hasFor && hasCmp ? best : usesMax ? best : nums[0] ?? "?"), c: "text-neon" });
+      const tests = [
+        { ok: hasFor, text: hasFor ? "Siyahı dövrlə gəzildi" : "for dövrü tapılmadı" },
+        { ok: hasCmp && !usesMax, text: usesMax ? "max() istifadə olunub, bu kvest müqayisə məşqidir" : hasCmp ? "Müqayisə şərti tapıldı" : "if ilə müqayisə tapılmadı" },
+        { ok: hasFor && hasCmp && !usesMax, text: "Nəticə " + best + " olmalıdır" }
+      ];
+      let diagnosis = "";
+      if (!hasFor) diagnosis = "Siyahını gəzmək üçün dövr lazımdır. Hər kristala bir-bir necə baxarsan?";
+      else if (usesMax) diagnosis = "max() düz cavab verir, amma bu kvest müqayisəni öyrətmək üçündür. Ən güclünü dəyişəndə saxlayıb if ilə yoxlamağa çalış.";
+      else if (!hasCmp) diagnosis = "Hər kristalı indiyə qədərki ən güclü ilə müqayisə etməlisən. Hansı operator lazımdır?";
+      return { lines, tests, diagnosis, success: "Möhtəşəm! Ən güclü kristalı (" + best + ") dövr və müqayisə ilə tapdın. Siyahılar modulunda +40% irəliləyiş." };
+    }
+  },
+  {
+    id: "teleport", module: "funcs", code_no: "5.1", file: "teleport.py", reward: 350, level: "Çətin",
+    title: "Teleport funksiyası yaz",
+    story: "Kodi portal açmağı öyrənir. teleport(x, y, distance) funksiyası yeni koordinatı qaytarsın və onu çap et.",
+    objectives: ["def ilə funksiya yarat", "Nəticəni return ilə qaytar", "Funksiyanı çağırıb çap et"],
+    reason: "Siyahılardan sonra növbəti addım",
+    code: `# Kvest 5.1: Teleport funksiyası
+def teleport(x, y, distance):
+    return x + distance, y + distance
+
+new_pos = teleport(2, 3, 5)
+print(f"Yeni mövqe: {new_pos}")
+`,
+    run(code) {
+      const hasDef = /def\s+teleport\s*\(/.test(code);
+      const hasRet = /\breturn\b/.test(code);
+      const cm = code.match(/teleport\s*\(\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*\)/);
+      const res = cm ? "(" + (+cm[1] + +cm[3]) + ", " + (+cm[2] + +cm[3]) + ")" : "?";
+      const lines = [{ t: "🌀 Portal açılır…", c: "text-plasma" }, { t: "Yeni mövqe: " + (hasDef && hasRet ? res : "None"), c: hasRet ? "text-neon" : "text-danger" }];
+      const tests = [
+        { ok: hasDef, text: hasDef ? "teleport funksiyası tapıldı" : "def teleport(...) tapılmadı" },
+        { ok: hasRet, text: hasRet ? "Funksiya nəticə qaytarır" : "return yoxdur, funksiya None qaytarır" },
+        { ok: !!cm, text: cm ? "Funksiya çağırıldı" : "Funksiya çağırılmayıb" }
+      ];
+      let diagnosis = "";
+      if (!hasDef) diagnosis = "Funksiya yaratmaq üçün hansı açar sözdən başlayırıq?";
+      else if (!hasRet) diagnosis = "Funksiya hesablayır, amma nəticəni geri vermir. print ilə return arasındakı fərq nədir?";
+      else if (!cm) diagnosis = "Funksiyanı yazdın, indi onu çağır: üç arqument göndər.";
+      return { lines, tests, diagnosis, success: "Portal işləyir! Funksiyanı düz qurdun və nəticəni return ilə qaytardın. Bütün günlük kvestlər tamamlandı." };
+    }
+  }
+];
+
+const MODULES = [
+  { id: "vars", name: "Dəyişənlər", sub: "int, str, print" },
+  { id: "cond", name: "Şərtlər", sub: "if, elif, else" },
+  { id: "loops", name: "Dövrlər", sub: "for, range, while" },
+  { id: "lists", name: "Siyahılar", sub: "index, append, dilim" },
+  { id: "funcs", name: "Funksiyalar", sub: "def, return" },
+  { id: "rec", name: "Rekursiya", sub: "baza halı, çağırış yığını" }
+];
+
+const TUTOR_HINTS = {
+  shields: ["Hazır kodu yazmayacağam, amma birlikdə tapaq. range(5) hansı ədədləri verir? print(list(range(5))) ilə yoxla.", "Qalxan nömrəsi 1-dən başlamalıdır, i isə 0-dan. Bu fərqi necə düzəldərsən?"],
+  crystals: ["İlk kristalı ən güclü kimi götür. Sonra hər növbəti kristal ondan böyükdürsə, nə etməlisən?", "Dəyişəni dövrdən əvvəl yaratmaq vacibdir. Niyə?"],
+  teleport: ["print nəticəni ekrana yazır, return isə onu çağırana qaytarır. Burada hansı lazımdır?", "Funksiya iki ədəd qaytara bilər: x və y-ni vergüllə ayır."]
+};
+
+const now = () => new Date().toLocaleTimeString("az-AZ", { hour: "2-digit", minute: "2-digit" });
+
+// ---------- Komponentlər ----------
+function XpBar({ xp, need, level, gain }) {
+  const [w, setW] = useState(0);
+  const pct = Math.min(100, (xp / need) * 100);
+  useEffect(() => { const t = setTimeout(() => setW(pct), 60); return () => clearTimeout(t); }, [pct, level]);
+  return html`
+    <div className="relative flex flex-col gap-1 min-w-0 w-full sm:w-64">
+      <div className="flex justify-between text-[11px] font-mono text-fog-400 tabular-nums">
+        <span>XP</span><span><span className="text-fog-100">${xp.toLocaleString("az-AZ")}</span> / ${need.toLocaleString("az-AZ")}</span>
+      </div>
+      <div className="h-2.5 rounded-full bg-ink-700 overflow-hidden ring-1 ring-ink-600" role="progressbar" aria-valuemin="0" aria-valuemax=${need} aria-valuenow=${xp} aria-label="XP irəliləyişi">
+        <div key=${level} className="xp-fill h-full rounded-full" style=${{ width: w + "%" }}></div>
+      </div>
+      ${gain ? html`<span key=${gain.id} className="float-xp absolute right-0 -top-5 font-display text-xs text-neon drop-shadow">+${gain.amount} XP</span>` : null}
+    </div>`;
+}
+
+function Navbar({ level, xp, need, streak, streakPop, gain }) {
+  return html`
+    <header className="flex flex-wrap items-center gap-x-5 gap-y-3 px-4 py-3 border-b border-ink-700 bg-ink-900/90">
+      <div className="flex items-center gap-2.5">
+        <div className="w-8 h-8 rounded-lg grid place-items-center bg-gradient-to-br from-neon to-plasma text-ink-950 shadow-[0_0_20px_-4px_rgba(60,245,166,.7)]"><${Icon} name="Code" size=${18} strokeWidth=${2.6} /></div>
+        <span className="font-display font-bold text-[17px] tracking-tight">codi<span className="text-neon">go</span></span>
+        <a href="index.html" onClick=${e => { if (history.length > 1) { e.preventDefault(); history.back(); } }} className="inline-block text-[11px] font-mono text-fog-400 hover:text-fog-100 border border-ink-600 rounded px-1.5 py-0.5 ml-1 no-underline">← sayta qayıt</a>
+      </div>
+      <div className="hidden lg:flex items-center gap-2 text-xs text-fog-400 font-mono">
+        <${Icon} name="Route" size=${14} /> Python Əsasları <span className="text-ink-500">/</span> 10-A
+      </div>
+      <div className="flex flex-wrap items-center gap-4 ml-auto w-full sm:w-auto">
+        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-plasma-soft ring-1 ring-plasma/40">
+          <${Icon} name="Crown" size=${16} className="text-plasma" />
+          <span className="font-display text-[12px] font-bold tracking-tight whitespace-nowrap">Səviyyə ${level} <span className="text-plasma">· Coder</span></span>
+        </div>
+        <div className="flex-1 sm:flex-none min-w-[160px]"><${XpBar} xp=${xp} need=${need} level=${level} gain=${gain} /></div>
+        <div className=${"flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg ring-1 ring-ember/40 bg-ember/10 " + (streakPop ? "flame-pop" : "")} title="Ardıcıl öyrənmə günləri">
+          <${Icon} name="Flame" size=${16} className="text-ember" fill="currentColor" />
+          <span className="font-mono text-sm font-semibold tabular-nums">${streak}</span><span className="text-[11px] text-fog-400">gün</span>
+        </div>
+        <div className="w-8 h-8 rounded-full bg-ink-700 ring-2 ring-neon/60 grid place-items-center text-[11px] font-semibold">LH</div>
+      </div>
+    </header>`;
+}
+
+function ActivityBar() {
+  const items = [["Files", "Fayllar"], ["Route", "Öyrənmə yolu"], ["Search", "Axtar"], ["GitBranch", "Versiyalar"], ["Trophy", "Nailiyyətlər"]];
+  return html`
+    <nav className="hidden lg:flex flex-col items-center gap-1 py-3 w-12 border-r border-ink-700 bg-ink-900" aria-label="Fəaliyyət paneli">
+      ${items.map(([n, l], i) => html`<button key=${n} title=${l} aria-label=${l} className=${"w-10 h-10 grid place-items-center rounded-md transition " + (i === 1 ? "text-fog-100 border-l-2 border-neon bg-ink-800" : "text-fog-500 hover:text-fog-100")}><${Icon} name=${n} size=${20} /></button>`)}
+      <div className="flex-1"></div>
+      <button title="Parametrlər" aria-label="Parametrlər" className="w-10 h-10 grid place-items-center text-fog-500 hover:text-fog-100"><${Icon} name="Settings" size=${20} /></button>
+    </nav>`;
+}
+
+function SkillPath({ done, active, remedialDone }) {
+  return html`
+    <div className="flex flex-col min-h-0">
+      <div className="flex items-center justify-between px-4 pt-3 pb-2">
+        <span className="text-[11px] font-mono tracking-[0.12em] uppercase text-fog-400">Fərdi öyrənmə yolu</span>
+        <span className="text-[11px] font-mono text-fog-500">${done.length}/${MODULES.length}</span>
+      </div>
+      <ol className="relative px-4 pb-3 overflow-y-auto">
+        ${MODULES.map((m, i) => {
+          const isDone = done.includes(m.id), isActive = m.id === active, locked = !isDone && !isActive;
+          return html`
+            <li key=${m.id} className="relative pl-9 pb-3">
+              ${i < MODULES.length - 1 ? html`<span className=${"absolute left-[13px] top-7 bottom-0 w-0.5 " + (isDone ? "bg-neon/60" : "bg-ink-600")}></span>` : null}
+              <span className=${"absolute left-0 top-0.5 w-7 h-7 rounded-full grid place-items-center " + (isDone ? "bg-neon text-ink-950" : isActive ? "bg-ink-800 ring-2 ring-neon text-neon pulse-ring" : "bg-ink-800 ring-1 ring-ink-600 text-fog-500")}>
+                <${Icon} name=${isDone ? "Check" : isActive ? "Swords" : "Lock"} size=${14} strokeWidth=${2.6} />
+              </span>
+              <div className=${"rounded-lg px-3 py-2 " + (isActive ? "bg-neon-soft ring-1 ring-neon/40" : "")}>
+                <div className="flex items-center gap-2">
+                  <span className=${"text-sm font-semibold " + (locked ? "text-fog-500" : "text-fog-100")}>${m.name}</span>
+                  ${isActive ? html`<span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-neon text-ink-950 font-semibold">İNDİ</span>` : null}
+                </div>
+                <span className="text-[11px] font-mono text-fog-500">${m.sub}</span>
+              </div>
+              ${m.id === "loops" ? html`
+                <div className=${"mt-2 ml-1 flex items-center gap-2 rounded-md border border-dashed px-2.5 py-1.5 text-[11px] " + (remedialDone ? "border-neon/40 text-fog-400" : "border-plasma/70 bg-plasma-soft text-fog-100")}>
+                  <${Icon} name=${remedialDone ? "CircleCheck" : "Sparkles"} size=${13} className=${remedialDone ? "text-neon" : "text-plasma"} />
+                  <span><span className="font-mono text-plasma">AI</span> · range() sərhədləri ${remedialDone ? "bağlandı" : "əlavə olundu"}</span>
+                </div>` : null}
+            </li>`;
+        })}
+      </ol>
+    </div>`;
+}
+
+function ChatMessage({ m }) {
+  if (m.from === "me") return html`<div className="self-end max-w-[85%] rounded-xl rounded-br-sm bg-ink-600 px-3 py-2 text-[13px] line-in">${m.text}</div>`;
+  const tone = m.kind === "diagnosis" ? "ring-danger/50" : m.kind === "success" ? "ring-neon/50" : m.kind === "error" ? "ring-ember/50" : "ring-plasma/40";
+  const label = { diagnosis: ["Diaqnoz", "text-danger", "Bug"], success: ["Kvest tamamlandı", "text-neon", "Trophy"], error: ["Testlər keçmədi", "text-ember", "Lightbulb"], quest: ["Yeni kvest", "text-plasma", "Target"], hint: ["İpucu", "text-plasma", "Lightbulb"] }[m.kind];
+  return html`
+    <div className="flex gap-2 line-in">
+      <div className="w-7 h-7 shrink-0 rounded-lg grid place-items-center bg-gradient-to-br from-plasma-deep to-plasma text-white"><${Icon} name="Bot" size=${15} /></div>
+      <div className=${"min-w-0 flex-1 rounded-xl rounded-tl-sm bg-ink-800 ring-1 px-3 py-2 text-[13px] leading-relaxed " + tone}>
+        ${label ? html`<div className=${"flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.1em] mb-1 " + label[1]}><${Icon} name=${label[2]} size=${12} />${label[0]}</div>` : null}
+        <p className="text-fog-100">${m.text}</p>
+        ${m.quest ? html`
+          <div className="mt-2 rounded-lg bg-ink-900 ring-1 ring-ink-600 p-2.5 flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-md grid place-items-center bg-neon-soft text-neon"><${Icon} name="Shield" size=${16} /></div>
+            <div className="min-w-0 flex-1"><div className="text-[12px] font-semibold truncate">${m.quest.title}</div><div className="text-[11px] font-mono text-fog-400">${m.quest.level} · +${m.quest.reward} XP</div></div>
+          </div>` : null}
+        <div className="text-[10px] font-mono text-fog-500 mt-1">${m.time}</div>
+      </div>
+    </div>`;
+}
+
+function Tutor({ messages, typing, onSend, mode }) {
+  const [text, setText] = useState("");
+  const ref = useRef();
+  useEffect(() => { const el = ref.current; if (el) el.scrollTop = el.scrollHeight; }, [messages, typing]);
+  const submit = e => { e.preventDefault(); const t = text.trim(); if (!t) return; setText(""); onSend(t); };
+  return html`
+    <div className="flex flex-col min-h-0 flex-1 border-t border-ink-700">
+      <div className="flex items-center justify-between px-4 py-2.5">
+        <span className="flex items-center gap-2 text-[11px] font-mono tracking-[0.12em] uppercase text-fog-400"><span className="w-2 h-2 rounded-full bg-neon shadow-[0_0_8px_#3CF5A6]"></span>AI Tutor</span>
+        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full ring-1 ring-plasma/50 text-plasma">${mode}</span>
+      </div>
+      <div ref=${ref} className="flex-1 min-h-[220px] overflow-y-auto px-3 pb-3 flex flex-col gap-3" aria-live="polite">
+        ${messages.map(m => html`<${ChatMessage} key=${m.id} m=${m} />`)}
+        ${typing ? html`<div className="flex gap-2 items-center text-fog-400 text-xs pl-9"><span className="typing"><span>●</span><span>●</span><span>●</span></span> AI yazır</div>` : null}
+      </div>
+      <form onSubmit=${submit} className="p-3 border-t border-ink-700 flex gap-2">
+        <label htmlFor="tutorInput" className="sr-only">AI tutora sual</label>
+        <input id="tutorInput" value=${text} onInput=${e => setText(e.target.value)} placeholder="Sual ver, məs. niyə 4 qalxan çıxır?" className="flex-1 min-w-0 bg-ink-800 ring-1 ring-ink-600 focus:ring-plasma rounded-lg px-3 py-2 text-[13px] placeholder:text-fog-500 outline-none" />
+        <button type="submit" aria-label="Göndər" className="w-9 h-9 shrink-0 rounded-lg grid place-items-center bg-plasma text-ink-950 hover:brightness-110"><${Icon} name="Send" size=${16} /></button>
+      </form>
+    </div>`;
+}
+
+function QuestBanner({ q, tests, completed }) {
+  return html`
+    <div className="relative overflow-hidden px-5 py-4 border-b border-ink-700 bg-[linear-gradient(110deg,rgba(60,245,166,.08),rgba(165,121,255,.08)_60%,transparent)]">
+      <div className="flex flex-wrap items-start gap-4">
+        <div className="w-11 h-11 rounded-xl grid place-items-center bg-ink-800 ring-1 ring-neon/50 text-neon shadow-[0_0_24px_-6px_rgba(60,245,166,.6)]"><${Icon} name="Shield" size=${22} /></div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono">
+            <span className="text-neon tracking-[0.12em] uppercase">Kvest ${q.code_no}</span>
+            <span className="px-1.5 py-0.5 rounded bg-ink-700 text-fog-300">${q.level}</span>
+            <span className="px-1.5 py-0.5 rounded bg-plasma-soft text-plasma flex items-center gap-1"><${Icon} name="Sparkles" size=${11} />AI təyin etdi: ${q.reason}</span>
+            ${completed ? html`<span className="px-1.5 py-0.5 rounded bg-neon text-ink-950 font-semibold">TAMAMLANDI</span>` : null}
+          </div>
+          <h1 className="font-display text-[19px] sm:text-[21px] font-bold tracking-tight mt-1">${q.title}</h1>
+          <p className="text-[13px] text-fog-300 mt-1 max-w-[70ch]">${q.story}</p>
+        </div>
+        <div className="flex flex-col items-end gap-1">
+          <span className="font-display text-lg font-bold text-neon">+${q.reward} XP</span>
+          <span className="text-[11px] font-mono text-fog-500">mükafat</span>
+        </div>
+      </div>
+      <ul className="flex flex-wrap gap-x-5 gap-y-1.5 mt-3 pl-0 sm:pl-[60px]">
+        ${q.objectives.map((o, i) => {
+          const st = tests ? tests[i]?.ok : null;
+          return html`<li key=${o} className=${"flex items-center gap-1.5 text-[12px] " + (st === true ? "text-neon" : st === false ? "text-danger" : "text-fog-400")}>
+            <${Icon} name=${st === true ? "CircleCheck" : st === false ? "X" : "Circle"} size=${14} />${o}</li>`;
+        })}
+      </ul>
+    </div>`;
+}
+
+function Editor({ code, setCode, onRun, onCursor }) {
+  const ta = useRef(), pre = useRef(), gut = useRef();
+  const lines = code.split("\n").length;
+  const sync = () => { const t = ta.current; pre.current.scrollTop = t.scrollTop; pre.current.scrollLeft = t.scrollLeft; gut.current.scrollTop = t.scrollTop; };
+  const cursor = () => { const t = ta.current; const before = t.value.slice(0, t.selectionStart).split("\n"); onCursor(before.length, before[before.length - 1].length + 1); };
+  const onKeyDown = e => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); onRun(); return; }
+    if (e.key === "Tab" && !e.shiftKey) {
+      e.preventDefault();
+      const t = e.target, s = t.selectionStart, en = t.selectionEnd;
+      setCode(code.slice(0, s) + "    " + code.slice(en));
+      requestAnimationFrame(() => { t.selectionStart = t.selectionEnd = s + 4; cursor(); });
+    }
+  };
+  return html`
+    <div className="flex flex-1 min-h-[300px] bg-ink-850">
+      <div ref=${gut} className="gutter w-12 shrink-0 text-fog-500 tabular-nums" aria-hidden="true">
+        ${Array.from({ length: lines }, (_, i) => html`<div key=${i}>${i + 1}</div>`)}
+      </div>
+      <div className="relative flex-1 min-w-0">
+        <pre ref=${pre} className="ed-layer ed-pre" aria-hidden="true" dangerouslySetInnerHTML=${{ __html: highlight(code) }}></pre>
+        <textarea ref=${ta} id="codeEditor" className="ed-layer ed-ta" spellCheck="false" autoCapitalize="off" autoComplete="off" aria-label="Python kod redaktoru"
+          value=${code} onChange=${e => setCode(e.target.value)} onScroll=${sync} onKeyDown=${onKeyDown} onKeyUp=${cursor} onClick=${cursor}></textarea>
+      </div>
+    </div>`;
+}
+
+function Terminal({ lines, running }) {
+  const ref = useRef();
+  useEffect(() => { const el = ref.current; if (el) el.scrollTop = el.scrollHeight; }, [lines]);
+  return html`
+    <div ref=${ref} className="h-full overflow-y-auto px-4 py-3 font-mono text-[12.5px] leading-[1.7] bg-[#0A0E1A]" aria-live="polite">
+      ${lines.map((l, i) => html`<div key=${i} className=${"whitespace-pre-wrap break-words line-in " + (l.c || "text-fog-300")}>${l.prompt ? html`<span className="text-[#4FC1FF]">PS C:\\Codigo\\quests${">"}</span> ` : null}${l.t}</div>`)}
+      ${!running ? html`<div><span className="text-[#4FC1FF]">PS C:\\Codigo\\quests${">"}</span> <span className="cursor-blink inline-block w-2 h-3.5 bg-fog-300 align-[-2px]"></span></div>` : null}
+    </div>`;
+}
+
+function Feedback({ result }) {
+  if (!result) return html`<div className="p-4 text-[13px] text-fog-400">Kodu işə salandan sonra AI testlərin nəticəsini və səhvin izahını burada göstərəcək.</div>`;
+  return html`
+    <div className="h-full overflow-y-auto p-4 flex flex-col gap-2 text-[13px]">
+      ${result.tests.map((t, i) => html`<div key=${i} className="flex items-center gap-2"><span className=${"w-5 h-5 rounded-full grid place-items-center " + (t.ok ? "bg-neon text-ink-950" : "bg-danger/20 text-danger")}><${Icon} name=${t.ok ? "Check" : "X"} size=${12} strokeWidth=${3} /></span><span className=${t.ok ? "text-fog-100" : "text-danger"}>${t.text}</span></div>`)}
+      <p className="mt-2 text-fog-300 border-l-2 border-plasma pl-3">${result.ok ? result.success : result.diagnosis}</p>
+    </div>`;
+}
+
+function Toast({ toast }) {
+  if (!toast) return null;
+  return html`
+    <div key=${toast.id} className="toast-in fixed z-50 flex items-center gap-3 rounded-xl bg-ink-800/95 backdrop-blur ring-1 ring-neon/60 shadow-[0_20px_60px_-15px_rgba(60,245,166,.6)] px-4 py-3"
+      style=${{ top: "calc(20px + env(safe-area-inset-top, 0px))", right: "max(20px, calc(env(safe-area-inset-right, 0px) + 20px))", maxWidth: "calc(100% - 40px)" }} role="status">
+      <div className="w-10 h-10 rounded-lg grid place-items-center bg-gradient-to-br from-neon to-plasma text-ink-950"><${Icon} name=${toast.levelUp ? "Crown" : "Trophy"} size=${20} /></div>
+      <div><div className="font-display text-[13px] font-bold">${toast.title}</div><div className="text-[12px] text-fog-300">${toast.sub}</div></div>
+    </div>`;
+}
+
+function Burst({ k }) {
+  if (!k) return null;
+  const colors = ["#3CF5A6", "#A579FF", "#FF9F4A", "#E6EAF5"];
+  return html`<div key=${k} className="burst pointer-events-none absolute inset-0" aria-hidden="true">
+    ${Array.from({ length: 18 }, (_, i) => { const a = (i / 18) * Math.PI * 2, d = 70 + (i % 3) * 26; return html`<span key=${i} style=${{ background: colors[i % 4], "--dx": Math.cos(a) * d + "px", "--dy": Math.sin(a) * d + "px" }}></span>`; })}
+  </div>`;
+}
+
+// ---------- Tətbiq ----------
+function App() {
+  const [qi, setQi] = useState(0);
+  const q = QUESTS[qi];
+  const [codes, setCodes] = useState(() => Object.fromEntries(QUESTS.map(x => [x.id, x.code])));
+  const [level, setLevel] = useState(5);
+  const [xp, setXp] = useState(1340);
+  const [need, setNeed] = useState(2000);
+  const [gain, setGain] = useState(null);
+  const [streak, setStreak] = useState(6);
+  const [streakPop, setStreakPop] = useState(false);
+  const [completed, setCompleted] = useState([]);
+  const [done, setDone] = useState(["vars", "cond"]);
+  const [running, setRunning] = useState(false);
+  const [result, setResult] = useState(null);
+  const [tab, setTab] = useState("terminal");
+  const [toast, setToast] = useState(null);
+  const [burst, setBurst] = useState(0);
+  const [typing, setTyping] = useState(false);
+  const [pos, setPos] = useState([1, 1]);
+  const hintIdx = useRef({});
+  const [term, setTerm] = useState([
+    { t: "Windows PowerShell", c: "text-fog-100" },
+    { t: "Copyright (C) Codigo Sandbox. Python 3.12 · izolə edilmiş mühit", c: "text-fog-500" },
+    { t: "" },
+    { prompt: true, t: "codigo quest start shields" },
+    { t: "✔ Kvest yükləndi: 5 enerji qalxanı yarat (Dövrlər · orta)", c: "text-neon" },
+    { t: "  Ctrl+Enter ilə kodu işə sal.", c: "text-fog-500" }
+  ]);
+  const [messages, setMessages] = useState([
+    { id: 1, from: "ai", kind: "diagnosis", time: "09:12", text: "Dünənki “Cüt ədədlərin cəmi” kvestində range(1, n) yazmısan. Dövr n-ə çatmadan dayandı və nəticə səhv çıxdı. Bu off-by-one xətasıdır: range() son ədədi daxil etmir. Son 7 gündə bu, 3-cü dəfədir." },
+    { id: 2, from: "ai", kind: "quest", time: "09:12", text: "Bu zəifliyi bağlamaq üçün yolunu yenilədim və sənə xüsusi kvest təyin etdim. Diqqət et: dəqiq 5 qalxan lazımdır, nə 4, nə 6.", quest: QUESTS[0] }
+  ]);
+  const msgId = useRef(3);
+  const pushMsg = m => setMessages(ms => [...ms, { id: msgId.current++, time: now(), ...m }]);
+
+  const code = codes[q.id];
+  const setCode = v => setCodes(c => ({ ...c, [q.id]: v }));
+  const isCompleted = completed.includes(q.id);
+
+  const award = useCallback(async amount => {
+    setGain({ id: Date.now(), amount });
+    const total = xp + amount;
+    if (total >= need) {
+      setXp(need);
+      await sleep(1000);
+      setLevel(l => l + 1);
+      setXp(total - need);
+      setNeed(n => n + 400);
+      return true;
+    }
+    setXp(total);
+    return false;
+  }, [xp, need]);
+
+  const run = useCallback(async () => {
+    if (running) return;
+    setRunning(true); setTab("terminal"); setResult(null);
+    const r = q.run(code);
+    setTerm(t => [...t, { t: "" }, { prompt: true, t: "python " + q.file }]);
+    await sleep(350);
+    for (const l of r.lines) { setTerm(t => [...t, l]); await sleep(170); }
+    await sleep(250);
+    setTerm(t => [...t, { t: "" }, { t: "codigo test " + q.file + " --hidden", c: "text-fog-500" }]);
+    for (const tc of r.tests) { await sleep(220); setTerm(t => [...t, { t: (tc.ok ? "  ✔ " : "  ✘ ") + tc.text, c: tc.ok ? "text-neon" : "text-danger" }]); }
+    const ok = r.tests.every(t => t.ok);
+    const passed = r.tests.filter(t => t.ok).length;
+    await sleep(200);
+    setResult({ ...r, ok });
+    if (ok) {
+      const first = !completed.includes(q.id);
+      setTerm(t => [...t, { t: "" }, { t: first ? "★ Kvest tamamlandı · " + passed + "/" + r.tests.length + " test · +" + q.reward + " XP" : "★ Kvest artıq tamamlanıb · " + passed + "/" + r.tests.length + " test", c: "text-plasma font-semibold" }]);
+      setRunning(false);
+      if (first) {
+        setCompleted(c => [...c, q.id]);
+        setDone(d => d.includes(q.module) ? d : [...d, q.module]);
+        setBurst(Date.now());
+        setTyping(true);
+        await sleep(600);
+        setTyping(false);
+        pushMsg({ from: "ai", kind: "success", text: r.success });
+        if (completed.length === 0 && streak === 6) { setStreak(7); setStreakPop(true); setTimeout(() => setStreakPop(false), 700); }
+        const up = await award(q.reward);
+        setToast({ id: Date.now(), title: up ? "Səviyyə " + (level + 1) + "! Yeni titul açıldı" : "Kvest tamamlandı!", sub: up ? "+" + q.reward + " XP · Yeni nailiyyət: Off-by-one ovçusu" : "+" + q.reward + " XP · " + q.title, levelUp: up });
+        setTimeout(() => setToast(null), 3800);
+      }
+    } else {
+      setTerm(t => [...t, { t: "" }, { t: "✘ " + passed + "/" + r.tests.length + " test keçdi. AI rəyinə bax.", c: "text-ember" }]);
+      setRunning(false);
+      setTyping(true);
+      await sleep(700);
+      setTyping(false);
+      pushMsg({ from: "ai", kind: "error", text: r.diagnosis });
+    }
+  }, [running, q, code, completed, award, level, streak]);
+
+  const nextQuest = () => {
+    if (qi >= QUESTS.length - 1) return;
+    const nq = QUESTS[qi + 1];
+    setQi(qi + 1); setResult(null);
+    setTerm(t => [...t, { t: "" }, { prompt: true, t: "codigo quest start " + nq.id }, { t: "✔ Kvest yükləndi: " + nq.title + " (" + MODULES.find(m => m.id === nq.module).name + " · " + nq.level.toLowerCase() + ")", c: "text-neon" }]);
+    pushMsg({ from: "ai", kind: "quest", text: "Növbəti addıma hazırsan. Yolunda yeni modul açıldı.", quest: nq });
+  };
+
+  const onSend = t => {
+    pushMsg({ from: "me", kind: "text", text: t });
+    setTyping(true);
+    const arr = TUTOR_HINTS[q.id];
+    const i = hintIdx.current[q.id] || 0;
+    hintIdx.current[q.id] = i + 1;
+    setTimeout(() => {
+      setTyping(false);
+      const asksCode = /kod|həll|cavab|yaz|solution|answer/i.test(t);
+      pushMsg({ from: "ai", kind: "hint", text: (asksCode ? "Hazır həlli yazmayacağam, çünki bu kvest səni məşq etdirmək üçündür. " : "") + arr[i % arr.length] });
+    }, 900);
+  };
+
+  const resetCode = () => { setCode(q.code); setResult(null); };
+  const failing = result ? result.tests.filter(t => !t.ok).length : 0;
+  const lastQuest = qi === QUESTS.length - 1;
+
+  return html`
+    <div className="shell">
+      <div className="h-full flex flex-col rounded-2xl overflow-hidden ring-1 ring-ink-600 bg-ink-900 shadow-[0_40px_120px_-40px_rgba(0,0,0,.9)]">
+        <${Navbar} level=${level} xp=${xp} need=${need} streak=${streak} streakPop=${streakPop} gain=${gain} />
+        <div className="flex-1 min-h-0 flex flex-col lg:flex-row">
+          <${ActivityBar} />
+          <aside className="order-2 lg:order-none lg:w-[330px] shrink-0 flex flex-col min-h-0 border-t lg:border-t-0 lg:border-r border-ink-700 bg-ink-900">
+            <div className="lg:max-h-[46%] lg:min-h-0 flex flex-col"><${SkillPath} done=${done} active=${q.module} remedialDone=${completed.includes("shields")} /></div>
+            <${Tutor} messages=${messages} typing=${typing} onSend=${onSend} mode="ipucu rejimi" />
+          </aside>
+          <section className="order-1 lg:order-none flex-1 min-w-0 flex flex-col min-h-0">
+            <${QuestBanner} q=${q} tests=${result ? result.tests : null} completed=${isCompleted} />
+            <div className="flex items-end justify-between bg-ink-900 border-b border-ink-700">
+              <div className="flex">
+                <div className="flex items-center gap-2 px-4 py-2 text-[12.5px] bg-ink-850 border-t-2 border-neon text-fog-100 font-mono"><span className="w-2 h-2 rounded-full bg-[#FFCB6B]"></span>${q.file}</div>
+                <div className="hidden sm:flex items-center gap-2 px-4 py-2 text-[12.5px] text-fog-500 font-mono">notes.md</div>
+              </div>
+              <div className="hidden md:flex items-center gap-1 px-4 py-2 text-[11px] font-mono text-fog-500">quests <${Icon} name="ChevronRight" size=${12} /> ${MODULES.find(m => m.id === q.module).name.toLowerCase()} <${Icon} name="ChevronRight" size=${12} /> <span className="text-fog-300">${q.file}</span></div>
+            </div>
+            <div className="relative flex-1 min-h-0 flex flex-col">
+              <${Editor} code=${code} setCode=${setCode} onRun=${run} onCursor=${(l, c) => setPos([l, c])} />
+              <div className="absolute bottom-4 right-4 left-4 sm:left-auto flex flex-wrap justify-end items-center gap-2">
+                <button onClick=${resetCode} className="px-3 py-2.5 rounded-lg text-[12px] text-fog-300 bg-ink-800/90 ring-1 ring-ink-600 hover:text-fog-100">Sıfırla</button>
+                ${isCompleted && !lastQuest ? html`<button onClick=${nextQuest} className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13px] font-semibold text-plasma bg-ink-800/90 ring-1 ring-plasma/60 hover:bg-plasma-soft">Növbəti kvest <${Icon} name="ChevronRight" size=${16} /></button>` : null}
+                <div className="relative">
+                  <${Burst} k=${burst} />
+                  <button onClick=${run} disabled=${running} className="run-btn relative flex items-center gap-2.5 pl-4 pr-5 py-3 rounded-xl text-ink-950 font-bold text-[14px] transition disabled:opacity-80">
+                    ${running ? html`<${Icon} name="LoaderCircle" size=${18} className="animate-spin" />` : html`<${Icon} name="Play" size=${18} fill="currentColor" />`}
+                    ${running ? "İşləyir…" : "Kodu işə sal və kvesti tamamla"}
+                    <span className="hidden sm:inline text-[10px] font-mono font-semibold opacity-60 ml-1">Ctrl+↵</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="h-[230px] shrink-0 flex flex-col border-t border-ink-700 bg-ink-900">
+              <div className="flex items-center gap-1 px-3 border-b border-ink-700 text-[11px] font-mono tracking-[0.08em]" role="tablist">
+                ${[["terminal", "TERMINAL", null], ["feedback", "AI RƏYİ", null], ["problems", "PROBLEMLƏR", failing]].map(([id, l, n]) => html`
+                  <button key=${id} role="tab" aria-selected=${tab === id} onClick=${() => setTab(id)} className=${"px-3 py-2 border-b-2 flex items-center gap-1.5 " + (tab === id ? "border-plasma text-fog-100" : "border-transparent text-fog-500 hover:text-fog-300")}>
+                    ${l}${n ? html`<span className="px-1.5 rounded-full bg-danger text-ink-950 text-[10px] font-bold">${n}</span>` : null}
+                  </button>`)}
+                <span className="ml-auto hidden sm:flex items-center gap-1.5 text-fog-500"><${Icon} name="SquareTerminal" size=${13} />powershell</span>
+              </div>
+              <div className="flex-1 min-h-0">
+                ${tab === "terminal" ? html`<${Terminal} lines=${term} running=${running} />` : tab === "feedback" ? html`<${Feedback} result=${result} />` :
+                  html`<div className="p-4 text-[13px] text-fog-300">${failing ? result.tests.filter(t => !t.ok).map((t, i) => html`<div key=${i} className="flex items-center gap-2 text-danger"><${Icon} name="Bug" size=${14} />${q.file}: ${t.text}</div>`) : "Problem tapılmadı."}</div>`}
+              </div>
+            </div>
+          </section>
+        </div>
+        <footer className="flex flex-wrap items-center gap-x-4 gap-y-1 px-3 py-1 text-[11px] font-mono text-white/90 bg-gradient-to-r from-plasma-deep via-[#5232B8] to-[#1F7A5C]">
+          <span className="flex items-center gap-1"><${Icon} name="GitBranch" size=${12} />main</span>
+          <span>Python 3.12</span>
+          <span className="flex items-center gap-1"><${Icon} name="Bot" size=${12} />AI Tutor: ipucu rejimi</span>
+          <span className="ml-auto tabular-nums">Ln ${pos[0]}, Col ${pos[1]}</span>
+          <span className="hidden sm:inline">UTF-8</span>
+          <span className="hidden sm:inline">Kvest ${qi + 1}/${QUESTS.length}</span>
+        </footer>
+      </div>
+      <${Toast} toast=${toast} />
+    </div>`;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(html`<${App} />`);
+})();
+</script>
+
+</body>
+</html>

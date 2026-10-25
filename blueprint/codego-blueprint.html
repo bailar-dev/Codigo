@@ -1,0 +1,610 @@
+<title>Codigo Texniki Blueprint</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: texniki sənəd. Solda yapışqan mündəricat (desktop), sağda oxunan sütun; wireframe-lər və diaqramlar sütundan geniş ola bilər. Codigo brend tokenləri. */
+:root {
+  --paper: #F7F8FB;
+  --sheet: #FFFFFF;
+  --sunken: #EEF1F8;
+  --ink: #141A2E;
+  --muted: #5B6380;
+  --line: #DCE1EE;
+  --pen: #2340C8;
+  --pen-soft: #E6EAFB;
+  --red: #D9412E;
+  --red-soft: #FBE7E3;
+  --ok: #1F7A4D;
+  --ok-soft: #E2F2EA;
+  --gold: #B7791F;
+  --gold-soft: #FAEFD9;
+  --code-bg: #0F1529;
+  --code-fg: #DDE3F5;
+  --font-display: "Unbounded", "Arial Black", "Segoe UI", sans-serif;
+  --font-body: "Golos Text", "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0D1222; --sheet: #141A2E; --sunken: #1A2140; --ink: #E7EBF7; --muted: #9AA5C7; --line: #252E4D;
+    --pen: #8FA6FF; --pen-soft: #1D2650; --red: #FF7F6B; --red-soft: #3A1E1B; --ok: #6FD3A0; --ok-soft: #16301F;
+    --gold: #F2B880; --gold-soft: #3A2C17; --code-bg: #090D1A; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0D1222; --sheet: #141A2E; --sunken: #1A2140; --ink: #E7EBF7; --muted: #9AA5C7; --line: #252E4D;
+  --pen: #8FA6FF; --pen-soft: #1D2650; --red: #FF7F6B; --red-soft: #3A1E1B; --ok: #6FD3A0; --ok-soft: #16301F;
+  --gold: #F2B880; --gold-soft: #3A2C17; --code-bg: #090D1A; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16.5px; line-height: 1.65; }
+.page {
+  max-width: 1240px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 96px;
+  display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px;
+}
+@media (max-width: 960px) { .page { grid-template-columns: minmax(0, 1fr); gap: 24px; } .toc { display: none; } }
+.toc { position: sticky; top: calc(24px + env(safe-area-inset-top, 0px)); align-self: start; display: flex; flex-direction: column; gap: 4px; font-size: 0.88rem; }
+.toc .brand { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; margin-bottom: 14px; letter-spacing: -0.02em; }
+.toc .brand span { color: var(--pen); }
+.toc a { color: var(--muted); text-decoration: none; padding: 4px 10px; border-left: 2px solid var(--line); }
+.toc a:hover { color: var(--ink); border-left-color: var(--pen); }
+.toc a.sub { padding-left: 22px; font-size: 0.82rem; }
+main { min-width: 0; display: flex; flex-direction: column; gap: 72px; }
+section { display: flex; flex-direction: column; gap: 20px; min-width: 0; scroll-margin-top: 24px; }
+h1, h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(1.9rem, 4.2vw, 2.8rem); }
+h2 { font-size: clamp(1.4rem, 2.8vw, 1.9rem); }
+h3 { font-size: 1.12rem; margin: 12px 0 0; text-wrap: balance; }
+p { margin: 0; max-width: 72ch; }
+a { color: var(--pen); }
+:focus-visible { outline: 2px solid var(--pen); outline-offset: 2px; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--pen); }
+.muted { color: var(--muted); }
+.lead { font-size: 1.1rem; color: var(--muted); max-width: 70ch; }
+ul.plain, ol.plain { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 6px; max-width: 76ch; }
+code { font-family: var(--font-mono); font-size: 0.86em; background: var(--sunken); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.6; padding: 16px 18px; border-radius: 10px; overflow-x: auto; }
+pre.code .c { color: #7480A6; }
+pre.code .k { color: #9DB1FF; }
+header.doc { display: flex; flex-direction: column; gap: 14px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-family: var(--font-mono); font-size: 0.72rem; padding: 3px 9px; border-radius: 99px; background: var(--sunken); color: var(--muted); white-space: nowrap; }
+.chip.pen { background: var(--pen-soft); color: var(--pen); }
+.chip.red { background: var(--red-soft); color: var(--red); }
+.chip.ok { background: var(--ok-soft); color: var(--ok); }
+.chip.gold { background: var(--gold-soft); color: var(--gold); }
+
+.decisions { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px 28px; }
+.decisions div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.decisions b { font-size: 0.95rem; }
+.decisions span { font-size: 0.88rem; color: var(--muted); }
+.decisions .k { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pen); }
+.callout { border-left: 3px solid var(--red); background: var(--red-soft); padding: 14px 18px; border-radius: 0 10px 10px 0; font-size: 0.95rem; max-width: 80ch; }
+.callout b { color: var(--red); }
+
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--sheet); }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+.tbl-wrap table { min-width: 640px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 500; background: var(--sunken); }
+tr:last-child td { border-bottom: 0; }
+td.mono, td code { font-family: var(--font-mono); font-size: 0.8rem; }
+td.name { font-weight: 600; white-space: nowrap; }
+.sw { display: inline-block; width: 16px; height: 16px; border-radius: 4px; vertical-align: -3px; margin-right: 8px; border: 1px solid var(--line); }
+
+/* Wireframes (məhsulun özü dark-first olduğu üçün sabit tünd rənglərlə çəkilir) */
+.wf { --w-bg: #0B1020; --w-panel: #141A2E; --w-line: #26315A; --w-fg: #E7EBF7; --w-muted: #8B96BC; --w-pen: #7C93FF; --w-gold: #F2B880; --w-ok: #5FD39A; --w-red: #FF7F6B;
+  background: var(--w-bg); color: var(--w-fg); border-radius: 14px; padding: 12px; font-size: 0.78rem; font-family: var(--font-body); overflow-x: auto; border: 1px solid var(--line); }
+.wf-in { min-width: 720px; display: grid; gap: 10px; }
+.wf .bx { background: var(--w-panel); border: 1px solid var(--w-line); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.wf .lbl { font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--w-muted); }
+.wf .t { font-weight: 600; font-size: 0.86rem; }
+.wf .mu { color: var(--w-muted); }
+.wf .bar { height: 6px; border-radius: 99px; background: var(--w-line); overflow: hidden; }
+.wf .bar i { display: block; height: 100%; background: var(--w-gold); }
+.wf .btnx { display: inline-block; padding: 5px 10px; border-radius: 6px; background: var(--w-pen); color: #0B1020; font-weight: 600; font-size: 0.74rem; }
+.wf .btno { display: inline-block; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--w-line); color: var(--w-fg); font-size: 0.74rem; }
+.wf .pill { display: inline-block; font-family: var(--font-mono); font-size: 0.64rem; padding: 2px 7px; border-radius: 99px; border: 1px solid var(--w-line); color: var(--w-muted); }
+.wf .pill.ok { color: var(--w-ok); border-color: var(--w-ok); }
+.wf .pill.red { color: var(--w-red); border-color: var(--w-red); }
+.wf .pill.gold { color: var(--w-gold); border-color: var(--w-gold); }
+.wf pre { margin: 0; font-family: var(--font-mono); font-size: 0.72rem; line-height: 1.55; color: #DDE3F5; background: #090D1A; border-radius: 6px; padding: 8px 10px; }
+.wf .kw { color: #9DB1FF; } .wf .fn { color: #8FE0B5; } .wf .num { color: #F2B880; }
+.maze { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; aspect-ratio: 1; max-width: 100%; }
+.maze span { background: #1C2547; border-radius: 2px; }
+.maze span.w { background: #3A4675; }
+.maze span.p { background: rgba(124, 147, 255, 0.35); }
+.maze span.h { background: var(--w-pen); border-radius: 50%; }
+.maze span.g { background: var(--w-gold); border-radius: 3px; }
+.cap { font-size: 0.86rem; color: var(--muted); max-width: 80ch; }
+
+.states { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.state { background: var(--sheet); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; gap: 10px; align-items: flex-start; font-size: 0.88rem; min-width: 0; }
+.state i { flex: none; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); margin-top: 3px; }
+.state i.av { border-color: var(--pen); background: var(--sheet); }
+.state i.ip { border-color: var(--gold); background: var(--gold-soft); }
+.state i.ms { border-color: var(--ok); background: var(--ok); }
+.state i.rv { border-color: var(--red); border-style: dashed; background: var(--red-soft); }
+.state i.lk { background: var(--sunken); }
+.state b { display: block; }
+
+.diagram { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; padding: 16px; overflow-x: auto; }
+.diagram pre.mermaid { margin: 0; min-width: 560px; background: transparent; }
+.flow { display: flex; flex-direction: column; gap: 0; counter-reset: f; border-left: 2px solid var(--line); margin-left: 12px; }
+.flow > div { counter-increment: f; position: relative; padding: 0 0 18px 26px; display: flex; flex-direction: column; gap: 4px; max-width: 80ch; }
+.flow > div::before { content: counter(f); position: absolute; left: -13px; top: 0; width: 24px; height: 24px; border-radius: 50%; background: var(--pen); color: var(--sheet); font-family: var(--font-mono); font-size: 0.74rem; display: grid; place-items: center; }
+.flow b { font-size: 0.98rem; }
+.flow span { color: var(--muted); font-size: 0.93rem; }
+.formula { background: var(--sheet); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; font-family: var(--font-mono); font-size: 0.84rem; line-height: 1.9; overflow-x: auto; }
+
+.sprints { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+.sprint { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.sprint .wk { font-family: var(--font-mono); font-size: 0.72rem; color: var(--pen); }
+.sprint ul { margin: 0; padding-left: 1.1em; font-size: 0.9rem; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+.sprint .dod { font-size: 0.84rem; border-top: 1px dashed var(--line); padding-top: 8px; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.two > div { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+</style>
+
+<div class="page">
+<nav class="toc" aria-label="Mündəricat">
+  <div class="brand">codi<span>go</span></div>
+  <a href="#summary">Əsas qərarlar</a>
+  <a href="#ux">1. UI/UX vizyonu</a>
+  <a class="sub" href="#ux-dash">Dashboard</a>
+  <a class="sub" href="#ux-tree">Skill Tree</a>
+  <a class="sub" href="#ux-sandbox">Coding Sandbox</a>
+  <a href="#arch">2. Arxitektura və stack</a>
+  <a class="sub" href="#arch-ai">AI qatı</a>
+  <a href="#flow">3. Sistem axını</a>
+  <a href="#db">4. Verilənlər bazası</a>
+  <a href="#road">5. Yol xəritəsi</a>
+</nav>
+
+<main>
+<header class="doc" id="summary">
+  <span class="eyebrow">Codigo · texniki blueprint · v0.1</span>
+  <h1>Sillabusdan fərdi öyrənmə yoluna: Codigo necə qurulur</h1>
+  <p class="lead">Bu sənəd məhsulun görünüşünü, texniki arxitekturasını, məlumat axınını, verilənlər bazası modelini və MVP planını bir yerdə toplayır. Texniki terminlər ingiliscə saxlanılıb ki, komandada və sənədləşmədə eyni dildə danışaq.</p>
+  <div class="meta"><span class="chip">24 oktyabr 2026</span><span class="chip pen">Python · C++ · Java</span><span class="chip">Hədəf: məktəb, universitet, IT kursu</span></div>
+
+  <div class="decisions">
+    <div><span class="k">Arxitektura</span><b>Modular monolith</b><span>FastAPI + Next.js. Mikroservislərə yalnız lazım olanda bölünür.</span></div>
+    <div><span class="k">Data</span><b>PostgreSQL + pgvector</b><span>Knowledge Graph, mastery və AI logları bir bazada. Ayrıca graph DB yoxdur.</span></div>
+    <div><span class="k">Kod icrası</span><b>Judge0 + Pyodide</b><span>Serverdə izolə edilmiş qiymətləndirmə, brauzerdə ani Python icrası.</span></div>
+    <div><span class="k">AI</span><b>Claude Opus 5.5</b><span>Structured outputs, prompt caching, toplu generasiya üçün Batches API.</span></div>
+    <div><span class="k">Adaptivlik</span><b>CAT + BKT</b><span>Diaqnostikada adaptiv test, sonra hər anlayış üzrə Bayesian Knowledge Tracing.</span></div>
+    <div><span class="k">MVP</span><b>12 həftə, yalnız Python</b><span>C++ və Java ikinci fazada. Bir kurs, bir oyun dünyası.</span></div>
+  </div>
+
+  <div class="callout"><b>Mənim tövsiyəm:</b> üç dili birdən başlamayın. Python ilə MVP-ni bitirib pilotda sınayın. C++ və Java üçün eyni pipeline işləyəcək, sadəcə Judge0-da dil ID-si və test harness dəyişəcək. Kompilyasiya olunan dillərdə brauzerdə ani icra olmadığı üçün oyun kvestləri ilk mərhələdə yalnız Python-da olacaq.</div>
+</header>
+
+<!-- 1. UI/UX -->
+<section id="ux">
+  <span class="eyebrow">1 · UI/UX vizyonu</span>
+  <h2>Developer aləti ilə oyunun kəsişməsi</h2>
+  <p>Vizual dil iki dünyanı birləşdirir: VS Code kimi ciddi, sıx və klaviatura ilə idarə olunan iş sahəsi və oyun kimi irəliləyişi görünən mükafat sistemi. Qayda belədir: kod yazılan yerdə sakitlik, irəliləyiş göstərilən yerdə enerji. Məhsul dark-first olacaq, light tema da dəstəklənəcək.</p>
+
+  <h3>Rəng sistemi</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Token</th><th>Dark</th><th>Light</th><th>Rolu</th></tr></thead>
+    <tbody>
+      <tr><td class="name">bg / surface</td><td class="mono"><span class="sw" style="background:#0B1020"></span>#0B1020 / #141A2E</td><td class="mono"><span class="sw" style="background:#F7F8FB"></span>#F7F8FB / #FFFFFF</td><td>Fon və panellər. Kareli dəftər tori yalnız dashboard fonunda.</td></tr>
+      <tr><td class="name">pen (brand)</td><td class="mono"><span class="sw" style="background:#7C93FF"></span>#7C93FF</td><td class="mono"><span class="sw" style="background:#2340C8"></span>#2340C8</td><td>Əsas düymələr, linklər, aktiv node, fokus.</td></tr>
+      <tr><td class="name">xp gold</td><td class="mono"><span class="sw" style="background:#F2B880"></span>#F2B880</td><td class="mono"><span class="sw" style="background:#B7791F"></span>#B7791F</td><td>Yalnız oyun qatı: XP, nailiyyət, streak.</td></tr>
+      <tr><td class="name">pass</td><td class="mono"><span class="sw" style="background:#5FD39A"></span>#5FD39A</td><td class="mono"><span class="sw" style="background:#1F7A4D"></span>#1F7A4D</td><td>Keçən test, mənimsənilmiş anlayış.</td></tr>
+      <tr><td class="name">red pen</td><td class="mono"><span class="sw" style="background:#FF7F6B"></span>#FF7F6B</td><td class="mono"><span class="sw" style="background:#D9412E"></span>#D9412E</td><td>Xəta, zəif nöqtə, AI-nin əlavə etdiyi təkrar node. Müəllimin qırmızı qələmi.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">Tipoqrafiya: başlıqlar üçün Unbounded, interfeys üçün Golos Text, kod üçün JetBrains Mono. Hər üçü Azərbaycan hərflərini (ə, ğ, ı, ş) dəstəkləyir.</p>
+
+  <h3 id="ux-dash">Dashboard (şagird)</h3>
+  <div class="wf"><div class="wf-in" style="grid-template-columns: 56px 1fr 1fr 1fr;">
+    <div class="bx" style="grid-row: span 3; align-items:center; gap:14px"><span class="lbl">nav</span><span class="pill">⌂</span><span class="pill">⟐</span><span class="pill">{ }</span><span class="pill">★</span></div>
+    <div class="bx" style="grid-column: span 2"><span class="lbl">salamlama + streak</span><span class="t">Salam, Leyla · 🔥 6 gün</span><div class="bar"><i style="width:64%"></i></div><span class="mu">Səviyyə 7 · 1 280 / 2 000 XP</span></div>
+    <div class="bx"><span class="lbl">sinif</span><span class="t">10-A · Python</span><span class="mu">Həftə 3 · Dövrlər</span></div>
+    <div class="bx" style="grid-column: span 2"><span class="lbl">bugünkü kvest</span><span class="t">Labirintdən çıx: for dövrü ilə</span><span class="mu">Dövrlər · orta · +120 XP · ~15 dəq</span><div><span class="btnx">Davam et</span></div></div>
+    <div class="bx" style="border-color: var(--w-red)"><span class="lbl" style="color:var(--w-red)">AI fokus</span><span class="t">Zəif nöqtə: off-by-one</span><span class="mu">range() sərhədlərində 3 səhv. Sənə 2 qısa məşq əlavə olundu.</span></div>
+    <div class="bx" style="grid-column: span 2"><span class="lbl">skill tree (mini)</span><span class="mu">Dəyişənlər ● Şərtlər ● Dövrlər ◐ Siyahılar ○ Funksiyalar ○</span></div>
+    <div class="bx"><span class="lbl">nailiyyətlər</span><span><span class="pill gold">İlk 5/5</span> <span class="pill gold">3 gün ardıcıl</span></span></div>
+  </div></div>
+  <p class="cap">Prinsip: açılan kimi bir əsas hərəkət görünür ("Davam et"). AI fokus kartı yalnız real zəiflik tapılanda çıxır və qırmızı qələm rəngindədir. Müəllim üçün ayrıca dashboard sinif heatmap-i, təsdiq gözləyən lablar və köməyə ehtiyacı olan şagirdlər siyahısıdır.</p>
+
+  <h3 id="ux-tree">Skill Tree</h3>
+  <div class="diagram">
+    <svg viewBox="0 0 720 250" width="100%" role="img" aria-label="Skill tree nümunəsi: anlayışlar və onların asılılıqları" style="min-width:560px; display:block">
+      <g stroke="var(--line)" stroke-width="2" fill="none">
+        <path d="M80 125 L200 70"/><path d="M80 125 L200 180"/><path d="M200 70 L330 70"/><path d="M200 180 L330 70"/>
+        <path d="M330 70 L460 70"/><path d="M330 70 L460 180"/><path d="M460 70 L590 125"/><path d="M460 180 L590 125"/>
+      </g>
+      <path d="M200 180 C 260 230, 300 230, 330 200" stroke="var(--red)" stroke-width="2" stroke-dasharray="5 4" fill="none"/>
+      <g font-family="JetBrains Mono, monospace" font-size="11" text-anchor="middle">
+        <circle cx="80" cy="125" r="22" fill="var(--ok)"/><text x="80" y="164" fill="var(--ink)">Dəyişənlər</text>
+        <circle cx="200" cy="70" r="22" fill="var(--ok)"/><text x="200" y="40" fill="var(--ink)">I/O</text>
+        <circle cx="200" cy="180" r="22" fill="var(--ok)"/><text x="200" y="219" fill="var(--ink)">Şərtlər</text>
+        <circle cx="330" cy="200" r="16" fill="var(--red-soft)" stroke="var(--red)" stroke-width="2" stroke-dasharray="4 3"/><text x="330" y="238" fill="var(--red)">range() təkrar</text>
+        <circle cx="330" cy="70" r="22" fill="var(--gold-soft)" stroke="var(--gold)" stroke-width="3"/><text x="330" y="40" fill="var(--ink)">Dövrlər</text>
+        <circle cx="460" cy="70" r="22" fill="var(--sheet)" stroke="var(--pen)" stroke-width="3"/><text x="460" y="40" fill="var(--ink)">Siyahılar</text>
+        <circle cx="460" cy="180" r="22" fill="var(--sunken)" stroke="var(--line)" stroke-width="2"/><text x="460" y="219" fill="var(--muted)">Funksiyalar</text>
+        <circle cx="590" cy="125" r="22" fill="var(--sunken)" stroke="var(--line)" stroke-width="2"/><text x="590" y="164" fill="var(--muted)">Rekursiya</text>
+      </g>
+    </svg>
+  </div>
+  <div class="states">
+    <div class="state"><i class="lk"></i><div><b>Locked</b><span class="muted">Prerekvizitlər hələ mənimsənilməyib.</span></div></div>
+    <div class="state"><i class="av"></i><div><b>Available</b><span class="muted">Başlamaq olar, mavi kontur.</span></div></div>
+    <div class="state"><i class="ip"></i><div><b>In progress</b><span class="muted">Qızılı halqa mastery faizini göstərir.</span></div></div>
+    <div class="state"><i class="ms"></i><div><b>Mastered</b><span class="muted">P(mastery) ≥ 0.85.</span></div></div>
+    <div class="state"><i class="rv"></i><div><b>AI remedial</b><span class="muted">Səhv nümunəsinə görə əlavə olunan qırıq qırmızı node.</span></div></div>
+  </div>
+  <p class="cap">Texniki olaraq: React Flow + ELK auto-layout. Node-lar Knowledge Graph-dakı anlayışlardır, kənarlar prerequisite əlaqələridir. Node-a basanda yan panel açılır: izah, kvestlər, mastery tarixçəsi. AI yolu yenidən çəkəndə dəyişiklik animasiya ilə göstərilir və "niyə" izahı verilir ("range() sərhədlərində 3 səhv").</p>
+
+  <h3 id="ux-sandbox">Coding Sandbox və oyun kvesti</h3>
+  <div class="wf"><div class="wf-in" style="grid-template-columns: 1fr 1.5fr 1fr;">
+    <div class="bx" style="grid-column: span 3; flex-direction:row; align-items:center; justify-content:space-between; flex-wrap:wrap"><span class="t">Kvest 3.4 · Labirintdən çıx</span><span><span class="pill">Dövrlər · orta</span> <span class="pill ok">AI: ipucu rejimi</span> <span class="pill gold">+120 XP</span></span></div>
+    <div class="bx"><span class="lbl">hekayə və tapşırıq</span><span>Robot Kodi çıxışa çatmalıdır. <code style="background:#090D1A;color:#DDE3F5">move()</code>, <code style="background:#090D1A;color:#DDE3F5">turn_left()</code>, <code style="background:#090D1A;color:#DDE3F5">is_wall()</code> funksiyalarından istifadə et.</span><span class="lbl" style="margin-top:6px">testlər</span><span><span class="pill ok">✓ çıxışa çatır</span></span><span><span class="pill ok">✓ divara dəymir</span></span><span><span class="pill red">✗ ≤ 12 sətir</span></span></div>
+    <div class="bx"><span class="lbl">editor (Monaco)</span>
+<pre><span class="kw">for</span> step <span class="kw">in</span> <span class="fn">range</span>(<span class="num">4</span>):
+    <span class="kw">while</span> <span class="kw">not</span> <span class="fn">is_wall</span>():
+        <span class="fn">move</span>()
+    <span class="fn">turn_left</span>()
+    <span class="fn">turn_left</span>()
+    <span class="fn">turn_left</span>()</pre>
+      <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="btno">▶ İşə sal</span><span class="btnx">Təqdim et</span><span class="btno">? İpucu (2/3)</span><span class="btno">⏯ Addım-addım</span></div>
+    </div>
+    <div class="bx"><span class="lbl">oyun dünyası (PixiJS)</span>
+      <div class="maze" aria-hidden="true">
+        <span class="w"></span><span class="w"></span><span class="w"></span><span class="w"></span><span class="w"></span><span class="w"></span><span class="w"></span>
+        <span class="w"></span><span class="p"></span><span class="p"></span><span class="p"></span><span class="p"></span><span class="h"></span><span class="w"></span>
+        <span class="w"></span><span class="p"></span><span class="w"></span><span class="w"></span><span class="w"></span><span></span><span class="w"></span>
+        <span class="w"></span><span class="p"></span><span class="w"></span><span></span><span></span><span></span><span class="w"></span>
+        <span class="w"></span><span class="p"></span><span class="w"></span><span></span><span class="w"></span><span></span><span class="w"></span>
+        <span class="w"></span><span class="p"></span><span></span><span></span><span class="w"></span><span class="g"></span><span class="w"></span>
+        <span class="w"></span><span class="w"></span><span class="w"></span><span class="w"></span><span class="w"></span><span class="w"></span><span class="w"></span>
+      </div>
+    </div>
+    <div class="bx" style="grid-column: span 2"><span class="lbl">console</span><span class="mu" style="font-family:var(--font-mono)">Addım 14: divar qarşısında dönüş · çıxışa 4 xana qalıb</span></div>
+    <div class="bx" style="border-color: var(--w-pen)"><span class="lbl" style="color:var(--w-pen)">AI tutor (drawer)</span><span>Robot neçə dəfə sola dönür? Sağa dönmək üçün bu ən qısa yoldurmu?</span></div>
+  </div></div>
+  <p class="cap">Üç panel: tapşırıq və testlər, editor, nəticə (oyun dünyası və ya console). "Addım-addım" rejimi kodun hər sətrini oyun dünyasında vizual oynadır və dövr anlayışını göstərməyin ən güclü yoludur. Klaviatura: Ctrl+Enter işə sal, Ctrl+Shift+Enter təqdim et.</p>
+
+  <h3>Komponent kitabxanası</h3>
+  <ul class="plain">
+    <li><b>Oyun qatı:</b> XP bar, mastery ring, streak sayğacı, achievement badge, level-up toast, kvest kartı.</li>
+    <li><b>Developer qatı:</b> editor tab-ları, test result row (pass / fail / error), diff view, console, mode chip (AI rejimi), command palette (Ctrl+K).</li>
+    <li><b>Müəllim qatı:</b> graph review editor, təsdiq növbəsi, sinif heatmap-i, şagird timeline-ı.</li>
+    <li><b>Əsas:</b> Tailwind + Radix primitivləri (shadcn/ui). Hər komponent theme token-ləri ilə qurulur, WCAG AA kontrast, <code>prefers-reduced-motion</code> dəstəyi, interfeys az / en / ru dillərində.</li>
+  </ul>
+</section>
+
+<!-- 2. ARCHITECTURE -->
+<section id="arch">
+  <span class="eyebrow">2 · Texniki arxitektura</span>
+  <h2>Modular monolith, ayrıca izolə edilmiş icra qatı</h2>
+  <p>Kiçik komanda üçün ən sürətli və ən təhlükəsiz yol bir backend tətbiqidir, içində aydın modullar (bounded contexts) olur. Yalnız iki şey ayrıca işləyir: istifadəçi kodunu icra edən sandbox (təhlükəsizlik üçün) və uzun AI işlərini görən worker-lər (miqyas üçün).</p>
+
+  <div class="diagram"><pre class="mermaid">
+flowchart LR
+  subgraph Client["Brauzer"]
+    WEB["Next.js web app"]
+    PYO["Pyodide: ani Python icrası"]
+  end
+  subgraph Core["Codigo API: FastAPI modular monolith"]
+    AUTH["Auth və Org"]
+    ING["Ingestion"]
+    KG["Knowledge Graph"]
+    ASM["Assessment: CAT + quiz"]
+    PATH["Path Engine + BKT"]
+    EXE["Execution Gateway"]
+    TUT["AI Tutor"]
+    GAM["Gamification"]
+  end
+  subgraph Workers["Async workers: Arq + Redis"]
+    GEN["Item generation + validation"]
+    PARSE["Material parsing"]
+  end
+  subgraph Data["Data"]
+    PG[("PostgreSQL + pgvector")]
+    RD[("Redis")]
+    S3[("Object storage")]
+  end
+  JUDGE["Judge0: izolə edilmiş icra"]
+  CLAUDE["Claude API: Opus 5.5"]
+  WEB --> AUTH
+  WEB --> TUT
+  WEB --> EXE
+  WEB --> PYO
+  ING --> PARSE
+  PARSE --> CLAUDE
+  GEN --> CLAUDE
+  GEN --> JUDGE
+  TUT --> CLAUDE
+  EXE --> JUDGE
+  Core --> PG
+  Core --> RD
+  ING --> S3
+  PATH --> KG
+  ASM --> PATH
+  </pre></div>
+
+  <h3>Tech stack</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Qat</th><th>Seçim</th><th>Niyə</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Frontend</td><td>Next.js (App Router) + TypeScript, Tailwind, Radix / shadcn/ui, TanStack Query, Zustand, next-intl</td><td>SSR ilə sürətli ilk açılış, geniş ekosistem, tipli API client.</td></tr>
+      <tr><td class="name">Editor</td><td>Monaco Editor</td><td>VS Code-un mühərriki: autocomplete, xəta altxətti, klaviatura qısayolları.</td></tr>
+      <tr><td class="name">Skill Tree</td><td>React Flow + elkjs layout</td><td>Böyük qrafları rahat çəkir, node-lar adi React komponentidir.</td></tr>
+      <tr><td class="name">Oyun dünyası</td><td>PixiJS</td><td>Yüngül 2D render. Tam oyun mühərriki (Phaser) MVP üçün artıqdır.</td></tr>
+      <tr><td class="name">Backend</td><td>FastAPI (Python 3.12), Pydantic v2, SQLAlchemy 2 + Alembic</td><td>AI və data ekosistemi Python-dadır, Pydantic structured output sxemləri ilə birbaşa uyğunlaşır.</td></tr>
+      <tr><td class="name">Async işlər</td><td>Arq (Redis queue), WebSocket ilə status</td><td>Material parsing və lab generasiyası dəqiqələrlə çəkə bilər, request-i bloklamamalıdır.</td></tr>
+      <tr><td class="name">Verilənlər bazası</td><td>PostgreSQL 16 + pgvector + JSONB</td><td>Relational nüvə, çevik məzmun üçün JSONB, RAG üçün vektor axtarışı, qraf üçün recursive CTE. Bir baza = sadə əməliyyat.</td></tr>
+      <tr><td class="name">Cache və real-time</td><td>Redis</td><td>Queue, rate limit, leaderboard (sorted set), sessiya.</td></tr>
+      <tr><td class="name">Fayllar</td><td>S3-uyğun storage (Cloudflare R2 və ya MinIO)</td><td>Yüklənən sillabus və slaydlar.</td></tr>
+      <tr><td class="name">Kod icrası</td><td>Judge0 CE (self-hosted, ayrıca VM) + brauzerdə Pyodide</td><td>60+ dil, isolate sandbox. Pyodide ani rəy verir, Judge0 isə rəsmi qiymətləndirmədir.</td></tr>
+      <tr><td class="name">Auth</td><td>Auth.js (Google və Microsoft SSO, e-poçt) + API-də JWT yoxlaması</td><td>Məktəblər Google Workspace və Microsoft 365 istifadə edir. Sonra Keycloak.</td></tr>
+      <tr><td class="name">Observability</td><td>Sentry, OpenTelemetry, Langfuse (LLM trace-ləri)</td><td>Hər AI cavabının prompt versiyası, token və gecikmə ilə izlənməsi.</td></tr>
+      <tr><td class="name">Infra</td><td>Docker Compose (MVP), GitHub Actions CI, idarə olunan Postgres. Sonra Kubernetes.</td><td>MVP üçün 2 VM kifayətdir: tətbiq və Judge0 ayrı.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="arch-ai">AI qatı</h3>
+  <p>Bütün AI funksiyaları <code>claude-opus-5-5</code> üzərində qurulur ($4 / $20, milyon token başına, 1M context). Fərqli tapşırıqlar üçün model yox, <code>effort</code> səviyyəsi dəyişir: generasiya üçün yüksək, sürət vacib olan tutor üçün aşağı.</p>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Funksiya</th><th>Effort</th><th>API xüsusiyyəti</th><th>Çıxış</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Sillabus → Knowledge Graph</td><td class="mono">high</td><td>PDF birbaşa <code>document</code> bloku kimi (600 səhifəyə qədər), structured outputs</td><td>Anlayışlar, prerequisite kənarları, həftəlik təqvim</td></tr>
+      <tr><td class="name">Lab, kvest, quiz generasiyası</td><td class="mono">high</td><td>Structured outputs, gecə toplu iş üçün Batches API (50% ucuz)</td><td>Tapşırıq, reference həll, gizli testlər, ipucu pilləkəni</td></tr>
+      <tr><td class="name">Səhv təsnifatı (misconception)</td><td class="mono">low</td><td>Structured outputs, sabit taksonomiya enum-u</td><td><code>loops.off_by_one</code>, <code>recursion.missing_base_case</code> və s.</td></tr>
+      <tr><td class="name">Sokratik AI tutor</td><td class="mono">low</td><td>Streaming, prompt caching (sistem prompt + lab konteksti), mid-conversation system message ilə rejim</td><td>Ən çox 3 cümlə, sual ilə bitir, kod yoxdur</td></tr>
+      <tr><td class="name">Müəllim üçün xülasə</td><td class="mono">medium</td><td>Batches API, gecə</td><td>"Bu həftə sinif harada ilişdi"</td></tr>
+    </tbody>
+  </table></div>
+  <ul class="plain">
+    <li><b>Guardrails:</b> tutor rejimi (ipucu / söndürülüb / imtahan) serverdə yoxlanır, frontend-də yox. Cavabda reference həllə oxşar kod bloku aşkarlanarsa (AST oxşarlığı), cavab bloklanır və yenidən yaradılır.</li>
+    <li><b>Keyfiyyət dövrəsi:</b> AI-nin yaratdığı heç bir lab birbaşa şagirdə getmir. Reference həll bütün testlərdən keçməli, starter kod testlərdən keçməməli, mutation testi zəif testləri tutmalı, sonra müəllim təsdiqləməlidir.</li>
+    <li><b>Refusal idarəsi:</b> hər cavabda <code>stop_reason</code> yoxlanır, server tərəfli <code>fallbacks: "default"</code> aktiv edilir.</li>
+    <li><b>Embeddings:</b> Anthropic embedding modeli təqdim etmir. Material parçaları üçün çoxdilli embedding modeli (məsələn self-hosted BGE-M3) istifadə olunur, pgvector-da saxlanılır.</li>
+    <li><b>Xərc:</b> keşlənmiş oxumalar ucuzdur, ona görə hər tutor sorğusunda dəyişməyən hissə (sistem prompt, lab, kurs materialı parçası) əvvəldə, şagirdin kodu sonda olur. Eval qurulandan sonra yüksək həcmli marşrutlarda (təsnifat, ipucu) daha ucuz model sınaqdan keçirilə bilər, amma keyfiyyəti ölçmədən model dəyişdirilməməlidir.</li>
+  </ul>
+
+  <h3>Sandbox təhlükəsizliyi</h3>
+  <ul class="plain">
+    <li>Judge0 ayrıca VM-də, şəbəkəsiz işləyir. Hər icra üçün limit: 2 s CPU, 128 MB yaddaş, 64 KB çıxış.</li>
+    <li>Gizli testlər heç vaxt brauzerə göndərilmir. Pyodide yalnız görünən testləri və oyun simulyasiyasını işlədir.</li>
+    <li>Oyun dünyası deterministik simulyatordur. Eyni simulyator serverdə Python harness kimi işləyir, nəticə serverdə yenidən təsdiqlənir və XP yalnız bundan sonra verilir. Bu, saxta XP-nin qarşısını alır.</li>
+  </ul>
+</section>
+
+<!-- 3. WORKFLOW -->
+<section id="flow">
+  <span class="eyebrow">3 · Sistem axını</span>
+  <h2>Qeydiyyatdan fərdi yola qədər</h2>
+
+  <h3>A. Müəllim: materialdan Knowledge Graph-a</h3>
+  <div class="flow">
+    <div><b>Upload</b><span>Müəllim PDF, DOCX, PPTX və ya mətn yükləyir. Fayl S3-a yazılır, <code>materials</code> cədvəlində <code>status=queued</code> olur.</span></div>
+    <div><b>Parse və chunk</b><span>Worker mətni çıxarır, 500-800 tokenlik parçalara bölür, embedding hesablayır və <code>material_chunks</code>-a yazır (RAG üçün).</span></div>
+    <div><b>Graph extraction</b><span>Claude materialı oxuyur və JSON sxemə uyğun anlayışlar, prerequisite kənarları və həftə təqvimini qaytarır. Anlayışlar hər dil üçün kanonik taksonomiyaya bağlanır (<code>py.loops.for</code>), beləcə müxtəlif kursların datası müqayisə oluna bilir.</span></div>
+    <div><b>Müəllim yoxlaması</b><span>Graph review ekranında müəllim anlayışları birləşdirir, silir və ya sırasını dəyişir. Dərc olunanda <code>course_versions</code>-da yeni versiya yaranır. Köhnə versiyada olan şagirdlər ona bağlı qalır.</span></div>
+    <div><b>Item bank generasiyası</b><span>Hər anlayış üçün gecə Batches API ilə 3 çətinlikdə lab, kvest və quiz sualları yaranır, sandbox-da yoxlanır və təsdiq növbəsinə düşür.</span></div>
+  </div>
+
+  <h3>B. Şagird: qeydiyyat və cold-start diaqnostika</h3>
+  <div class="flow">
+    <div><b>Qeydiyyat</b><span>SSO ilə giriş, sinif kodu ilə <code>enrollment</code>. Sistem şagirdi kursun cari versiyasına bağlayır.</span></div>
+    <div><b>Adaptiv test (CAT)</b><span>Item bankdakı hər sual anlayış və çətinliklə (IRT parametri <code>b</code>) etiketlənib. Test orta çətinlikdən başlayır. Hər cavabdan sonra şagirdin bacarıq qiyməti (θ) yenilənir və növbəti sual ən çox qeyri-müəyyənlik olan anlayışdan, θ-ya ən yaxın çətinlikdə seçilir.</span></div>
+    <div><b>Dayanma qaydası</b><span>Standart xəta 0.3-dən aşağı düşəndə və ya 15 sualdan sonra test bitir. Sual növləri: kod oxuma (MCQ), Parsons (sətirləri sırala), qısa kod yazma.</span></div>
+    <div><b>İlkin mastery vektoru</b><span>Hər anlayış üçün başlanğıc P(L₀) yazılır. Yoxlanmayan anlayışlar prerequisite qrafı üzrə yaxın anlayışlardan təxmin olunur.</span></div>
+  </div>
+
+  <h3>C. Path Engine: yolun qurulması və yenidən çəkilməsi</h3>
+  <p>Yol müəllimin təqvimini pozmur, onun üzərində fərdiləşir. Qayda: təqvim sırası ilə get, mənimsənilmişi keç, zəif prerekvizit varsa əvvəl onu bərpa et.</p>
+<pre class="code"><span class="k">def</span> next_node(student, course):
+    <span class="k">for</span> concept <span class="k">in</span> course.schedule_order:              <span class="c"># müəllimin təqvimi</span>
+        m = mastery(student, concept)
+        <span class="k">if</span> m &gt;= 0.85:
+            <span class="k">continue</span>                                  <span class="c"># mənimsənilib, keç</span>
+        weak = [p <span class="k">for</span> p <span class="k">in</span> prereqs(concept) <span class="k">if</span> mastery(student, p) &lt; 0.6]
+        <span class="k">if</span> weak:
+            <span class="k">return</span> remedial(weak[0], misconception=open_misconception(student, weak[0]))
+        <span class="k">return</span> practice(concept, band=difficulty_band(m))  <span class="c"># asan / orta / çətin</span>
+
+<span class="c"># Hər submission-dan sonra: BKT update → misconception yoxlaması → lazım olsa path_nodes-a yeni versiya</span></pre>
+  <p><b>Yenidən çəkmə tetikleyicisi:</b> eyni misconception 7 gün ərzində 2 dəfə təsdiqlənərsə (məsələn <code>recursion.missing_base_case</code>), yola qırmızı remedial node əlavə olunur: 3 dəqiqəlik mikro-izah, həmin səhvi hədəfləyən 2 qısa tapşırıq və bir yoxlama sualı. Node keçiləndə misconception <code>resolved</code> olur.</p>
+
+  <h3>Mastery modeli: Bayesian Knowledge Tracing</h3>
+  <div class="formula">
+    Düzgün cavab: P(L | ✓) = P(L)·(1 − S) / [ P(L)·(1 − S) + (1 − P(L))·G ]<br>
+    Səhv cavab:   P(L | ✗) = P(L)·S / [ P(L)·S + (1 − P(L))·(1 − G) ]<br>
+    Öyrənmə:      P(L)ₙₑₓₜ = P(L | obs) + (1 − P(L | obs))·T<br>
+    <span class="muted">Başlanğıc: T = 0.10, G = 0.20 (təxmin), S = 0.10 (səhv). İpucu istifadə olunubsa düzgün cavab qismən sayılır.</span>
+  </div>
+  <p class="muted">BKT sadədir, izah oluna bilir və az datada işləyir. Pilotdan sonra kifayət qədər data yığılanda parametrlər hər anlayış üçün öyrədilir, daha sonra Deep Knowledge Tracing sınaqdan keçirilə bilər.</p>
+
+  <h3>D. Öyrənmə dövrəsi və AI tutor</h3>
+  <div class="diagram"><pre class="mermaid">
+sequenceDiagram
+  participant S as Şagird
+  participant W as Web + Pyodide
+  participant A as Codigo API
+  participant J as Judge0
+  participant P as Path Engine
+  participant C as Claude
+  S->>W: Kvest kodu yazır, İşə sal
+  W-->>S: Ani nəticə: görünən testlər, oyun animasiyası
+  S->>W: Təqdim et
+  W->>A: POST /submissions
+  A->>J: Kod + gizli testlər
+  J-->>A: Verdikt, keçən testlər, xəta
+  A->>C: Səhv təsnifatı, low effort
+  C-->>A: misconception tag + confidence
+  A->>P: BKT update, path yoxlaması
+  P-->>A: Yeni növbəti node və ya remedial node
+  A-->>W: Nəticə, XP, yol dəyişikliyi
+  S->>W: İpucu al
+  W->>A: POST /tutor, rejim serverdə yoxlanır
+  A->>C: Keşlənmiş kontekst + şagird kodu, streaming
+  C-->>W: Sokratik ipucu
+  </pre></div>
+  <div class="flow">
+    <div><b>Tutor konteksti</b><span>Sistem prompt (rol və qaydalar), lab təsviri, reference həll (yalnız AI-nin görməsi üçün), RAG ilə tapılan kurs materialı parçası, şagirdin mastery səviyyəsi, keçməyən testlər, kod.</span></div>
+    <div><b>İpucu pilləkəni</b><span>1-ci ipucu: konsepsiya sualı. 2-ci: problemli sətrin yeri. 3-cü: oxşar, amma fərqli nümunə. Hər ipucu XP-ni 10% azaldır və BKT-də düzgün cavabın çəkisini endirir.</span></div>
+    <div><b>Loglama</b><span>Hər çağırış <code>ai_interactions</code>-a yazılır: model, prompt versiyası, tokenlər (keş daxil), gecikmə, policy bayraqları. Müəllim öz şagirdlərinin dialoqlarını görə bilir.</span></div>
+  </div>
+
+  <h3>E. Gamification</h3>
+  <ul class="plain">
+    <li><b>XP</b> yalnız serverdə təsdiqlənən hərəkətlər üçün verilir və <code>xp_ledger</code>-ə append-only yazılır. Balans cəmdən hesablanır, ona görə audit edilə bilir.</li>
+    <li><b>Nailiyyətlər</b> qayda mühərriki ilə yoxlanır: event (<code>submission.passed</code>) → kriteriya (JSON) → <code>user_achievements</code>.</li>
+    <li><b>Streak</b> şagirdin saat qurşağına görə hesablanır, həftədə 1 "dondurma" günü verilir ki, motivasiya cəzaya çevrilməsin.</li>
+    <li>Siniflər arası liderlik cədvəli MVP-də yoxdur. Yalnız şəxsi irəliləyiş göstərilir, çünki zəif şagirdləri ruhdan salmamalıdır.</li>
+  </ul>
+</section>
+
+<!-- 4. DATABASE -->
+<section id="db">
+  <span class="eyebrow">4 · Verilənlər bazası</span>
+  <h2>Bir PostgreSQL, altı domen</h2>
+  <p>Hər şey PostgreSQL-dədir. Strukturlu əlaqələr relational cədvəllərdə, dəyişkən məzmun (test case-lər, kvest xəritələri, AI cavabları) JSONB-də, material embedding-ləri pgvector-da saxlanılır. Redis yalnız müvəqqəti data üçündür. Analitika event-ləri əvvəl aylıq partition olunan cədvələ yazılır, böyüyəndə ClickHouse-a köçürülür.</p>
+
+  <div class="diagram"><pre class="mermaid">
+erDiagram
+  ORGANIZATIONS ||--o{ USERS : has
+  ORGANIZATIONS ||--o{ COURSES : owns
+  COURSES ||--o{ COURSE_VERSIONS : versions
+  COURSE_VERSIONS ||--o{ CONCEPTS : contains
+  CONCEPTS ||--o{ CONCEPT_EDGES : from
+  CONCEPTS ||--o{ ITEMS : assessed_by
+  CLASSES ||--o{ ENROLLMENTS : has
+  USERS ||--o{ ENROLLMENTS : joins
+  USERS ||--o{ MASTERY : tracks
+  CONCEPTS ||--o{ MASTERY : of
+  USERS ||--o{ ATTEMPTS : makes
+  ITEMS ||--o{ ATTEMPTS : for
+  ATTEMPTS ||--o{ SUBMISSIONS : has
+  USERS ||--o{ LEARNING_PATHS : follows
+  LEARNING_PATHS ||--o{ PATH_NODES : contains
+  USERS ||--o{ MISCONCEPTIONS : shows
+  USERS ||--o{ AI_INTERACTIONS : logs
+  USERS ||--o{ XP_LEDGER : earns
+  </pre></div>
+
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Domen</th><th>Cədvəl</th><th>Əsas sütunlar</th></tr></thead>
+    <tbody>
+      <tr><td class="name" rowspan="4">Identity</td><td class="mono">organizations</td><td class="mono">id, name, type (school | university | academy), locale, data_region</td></tr>
+      <tr><td class="mono">users</td><td class="mono">id, org_id, role (student | teacher | admin), name, email, locale, birth_year, consent_at</td></tr>
+      <tr><td class="mono">classes</td><td class="mono">id, org_id, course_version_id, teacher_id, name, term, join_code</td></tr>
+      <tr><td class="mono">enrollments</td><td class="mono">class_id, user_id, joined_at, status</td></tr>
+      <tr><td class="name" rowspan="6">Content</td><td class="mono">courses / course_versions</td><td class="mono">id, org_id, title, prog_language · version, status (draft | published), published_at</td></tr>
+      <tr><td class="mono">materials</td><td class="mono">id, course_version_id, file_key, mime, status, parsed_at</td></tr>
+      <tr><td class="mono">material_chunks</td><td class="mono">id, material_id, page, text, embedding vector(1024)</td></tr>
+      <tr><td class="mono">concepts</td><td class="mono">id, course_version_id, canonical_key, title, description, bloom_level</td></tr>
+      <tr><td class="mono">concept_edges</td><td class="mono">from_id, to_id, type (prerequisite | related), weight</td></tr>
+      <tr><td class="mono">schedule_items</td><td class="mono">class_id, concept_id, week, starts_on</td></tr>
+      <tr><td class="name" rowspan="3">Items</td><td class="mono">items</td><td class="mono">id, type (mcq | parsons | code_lab | quest), concept_ids[], difficulty, irt_a, irt_b, content jsonb, starter_code, reference_solution, tests jsonb, hints jsonb, status (generated | validated | approved | retired), source (ai | teacher), approved_by</td></tr>
+      <tr><td class="mono">quest_worlds</td><td class="mono">id, title, tileset, map jsonb, api_spec jsonb, win_condition jsonb</td></tr>
+      <tr><td class="mono">validation_runs</td><td class="mono">item_id, solution_passed, starter_failed, mutation_score, run_at</td></tr>
+      <tr><td class="name" rowspan="7">Learning</td><td class="mono">diagnostic_sessions</td><td class="mono">id, user_id, items_served jsonb, theta, std_error, finished_at</td></tr>
+      <tr><td class="mono">attempts</td><td class="mono">id, user_id, item_id, ai_mode, hints_used, started_at, finished_at</td></tr>
+      <tr><td class="mono">submissions</td><td class="mono">id, attempt_id, code, verdict, passed, total, runtime_ms, error_signature, created_at</td></tr>
+      <tr><td class="mono">mastery</td><td class="mono">PK (user_id, concept_id), p_mastery, observations, bkt_params jsonb, updated_at</td></tr>
+      <tr><td class="mono">misconceptions</td><td class="mono">id, user_id, concept_id, tag, confidence, evidence_submission_id, status (open | resolved)</td></tr>
+      <tr><td class="mono">learning_paths</td><td class="mono">id, user_id, class_id, version, reason, created_at</td></tr>
+      <tr><td class="mono">path_nodes</td><td class="mono">path_id, position, concept_id, item_id, kind (core | remedial | challenge | review), status, inserted_by (schedule | ai_redraw | teacher)</td></tr>
+      <tr><td class="name" rowspan="2">AI</td><td class="mono">ai_interactions</td><td class="mono">id, user_id, item_id, feature, model, effort, prompt_version, input_tokens, cache_read_tokens, output_tokens, latency_ms, response jsonb, policy_flags jsonb, created_at</td></tr>
+      <tr><td class="mono">prompt_versions</td><td class="mono">id, feature, version, text_hash, eval_score, active</td></tr>
+      <tr><td class="name" rowspan="3">Gamification</td><td class="mono">xp_ledger</td><td class="mono">id, user_id, amount, reason, ref_type, ref_id, created_at</td></tr>
+      <tr><td class="mono">achievements / user_achievements</td><td class="mono">id, key, title, criteria jsonb · user_id, achievement_id, earned_at</td></tr>
+      <tr><td class="mono">streaks</td><td class="mono">user_id, current, longest, last_active_date, freezes_left</td></tr>
+      <tr><td class="name">Events</td><td class="mono">events</td><td class="mono">id, user_id, type, payload jsonb, ts (aylıq partition, append-only)</td></tr>
+    </tbody>
+  </table></div>
+  <ul class="plain">
+    <li><b>Versiyalama:</b> yol dəyişəndə köhnə <code>path_nodes</code> silinmir, yeni <code>learning_paths.version</code> yaranır. Beləcə "AI yolu niyə dəyişdi" sualına tarixçə ilə cavab vermək olur.</li>
+    <li><b>İndekslər:</b> <code>submissions(attempt_id)</code>, <code>mastery(user_id)</code>, <code>events(user_id, ts)</code>, <code>material_chunks</code> üzərində HNSW vektor indeksi.</li>
+    <li><b>Məxfilik:</b> uşaq hesablarında minimum şəxsi data, <code>consent_at</code> məcburi. Material və nəticələr təşkilata görə ayrılır (row-level security, <code>org_id</code>).</li>
+  </ul>
+</section>
+
+<!-- 5. ROADMAP -->
+<section id="road">
+  <span class="eyebrow">5 · Yol xəritəsi</span>
+  <h2>Faza 1 (MVP): 12 həftə, yalnız Python</h2>
+  <p>Məqsəd: bir IT kursunda bir qrup şagird bütün dövrəni keçə bilsin. Müəllim material yükləyir, lablar yaranır və təsdiqlənir, şagird diaqnostikadan keçir, kvest həll edir, AI ipucu alır və yolu dəyişir.</p>
+
+  <div class="sprints">
+    <div class="sprint"><span class="wk">Həftə 1–2 · Sprint 0</span><h3 style="margin:0">Təməl</h3><ul><li>Monorepo: <code>apps/web</code>, <code>apps/api</code>, <code>packages/shared</code></li><li>Docker Compose: Postgres, Redis, Judge0</li><li>CI, lint, test, preview deploy</li><li>Auth, org, class, enrollment modelləri</li></ul><span class="dod"><b>Hazırdır:</b> müəllim sinif yaradır, şagird kodla qoşulur.</span></div>
+    <div class="sprint"><span class="wk">Həftə 3–4 · Sprint 1</span><h3 style="margin:0">Ingestion və Knowledge Graph</h3><ul><li>Upload, S3, parsing worker</li><li>Claude ilə graph extraction (JSON sxem)</li><li>Graph review ekranı (siyahı + sadə qraf)</li><li>Kurs versiyalama</li></ul><span class="dod"><b>Hazırdır:</b> real sillabus 10 dəqiqədə dərc olunan qrafa çevrilir.</span></div>
+    <div class="sprint"><span class="wk">Həftə 5–6 · Sprint 2</span><h3 style="margin:0">Item generasiyası</h3><ul><li>Lab və quiz generatoru</li><li>Validation pipeline: solution keçir, starter keçmir</li><li>Təsdiq növbəsi</li><li>İlk 100 itemlik bank</li></ul><span class="dod"><b>Hazırdır:</b> yaradılan labların ≥ 70%-i dəyişikliksiz təsdiqlənir.</span></div>
+    <div class="sprint"><span class="wk">Həftə 7–8 · Sprint 3</span><h3 style="margin:0">Sandbox və AI tutor</h3><ul><li>Monaco, Pyodide ilə işə sal, Judge0 ilə təqdim et</li><li>Test nəticələri UI</li><li>Tutor: 3 rejim, ipucu pilləkəni, streaming</li><li>Solution-leak eval dəsti (50 hal)</li></ul><span class="dod"><b>Hazırdır:</b> eval-da tutor heç bir halda hazır həll vermir.</span></div>
+    <div class="sprint"><span class="wk">Həftə 9–10 · Sprint 4</span><h3 style="margin:0">Adaptivlik</h3><ul><li>Diaqnostik CAT (MCQ + Parsons)</li><li>BKT mastery, misconception təsnifatı</li><li>Path Engine v1, yolun yenidən çəkilməsi</li><li>Skill Tree ekranı</li></ul><span class="dod"><b>Hazırdır:</b> eyni sinifdə iki şagird fərqli növbəti node alır və səbəbi görünür.</span></div>
+    <div class="sprint"><span class="wk">Həftə 11–12 · Sprint 5</span><h3 style="margin:0">Oyun və pilot</h3><ul><li>Labirint dünyası, 10 kvest, addım-addım rejimi</li><li>XP, 5 nailiyyət, streak</li><li>Müəllim heatmap-i</li><li>Təhlükəsizlik yoxlaması, yük testi, pilot</li></ul><span class="dod"><b>Hazırdır:</b> 1 kurs, 20–30 şagird, 4 həftəlik pilot başlayır.</span></div>
+  </div>
+
+  <h3>Bu həftə başlamaq üçün</h3>
+  <ol class="plain">
+    <li>Repo strukturunu yaradın və hər kəsin lokal mühitini bir əmrlə qaldırın (<code>docker compose up</code>).</li>
+    <li>Kanonik Python anlayış taksonomiyasını yazın: təxminən 60 anlayış, prerequisite-ləri ilə (<code>py.vars</code> → <code>py.cond</code> → <code>py.loops.for</code> …). Bu, bütün sistemin onurğasıdır və AI-siz də hazırlanır.</li>
+    <li>Misconception taksonomiyasını yazın: hər anlayış üçün 3–5 tipik səhv. Bunu bir müəllimlə birlikdə edin.</li>
+    <li>Bir real sillabus götürüb Claude ilə graph extraction prototipini skript kimi yazın. UI-dan əvvəl çıxışın keyfiyyətini yoxlayın.</li>
+    <li>Judge0-u qaldırıb bir Python lab üçün gizli testləri işlədin. Bu iki prototip işləyirsə, ən böyük texniki risklər bağlanıb.</li>
+    <li>Pilot üçün bir IT kursu ilə indidən danışın. Sprint 1-də onların real materialı ilə işləməlisiniz.</li>
+  </ol>
+
+<pre class="code"><span class="c"># Graph extraction çıxışının JSON sxemi (structured outputs üçün)</span>
+{
+  <span class="k">"course"</span>: { <span class="k">"title"</span>: string, <span class="k">"language"</span>: "python" | "cpp" | "java" },
+  <span class="k">"concepts"</span>: [{
+    <span class="k">"key"</span>: string,            <span class="c"># kanonik taksonomiyadan, məs. "py.loops.for"</span>
+    <span class="k">"title"</span>: string,
+    <span class="k">"objectives"</span>: [string],
+    <span class="k">"source_pages"</span>: [integer]
+  }],
+  <span class="k">"edges"</span>: [{ <span class="k">"from"</span>: string, <span class="k">"to"</span>: string, <span class="k">"type"</span>: "prerequisite" | "related" }],
+  <span class="k">"schedule"</span>: [{ <span class="k">"week"</span>: integer, <span class="k">"concept_keys"</span>: [string] }]
+}</pre>
+
+  <div class="two">
+    <div>
+      <h3 style="margin:0">MVP-də yoxdur</h3>
+      <ul class="plain">
+        <li>C++ və Java (Faza 2)</li>
+        <li>Birdən çox oyun dünyası</li>
+        <li>Siniflər arası liderlik cədvəli</li>
+        <li>Mobil tətbiq (veb responsive olacaq)</li>
+        <li>LMS inteqrasiyası (Moodle, Google Classroom)</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin:0">Pilotda ölçüləcək</h3>
+      <ul class="plain">
+        <li>Müəllimin bir lab hazırlamağa sərf etdiyi vaxt (indiki ilə müqayisə)</li>
+        <li>Dəyişikliksiz təsdiqlənən labların faizi</li>
+        <li>Tutorun həll sızdırma nisbəti (hədəf: &lt; 1%)</li>
+        <li>Həftəlik aktiv şagird faizi və streak</li>
+        <li>Pilotdan əvvəl və sonra mastery artımı</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Əsas risklər</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Risk</th><th>Təsir</th><th>Azaltma</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Səhv lab və ya test</td><td><span class="chip red">yüksək</span></td><td>Validation pipeline + mutation testi + müəllim təsdiqi. Şikayət düyməsi ilə item avtomatik dayandırılır.</td></tr>
+      <tr><td class="name">Tutor həll verir</td><td><span class="chip red">yüksək</span></td><td>Server tərəfli rejim, AST oxşarlıq filtri, hər prompt dəyişikliyində eval.</td></tr>
+      <tr><td class="name">Sandbox-dan qaçış</td><td><span class="chip red">yüksək</span></td><td>Judge0 ayrı VM-də, şəbəkəsiz, resurs limitləri, müntəzəm yeniləmə.</td></tr>
+      <tr><td class="name">AI xərci</td><td><span class="chip gold">orta</span></td><td>Prompt caching, gecə Batches API, şagird başına gündəlik limit, xərc dashboard-u.</td></tr>
+      <tr><td class="name">Azərbaycan dilində keyfiyyət</td><td><span class="chip gold">orta</span></td><td>Azərbaycan dilində eval dəsti, müəllimlərin rəyi ilə prompt təkmilləşdirmə.</td></tr>
+      <tr><td class="name">Uşaq məlumatlarının qorunması</td><td><span class="chip gold">orta</span></td><td>Minimum data, valideyn razılığı, org-a görə ayrılma, AI-yə ad və şəxsi məlumat göndərilmir.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+</main>
+</div>

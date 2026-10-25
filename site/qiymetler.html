@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="az" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Qiymətlər · Codigo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Montserrat:wght@600;800&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="play.css">
+<link rel="stylesheet" href="pricing.css">
+<link rel="stylesheet" href="team.css">
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script></head>
+<body>
+
+
+<header class="nav wrap">
+  <div class="inner bar">
+    <a class="brand" href="index.html" aria-label="Codigo ana səhifə"><img aria-hidden="true" src="icon.webp" alt=""><b class="wordmark">CODIGO<small>Sənin kod yoldaşın</small></b></a>
+    <nav class="links" aria-label="Səhifələr">
+      <a href="index.html">Ana səhifə</a>
+      <a href="haqqimizda.html">Haqqımızda</a>
+      <a href="missiya.html">Missiya</a>
+      <a href="nece-isleyir.html">Necə işləyir</a>
+      <a href="imkanlar.html">İmkanlar</a>
+      <a href="kimler-ucun.html">Kimlər üçün</a>
+      <a href="qiymetler.html" aria-current="page">Qiymətlər</a>
+      <a href="suallar.html">Suallar</a>
+    </nav>
+    <a class="btn primary" href="app.html">Platformanı sına <i data-lucide="arrow-right"></i></a>
+    <button class="menu-btn" id="menuBtn" aria-label="Menyunu aç" aria-expanded="false" aria-controls="mobileMenu"><i data-lucide="menu"></i></button>
+  </div>
+  <div class="inner mobile-menu" id="mobileMenu"><a href="index.html"><i data-lucide="house"></i>Ana səhifə</a><a href="haqqimizda.html"><i data-lucide="book-open"></i>Haqqımızda</a><a href="missiya.html"><i data-lucide="compass"></i>Missiya</a><a href="nece-isleyir.html"><i data-lucide="route"></i>Necə işləyir</a><a href="imkanlar.html"><i data-lucide="sparkles"></i>İmkanlar</a><a href="kimler-ucun.html"><i data-lucide="users"></i>Kimlər üçün</a><a href="qiymetler.html" aria-current="page"><i data-lucide="wallet"></i>Qiymətlər</a><a href="suallar.html"><i data-lucide="message-circle-question"></i>Suallar</a><a class="btn primary" href="app.html">Platformanı sına</a></div>
+</header>
+<main>
+<section class="price-hero wrap"><div class="inner"><span class="pill">Özün öyrən. Sinfinlə böyü.</span><h1>İlk addım pulsuz.<br><span>Davamı sənin tempində.</span></h1><p>Sənə uyğun yolu seç: ilk Python məşqləri, davamlı şəxsi praktika və ya müəllimin idarə etdiyi sinif.</p><div class="price-status"><i data-lucide="info"></i>Hazırda təqdimat demosudur. Aşağıdakılar planlaşdırılan buraxılış qiymətləridir; ödəniş tutulmur.</div></div></section>
+<section class="wrap price-section"><div class="inner">
+  <div class="price-toolbar"><div><span class="kicker">FƏRDİ ÖYRƏNƏNLƏR</span><h2>Vərdiş yarat. Bacarığını böyüt.</h2></div><div class="billing" role="group" aria-label="Plus ödəniş dövrü"><button data-billing="monthly" aria-pressed="true">Aylıq</button><button data-billing="annual" aria-pressed="false">İllik <span>17% qənaət</span></button></div></div>
+  <div class="price-grid">
+    <article class="price-card"><span class="price-icon">🌱</span><h3>Başlanğıc</h3><p>Kodla ilk tanışlıq üçün.</p><div class="price-number">0 <small>AZN</small></div><div class="price-caption">Pulsuz başlanğıc planı</div><a class="btn ghost" href="app.html">Pulsuz demonu sına <i data-lucide="arrow-right"></i></a><ul><li>Səviyyəni müəyyən edən giriş testi</li><li>İlk 2 Python bölməsi və onların labları</li><li>XP, streak və gündəlik hədəf</li><li>Hazır ipucları və səhvlərin təkrarı</li></ul><small>Başlamaq üçün kart tələb olunmur.</small></article>
+    <article class="price-card price-featured"><span class="price-badge">Davamlı öyrənmə üçün</span><span class="price-icon">🧭</span><h3>Codigo Plus</h3><p>Öz yolunda daha çox praktika üçün.</p><div class="price-number"><span id="plusPrice">9,90</span> <small>AZN / ay</small></div><div class="price-caption" id="plusBilling">Aylıq ödəniş: 9,90 AZN</div><a class="btn primary" href="app.html">Plus təcrübəsinin demosu <i data-lucide="arrow-right"></i></a><ul><li>Başlanğıc planındakı hər şey</li><li>Buraxılmış bütün Python bölmələri və lablar</li><li>Səhvlərə uyğun əlavə məşqlər</li><li>Ayda 150 AI izahı — buraxılış planı</li></ul><small id="plusSaving">İllik seçim: 99 AZN / il. 19,80 AZN qənaət.</small></article>
+    <aside class="price-guide"><img src="icon.webp" alt="Codigo kapibarası"><span class="kicker">KİÇİK ADDIMLARLA</span><h3>Əvvəlcə sınamaq<br>ən yaxşı başlanğıcdır.</h3><p>Hələ qərar verməyə ehtiyac yoxdur. Demoda məşqləri tamamla, kod yaz və öyrənmə yolunu kəşf et.</p><a href="index.html#bir-cehd" class="link">30 saniyəlik məşq <i data-lucide="arrow-right"></i></a><div class="price-honesty">Demodakı ipucları əvvəlcədən hazırlanıb. Canlı AI, abunəlik və plan limitləri hələ aktiv deyil.</div></aside>
+  </div>
+</div></section>
+<section class="wrap classroom-pricing" id="sinif"><div class="inner">
+  <div class="price-toolbar"><div><span class="kicker">MÜƏLLİMLƏR VƏ TƏHSİL MÜƏSSİSƏLƏRİ</span><h2>Dərs sizin.<br>Praktika hər şagirdə uyğun.</h2></div><p>Bir qrupla başlayın. Ehtiyac artdıqca əlavə şagird yerləri seçin. Sinif daxilində şagirdə ayrıca Plus almaq lazım deyil.</p></div>
+  <div class="school-grid"><article class="price-card"><span class="kicker">CODIGO SİNİF</span><div class="price-number">149 <small>AZN / ay</small></div><p>25 şagird yeri və 2 müəllim hesabı daxil.</p><ul><li>Şagirdlər üçün Plus imkanları</li><li>Dərs materialı və tapşırıq idarəetməsi</li><li>Labların müəllim tərəfindən təsdiqi</li><li>Sinif üzrə nəticə və irəliləyiş paneli</li><li>Şagird başına ayda 150 AI izahı — buraxılış planı</li></ul><div class="seat-note">26-cı yerdən hər əlavə şagird: <b>4,90 AZN / ay</b>. Minimum aylıq paket 149 AZN-dir.</div><a class="btn primary" href="suallar.html?plan=sinif#pilot">Pilot planını hazırla <i data-lucide="arrow-right"></i></a></article>
+    <div class="price-calculator"><span class="kicker">BÜDCƏNİ ƏVVƏLCƏDƏN GÖRÜN</span><h3>Sinfiniz üçün hesablayın</h3><label for="seatCount">Şagird yerlərinin sayı</label><div class="seat-control"><input id="seatCount" type="number" min="25" max="200" step="1" value="25"><span>yer · 25–200</span></div><p id="seatError" role="status" class="seat-error"></p><div class="estimate"><span>Aylıq paket</span><strong id="classTotal">149,00 AZN</strong></div><div class="estimate per-seat"><span>Bir yerə düşən qiymət</span><strong id="perSeat">5,96 AZN / ay</strong></div><p class="calc-note">149 + (yer sayı − 25) × 4,90. Seçilmiş yerlərə görə hesablanır; aylıq minimum 25 yerdir. Giriş etməyən şagird də ayrılmış yer sayılır.</p><div class="enterprise"><i data-lucide="building-2"></i><div><h4>200-dən çox yer və ya bir neçə filial?</h4><p>İstifadə həcmi, müəllim sayı və dəstək ehtiyacına uyğun ayrıca təklif.</p><a href="suallar.html?plan=muessise#pilot">Müəssisə planını müzakirə edək →</a></div></div></div></div>
+</div></section>
+<section class="wrap price-section"><div class="inner pilot-offer"><div><span class="kicker">PLANLAŞDIRILAN PİLOT</span><h2>30 gün. Bir qrup.<br>Ölçülə bilən nəticə.</h2><p>25 şagirdədək qrup və 2 müəllim üçün pulsuz sınaq təklifi. Başlanğıc səviyyəsini, həftəlik iştirakı və tamamlanan labları birlikdə qiymətləndirək.</p><a class="btn primary" href="suallar.html?plan=pilot#pilot">Pilot planını hazırla <i data-lucide="arrow-right"></i></a></div><ol><li><b>1-ci həftə</b><span>Material, başlanğıc testi və ilk lab.</span></li><li><b>2–3-cü həftə</b><span>Məşqlər, şagird iştirakı və müəllim rəyi.</span></li><li><b>4-cü həftə</b><span>Nəticə icmalı və davam qərarı.</span></li></ol><p class="pilot-footnote">Avtomatik ödənişli keçid yoxdur. Pilotun başlanması komanda ilə razılaşdırılır; bu demo müraciət göndərmir.</p></div></section>
+<section class="wrap price-section"><div class="inner price-faq"><div class="head"><span class="kicker">AYDIN ŞƏRTLƏR</span><h2>Qərardan əvvəl bilmək istədikləriniz.</h2></div><div class="faq">
+<details><summary>İllik Plus necə hesablanır?<i data-lucide="chevron-down"></i></summary><p>99 AZN bir illik ödənişdir; aylıq ekvivalenti 8,25 AZN-dir. 12 aylıq ödənişin cəmi 118,80 AZN olduğundan 19,80 AZN, təxminən 17% qənaət edir. Aylıq ödəniş kimi təqdim edilmir.</p></details>
+<details><summary>Sinif paketi ilə Plus arasındakı fərq nədir?<i data-lucide="chevron-down"></i></summary><p>Plus bir şəxsin müstəqil öyrənməsi üçündür. Sinif paketi şagird yerlərini, 2 müəllim hesabını, material və lab idarəetməsini birləşdirir. Sinfə ayrılmış şagird yerinə əlavə Plus ödənişi nəzərdə tutulmur.</p></details>
+<details><summary>AI limiti bitəndə nə olacaq?<i data-lucide="chevron-down"></i></summary><p>Planlaşdırılan modeldə bir AI cavabı bir izah sayılır, istifadə edilməyən limit növbəti aya daşınmır. Limit bitəndə dərslər, kod labları və hazır ipucları açıq qalır. Əlavə AI istifadəsinə avtomatik ödəniş tutulması nəzərdə tutulmur.</p></details>
+<details><summary>İndi abunə ala bilərəm?<i data-lucide="chevron-down"></i></summary><p>Xeyr. Hazırkı sayt təqdimat demosudur, ödəniş və real abunəlik yoxdur. Qiymətlər pilotda yoxlanacaq ilkin təklifdir. Buraxılışdan əvvəl yekun məbləğ, tətbiq olunan vergilər, yenilənmə və ləğv şərtləri ayrıca göstəriləcək.</p></details>
+<details><summary>İlk mərhələdə hansı imkanlar var?<i data-lucide="chevron-down"></i></summary><p>Demoda Python, səviyyə testi, interaktiv məşqlər, kod labları və brauzerdə saxlanan irəliləyiş işləyir. Canlı AI, materialdan sərbəst tapşırıq yaratma, cihazlararası hesablar və LMS inteqrasiyası hazır funksiyalar kimi satılmır.</p></details>
+</div></div></section>
+<section class="wrap price-section"><div class="inner pricing-research"><details><summary>Qiymət modelinin araşdırma əsasları <span>24 oktyabr 2026</span></summary><p>İlkin model pulsuz giriş + fərdi abunə + sinif paketi üzərində qurulub. Qiymətin uyğunluğu real istifadə, xidmət xərci və ödəməyə hazırlıq üzrə pilotda ölçüləcək.</p><ul><li><a href="https://www.codecademy.com/pricing" target="_blank" rel="noopener">Codecademy</a>: pulsuz Basic; Plus aylıq $14,99, illik ödənişdə $11,99/ay. Xarici qiymətlər region və kampaniyaya görə dəyişə bilər.</li><li><a href="https://codehs.com/pro" target="_blank" rel="noopener">CodeHS</a>: pulsuz sinif bazası və müəllim idarəetmə imkanları üçün ödənişli Pro modeli.</li><li><a href="https://www.datacamp.com/universities" target="_blank" rel="noopener">DataCamp Classrooms</a>: uyğun müəllim və müəssisələr üçün pulsuz giriş; təhsil bazarında pulsuz alternativlər nəzərə alınmalıdır.</li><li><a href="https://iktlab.az/course/proqramlasdirma-ve-kodlasdirma/python-proqramlasdirma/97" target="_blank" rel="noopener">İKT LAB</a>: müəllimlə Python təlimi 200 AZN/ay. Bu, canlı dərs xidmətidir, Codigo abunəliyinin birbaşa ekvivalenti deyil.</li></ul></details></div></section>
+
+<section class="sec tight wrap"><div class="inner pager"><a href="kimler-ucun.html"><small><i data-lucide="arrow-left"></i>Əvvəlki</small><b>Kimlər üçün</b></a><a class="next" href="suallar.html"><small>Növbəti<i data-lucide="arrow-right"></i></small><b>Suallar</b></a></div></section>
+</main>
+
+<footer class="site wrap">
+  <div class="inner">
+    <div class="fgrid">
+      <div><a class="brand" href="index.html" aria-label="Codigo"><img aria-hidden="true" src="icon.webp" alt=""><b class="wordmark">CODIGO<small>Sənin kod yoldaşın</small></b></a><p>Proqramlaşdırmanı müəllimin öz materialından, hər şagirdin öz tempində öyrədən platforma.</p></div>
+      <div><h4>Səhifələr</h4><ul><li><a href="haqqimizda.html">Haqqımızda</a></li><li><a href="missiya.html">Missiya</a></li><li><a href="nece-isleyir.html">Necə işləyir</a></li><li><a href="imkanlar.html">İmkanlar</a></li><li><a href="kimler-ucun.html">Kimlər üçün</a></li><li><a href="qiymetler.html">Qiymətlər</a></li><li><a href="suallar.html">Suallar</a></li></ul></div>
+      <div><h4>Platforma</h4><ul><li><a href="haqqimizda.html#komanda">Qurucular və komanda</a></li><li><a href="app.html">Şagird platforması</a></li><li><a href="muellim-demo.html">Müəllim demosu</a></li><li><a href="suallar.html#pilot">Pilot proqram</a></li></ul></div>
+    </div>
+    <div class="fbottom"><span>© 2026 Codigo · Bakı</span><span>Məktəblər, universitetlər və IT kursları üçün</span></div>
+  </div>
+</footer>
+<script src="site.js"></script>
+<script src="pricing.js"></script>
+</body>
+</html>

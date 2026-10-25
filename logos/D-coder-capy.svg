@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#D6E8FF"/><g transform="translate(0 -4)"><g fill="#E9A46A" stroke="#5A3420" stroke-width="8"><circle cx="184" cy="132" r="18"/><circle cx="328" cy="132" r="18"/></g><ellipse cx="256" cy="452" rx="150" ry="14" fill="#5A3420" opacity=".12"/>
+<g stroke="#5A3420" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+<ellipse cx="208" cy="440" rx="32" ry="14" fill="#E9A46A"/><ellipse cx="304" cy="440" rx="32" ry="14" fill="#E9A46A"/>
+<path d="M256 110C320 110 356 150 358 210C360 260 384 300 388 360C392 420 360 440 300 440L212 440C152 440 120 420 124 360C128 300 152 260 154 210C156 150 192 110 256 110Z" fill="#E9A46A"/></g>
+<ellipse cx="256" cy="238" rx="48" ry="40" fill="#D4874F"/>
+<circle cx="184" cy="232" r="17" fill="#E0705A" opacity=".45"/><circle cx="328" cy="232" r="17" fill="#E0705A" opacity=".45"/>
+<g fill="none" stroke="#5A3420" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><path d="M188 198q14 12 28 0M296 198q14 12 28 0"/><path d="M256 232v8M242 246q14 10 14-6q0 16 14 6"/></g>
+<path d="M238 218q18-10 36 0q-4 14-18 14q-14 0-18-14z" fill="#5A3420"/><path d="M160 200C160 92 352 92 352 200" fill="none" stroke="#5A3420" stroke-width="26" stroke-linecap="round"/><path d="M160 200C160 92 352 92 352 200" fill="none" stroke="#6C7FA8" stroke-width="12" stroke-linecap="round"/>
+<g fill="#6C7FA8" stroke="#5A3420" stroke-width="8"><rect x="134" y="170" width="40" height="62" rx="18"/><rect x="338" y="170" width="40" height="62" rx="18"/></g>
+<path d="M148 186v30M364 186v30" stroke="#9FB0D4" stroke-width="6" stroke-linecap="round"/><g stroke="#5A3420" stroke-width="8" stroke-linejoin="round"><rect x="170" y="322" width="172" height="112" rx="14" fill="#6C7FA8"/>
+<ellipse cx="198" cy="322" rx="20" ry="13" fill="#E9A46A"/><ellipse cx="314" cy="322" rx="20" ry="13" fill="#E9A46A"/></g>
+<text x="256" y="392" text-anchor="middle" font-family="Consolas,Menlo,monospace" font-weight="700" font-size="38" fill="#fff">&lt;/&gt;</text></g></svg>

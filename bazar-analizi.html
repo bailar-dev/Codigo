@@ -1,0 +1,296 @@
+<title>Kod Təhsili Bazar Analizi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: tək sütunlu hesabat (sinif jurnalı kimi), geniş cədvəllər öz konteynerində sürüşür */
+:root {
+  --bg: #F5F7F4;
+  --surface: #FFFFFF;
+  --ink: #18221D;
+  --muted: #56645C;
+  --line: #D8DFD9;
+  --accent: #2F6B4F;
+  --accent-soft: #E3EEE7;
+  --warn: #9A6212;
+  --warn-soft: #F6ECDA;
+  --crit: #A63A32;
+  --crit-soft: #F6E1DE;
+  --font-display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-body: "Source Sans 3", "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121915; --surface: #19221D; --ink: #E4EBE6; --muted: #9AABA1; --line: #2B3730;
+    --accent: #7CC39E; --accent-soft: #1F3329; --warn: #E0AE5E; --warn-soft: #33291A;
+    --crit: #EE8B82; --crit-soft: #3A2220; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121915; --surface: #19221D; --ink: #E4EBE6; --muted: #9AABA1; --line: #2B3730;
+  --accent: #7CC39E; --accent-soft: #1F3329; --warn: #E0AE5E; --warn-soft: #33291A;
+  --crit: #EE8B82; --crit-soft: #3A2220; color-scheme: dark;
+}
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.6;
+}
+.wrap {
+  max-width: 820px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 48px 72px;
+  display: flex; flex-direction: column; gap: 56px;
+}
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 2.8rem); }
+h2 { font-size: 1.6rem; }
+h3 { font-size: 1.15rem; }
+p { margin: 0; max-width: 68ch; }
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+section { display: flex; flex-direction: column; gap: 18px; }
+.eyebrow {
+  font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--accent);
+}
+.lede { font-size: 1.15rem; color: var(--muted); }
+header { display: flex; flex-direction: column; gap: 14px; border-bottom: 1px solid var(--line); padding-bottom: 32px; }
+.meta { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); }
+
+.verdict {
+  background: var(--accent-soft); border-radius: 10px; padding: 22px 24px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.verdict ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; }
+
+.table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 680px; font-size: 0.95rem; }
+th, td { text-align: left; vertical-align: top; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+th { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+tr:last-child td { border-bottom: 0; }
+td.name { font-weight: 700; white-space: nowrap; }
+td.name small { display: block; font-weight: 400; color: var(--muted); font-size: 0.8rem; }
+.group-row td { background: var(--bg); font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); padding-block: 8px; }
+
+.complaints { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.complaint { border-top: 2px solid var(--ink); padding-top: 12px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.complaint p { font-size: 0.95rem; }
+.complaint .who { font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); }
+
+.gaps { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.gap { display: grid; grid-template-columns: 110px 1fr; gap: 16px; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+.gap:last-child { border-bottom: 0; }
+.gap > div { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.gap p { font-size: 0.95rem; color: var(--muted); }
+.chip { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 8px; border-radius: 99px; align-self: start; justify-self: start; white-space: nowrap; }
+.chip.big { background: var(--crit-soft); color: var(--crit); }
+.chip.mid { background: var(--warn-soft); color: var(--warn); }
+.chip.ok { background: var(--accent-soft); color: var(--accent); }
+@media (max-width: 520px) { .gap { grid-template-columns: 1fr; gap: 8px; } }
+
+.loop { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; counter-reset: step; }
+.loop li { counter-increment: step; display: grid; grid-template-columns: 44px 1fr; gap: 14px; padding-bottom: 18px; position: relative; }
+.loop li::before {
+  content: counter(step); font-family: var(--font-mono); font-size: 0.9rem;
+  width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent); color: var(--bg);
+}
+.loop li:not(:last-child)::after { content: ""; position: absolute; left: 15px; top: 34px; bottom: 2px; width: 2px; background: var(--line); }
+.loop li > div { min-width: 0; }
+.loop b { display: block; }
+.loop span { color: var(--muted); font-size: 0.95rem; }
+
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.two > div { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.two ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 8px; font-size: 0.97rem; }
+
+.note { font-size: 0.9rem; color: var(--muted); border-left: 2px solid var(--line); padding-left: 14px; }
+.sources ol { margin: 0; padding-left: 1.4em; font-size: 0.88rem; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+.sources a { word-break: break-word; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; }
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Startup · ilkin araşdırma</span>
+  <h1>Kod təhsili bazarı: rəqiblər, şikayətlər və boşluqlar</h1>
+  <p class="lede">Orta məktəb, universitet və kurslar üçün adaptiv proqramlaşdırma təhsili platforması ideyasının bazar qarşısında yoxlanması.</p>
+  <span class="meta">Oktyabr 2026 · mənbələr səhifənin sonundadır</span>
+</header>
+
+<section>
+  <div class="verdict">
+    <h3>Qısa nəticə</h3>
+    <ul>
+      <li>Bazarda <b>hazır kurikulum</b> satan (CodeHS, Code.org, Codecademy) və <b>tapşırıq infrastrukturu</b> verən (Codio, Gradescope, keçmişdə GitHub Classroom və Replit) alətlər çoxdur.</li>
+      <li>Araşdırmada elə məhsul tapmadım ki, <b>kurs öz materialını yükləsin</b>, sistem də bundan <b>dərs cədvəlinə uyğun lab</b> yaratsın və hər şagirdi <b>fərdi səviyyəyə görə</b> aparsın. Sizin ideyanın əsas boşluğu budur.</li>
+      <li>Ən böyük risk ideyada yox, icradadır: yaradılan labların keyfiyyəti, avtomatik yoxlamanın düzgünlüyü və müəllimin sistemə etibarı.</li>
+      <li>Başlamaq üçün ən sürətli seqment <b>özəl kurslardır</b> (Bakıda Code Academy, ABB Tech Academy, STEP IT və s.). Məktəb və universitetə satış daha uzun çəkir.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">1 · Bazar</span>
+  <h2>Bazarda olan məhsullar</h2>
+  <p>Rəqibləri üç qrupa böldüm, çünki hər qrup fərqli problemi həll edir və fərqli səbəbdən tənqid olunur.</p>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Məhsul</th><th>Nə edir</th><th>Zəif tərəfi</th></tr></thead>
+      <tbody>
+        <tr class="group-row"><td colspan="3">Məktəb kurikulum platformaları</td></tr>
+        <tr><td class="name">CodeHS<small>K-12, ABŞ</small></td><td>Çoxlu dildə hazır kurikulum, LMS, müəllim paneli, dərs planları.</td><td>Müəllimlər "çox məhdud" deyir, öz dərsini qurmaq çətindir, bəzi bölmələr darıxdırıcı və köhnədir. Qiymət yüksəkdir (bir mənbədə müəllim başına ~$3 000).</td></tr>
+        <tr><td class="name">Code.org<small>AI Tutor</small></td><td>Pulsuz kurikulum, 13+ yaş üçün Sokrat üsulu ilə sual verən AI köməkçi.</td><td>AI yalnız Code.org-un öz kurslarında işləyir. Məktəb öz materialını yükləyə bilmir.</td></tr>
+        <tr><td class="name">Khan Academy<small>Khanmigo</small></td><td>Cavabı birbaşa verməyən AI tutor, proqramlaşdırma bölməsi var.</td><td>Riyazi səhvlərə görə tənqid olunub, şirkət özü "hələ qeyri-mükəmməl" deyir. İstifadəçilər AI ilə yazılmış kodun öz işi kimi təqdim olunmasından şikayət edir.</td></tr>
+
+        <tr class="group-row"><td colspan="3">Fərdi öyrənmə tətbiqləri (B2C)</td></tr>
+        <tr><td class="name">Codecademy</td><td>Brauzerdə interaktiv dərslər, karyera yolları.</td><td>Daha çox sintaksis öyrədir, real layihə azdır. Öyrənən "real həyatda necə tətbiq edəcəyimi bilmədim" deyir. Forumlar zəifdir.</td></tr>
+        <tr><td class="name">Mimo, Sololearn<small>mobil</small></td><td>Qısa, oyunlaşdırılmış dərslər.</td><td>Səthi qalır, sərbəst kod yazmaq azdır. Ən çox şikayət pullu divarlar, gözlənilməz ödənişlər və reklamlardır.</td></tr>
+
+        <tr class="group-row"><td colspan="3">Universitet və tapşırıq infrastrukturu</td></tr>
+        <tr><td class="name">GitHub Classroom</td><td>Git əsaslı tapşırıq paylanması.</td><td>Codio-ya görə 28 avqust 2026-da dayandırıldı. Müəllimlər yenidən alternativ axtarır.</td></tr>
+        <tr><td class="name">Replit<small>Teams for Education</small></td><td>Brauzer IDE, sinif idarəsi.</td><td>2023-də "iqtisadi cəhətdən sərfəli deyil" deyə bağlandı, müəllimlər tədris ilinin ortasında qaldı. Bir müəllimin dediyinə görə AI-ni bütün sinif üçün söndürmək olmur.</td></tr>
+        <tr><td class="name">Codio, zyBooks</td><td>Bulud IDE + interaktiv dərslik, universitet kursları.</td><td>zyBooks-da tələbə çox vaxt tam mühitdə yox, daxili redaktor və test sualları ilə işləyir (bu iddia rəqib Codio-dandır). Hər ikisi hazır məzmun satır.</td></tr>
+        <tr><td class="name">Gradescope</td><td>Avtomatik qiymətləndirmə, oxşarlıq yoxlaması.</td><td>Autograder üçün Docker, setup skripti lazımdır. Müəllim hər tapşırıq üçün testləri özü yazır. Lab yaratmır.</td></tr>
+
+        <tr class="group-row"><td colspan="3">Ümumi AI müəllim alətləri</td></tr>
+        <tr><td class="name">MagicSchool AI</td><td>80+ alət: dərs planı, quiz, rubrika.</td><td>Proqramlaşdırmaya xüsusi deyil: işlək kod mühiti, test və şagird inkişafı izlənməsi yoxdur.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Rəylərin çoxu kiçik nümunələrdir və bəziləri rəqib şirkətlərin bloqlarındandır. Mənfi rəyləri "tez-tez təkrarlanan mövzu" kimi qəbul edin, statistika kimi yox.</p>
+</section>
+
+<section>
+  <span class="eyebrow">2 · İstifadəçi rəyləri</span>
+  <h2>Mənfi rəylərdə təkrarlanan mövzular</h2>
+  <div class="complaints">
+    <div class="complaint"><h3>Öz dərsimə uyğun gəlmir</h3><p>Müəllimlər hazır kurikuluma bağlanır. Öz proqramını, öz tempini qurmaq çətindir.</p><span class="who">CodeHS müəllim rəyləri, müqayisə bloqları</span></div>
+    <div class="complaint"><h3>Sintaksis var, bacarıq yoxdur</h3><p>Dərsləri bitirən adam real layihədə işləyə bilmir ("tutorial hell").</p><span class="who">Codecademy G2, Capterra, SwitchUp</span></div>
+    <div class="complaint"><h3>Zəif şagird geridə qalır</h3><p>Müstəqil öyrənənlərə yaxşıdır, əlavə köməyə ehtiyacı olana kifayət qədər dəstək yoxdur.</p><span class="who">CodeHS valideyn rəyləri</span></div>
+    <div class="complaint"><h3>AI cavabı verir, şagird öyrənmir</h3><p>Müəllim AI-ni idarə edə bilmir. Tədqiqatlar AI-dən tez-tez istifadəni zəif nəticə və müəllimdən daha az kömək istəmə ilə əlaqələndirir.</p><span class="who">Replit forumu, CS1 tədqiqatları</span></div>
+    <div class="complaint"><h3>Platforma birdən bağlanır</h3><p>Replit və GitHub Classroom bağlandı, müəllimlər materiallarını köçürmək məcburiyyətində qaldı.</p><span class="who">The Register, Slashdot, Codio</span></div>
+    <div class="complaint"><h3>Qurmaq çətin, qiymət baha</h3><p>Autograder üçün Docker lazımdır, lisenziya müəllim başına minlərlə dollardır.</p><span class="who">Gradescope bələdçiləri, CodeHS qiymətləri</span></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">3 · Mənim analizim</span>
+  <h2>Bazarda olan boşluqlar</h2>
+  <p>Rəylərdən və məhsulların imkanlarından çıxardığım nəticələr. Etiket bu boşluğun sizin üçün nə qədər böyük fürsət olduğunu göstərir.</p>
+  <div class="gaps">
+    <div class="gap"><span class="chip big">Əsas fürsət</span><div><h3>Müəssisənin öz materialından lab yaratmaq</h3><p>Hamı öz məzmununu satır. Kursun slaydlarını, PDF-lərini, sillabusunu yükləyib gündəlik dərsə uyğun, testləri olan lab alan alət tapmadım.</p></div></div>
+    <div class="gap"><span class="chip big">Əsas fürsət</span><div><h3>Müəllimin idarə etdiyi "öyrədən, həll etməyən" AI</h3><p>Müəllim seçir: bu lab-da AI yalnız ipucu versin, burada heç kömək etməsin, imtahanda tam sönsün. İndi bunu yaxşı edən alət yoxdur.</p></div></div>
+    <div class="gap"><span class="chip big">Əsas fürsət</span><div><h3>Hər şagird üçün fərdi yol</h3><p>Quiz və lab nəticələrinə görə hər mövzu üzrə bilik səviyyəsi (mastery) ölçülür. Zəif şagirdə təkrar tapşırıq, güclüyə çətin tapşırıq gəlir. Akademik prototiplər var, məktəbə hazır məhsul yoxdur.</p></div></div>
+    <div class="gap"><span class="chip mid">Fərqləndirici</span><div><h3>Azərbaycan dili və yerli kontekst</h3><p>Böyük platformaların heç biri Azərbaycan dilində izah və ipucu vermir. Yerli kurslar ingiliscə resurslarla işləyir.</p></div></div>
+    <div class="gap"><span class="chip mid">Fərqləndirici</span><div><h3>AI dövrünə uyğun qiymətləndirmə</h3><p>Yalnız son kodu yox, prosesi də ölçmək: şagird kodunu izah edir, kiçik şifahi və ya yazılı "niyə belə yazdın?" sualları, dəyişiklik tarixçəsi.</p></div></div>
+    <div class="gap"><span class="chip mid">Fərqləndirici</span><div><h3>Məlumatın müəssisəyə məxsus olması</h3><p>Replit və GitHub-dan sonra müəllimlər etibar istəyir: materialları və nəticələri istənilən vaxt ixrac etmək imkanı satışda arqumentdir.</p></div></div>
+    <div class="gap"><span class="chip ok">Gigiyena</span><div><h3>Asan qurulum, yerli qiymət</h3><p>Docker yoxdur, kurs 10 dəqiqəyə işə düşür. Qiymət müəllim başına $3 000 yox, yerli bazara uyğun şagird başına aylıq.</p></div></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">4 · Sizin ideya</span>
+  <h2>Məhsulun əsas dövrü necə görünə bilər</h2>
+  <p>Təsvir etdiyiniz ideya, ardıcıl addımlar kimi. Hər addım ayrıca işləməlidir, ona görə nömrələnib.</p>
+  <ol class="loop">
+    <li><div><b>Kurs materialları yükləyir</b><span>Sillabus, slaydlar, PDF, nümunə kodlar. Sistem mövzuları və təqvimi çıxarır: "3-cü həftə: dövrlər".</span></div></li>
+    <li><div><b>Giriş quizi</b><span>Hər şagird qısa adaptiv test keçir, sistem başlanğıc səviyyəni təyin edir.</span></div></li>
+    <li><div><b>Gündəlik lab yaranır</b><span>Həmin günün dərsinə uyğun tapşırıq, gizli testlər və üç çətinlik səviyyəsi.</span></div></li>
+    <li><div><b>Müəllim təsdiqləyir</b><span>Lab şagirdə getməzdən əvvəl müəllim baxır, dəyişir və ya rədd edir. Etibar bu addımdan başlayır.</span></div></li>
+    <li><div><b>Şagird brauzerdə işləyir</b><span>Quraşdırma tələb etməyən kod mühiti. AI müəllimin icazə verdiyi qədər ipucu verir, hazır həll vermir.</span></div></li>
+    <li><div><b>Avtomatik yoxlama və rəy</b><span>Testlər nəticəni yoxlayır, AI səhvi şagirdin dilində izah edir.</span></div></li>
+    <li><div><b>Səviyyə yenilənir, növbəti addım seçilir</b><span>Hər mövzu üzrə bilik səviyyəsi dəyişir. Növbəti lab və quiz buna görə seçilir. Müəllim paneldə kimin harada ilişdiyini görür.</span></div></li>
+  </ol>
+</section>
+
+<section>
+  <span class="eyebrow">5 · Qiymətləndirmə</span>
+  <h2>Güclü tərəflər və risklər</h2>
+  <div class="two">
+    <div>
+      <h3>Güclü tərəflər</h3>
+      <ul>
+        <li>Rəqiblərin ən çox tənqid olunan zəifliyini (öz dərsinə uyğun olmamaq) birbaşa həll edir.</li>
+        <li>Müəllimin işini artırmır, azaldır: lab və quiz hazırlamaq ən çox vaxt aparan işdir.</li>
+        <li>Bir məhsul üç seqmentə satıla bilər, çünki məzmunu müştəri özü gətirir.</li>
+        <li>Yerli dil və qiymət beynəlxalq rəqiblərə qarşı təbii üstünlükdür.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Risklər</h3>
+      <ul>
+        <li><b>Lab keyfiyyəti.</b> AI yanlış test və ya həll olunmayan tapşırıq yarada bilər. Hər labın həlli və testləri avtomatik işlədilib yoxlanmalıdır.</li>
+        <li><b>Müəllim etibarı.</b> Təsdiq addımı olmadan müəllimlər istifadə etməyəcək.</li>
+        <li><b>Uşaq məlumatları.</b> Məktəblilərin məlumatları üçün razılıq və təhlükəsizlik qaydaları lazımdır.</li>
+        <li><b>Yüklənən materialın hüququ.</b> Kurslar başqasının kitabını yükləyə bilər. İstifadə şərtlərində bu aydın yazılmalıdır.</li>
+        <li><b>AI xərci.</b> Hər şagirdə gündəlik fərdi lab baha başa gəlir. Keşləmə və şablonlar lazımdır.</li>
+        <li><b>Satış dövrü.</b> Dövlət məktəbləri və universitetlər yavaş alır. Başlanğıcda nağd pul kurslardan gələcək.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">6 · Tövsiyə</span>
+  <h2>Necə başlamaq olar</h2>
+  <div class="two">
+    <div>
+      <h3>İlk versiya (MVP) üçün dar seçim</h3>
+      <ul>
+        <li><b>Bir seqment:</b> özəl IT kursları. Qərarı bir nəfər verir, nəticəni tez görürsünüz.</li>
+        <li><b>Bir-iki dil:</b> Python (məktəb və kurslarda ən geniş yayılmış), sonra JavaScript.</li>
+        <li><b>Əsas dövr:</b> yükləmə, lab yaratma, müəllim təsdiqi, brauzerdə həll, avtomatik yoxlama. Adaptiv yol ikinci mərhələdə.</li>
+        <li><b>Fərqləndirici funksiya:</b> müəllimin AI rejimini seçməsi (ipucu / sönük / imtahan).</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Kod yazmazdan əvvəl yoxlayın</h3>
+      <ul>
+        <li>8-10 müəllim və kurs rəhbəri ilə danışın: lab hazırlamağa həftədə nə qədər vaxt gedir, indi nədən istifadə edirlər, nəyə pul verərlər?</li>
+        <li>Bir kursun real materialını alın və labları əllə (ChatGPT və ya Claude ilə) hazırlayın. Müəllim bəyənsə, avtomatlaşdırın.</li>
+        <li>Bir qrup üzərində 4 həftəlik pilot keçirin, nəticələri əvvəlki qrupla müqayisə edin.</li>
+        <li>Qiyməti erkən soruşun: "şagird başına aylıq X AZN ödəyərdinizmi?"</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note">Bu, ilkin masaüstü araşdırmadır. Azərbaycan edtech bazarının ölçüsü haqqında rəqəm tapa bilmədim. Code Academy-nin təxminən 10 000 nəfər yetişdirməsi, Təhsil Nazirliyi ilə "Code for Future" proqramı və ABB Tech Academy-də 14 həftəlik kursun $1 500 olması ölkədə tələbin və ödəmə qabiliyyətinin olduğunu göstərir.</p>
+</section>
+
+<section class="sources">
+  <span class="eyebrow">Mənbələr</span>
+  <ol>
+    <li><a href="https://www.theregister.com/2023/11/21/comp_sci_panic/" target="_blank" rel="noopener">The Register: Replit Teams for Education bağlanır</a></li>
+    <li><a href="https://replit.discourse.group/t/teacher-using-replit-in-public-school-need-to-disable-ai-for-entire-class-and-bring-back-blank-projects/11926" target="_blank" rel="noopener">Replit forumu: müəllim AI-ni sinif üçün söndürə bilmir</a></li>
+    <li><a href="https://www.codio.com/after-github-classroom" target="_blank" rel="noopener">Codio: GitHub Classroom-dan sonra</a></li>
+    <li><a href="https://www.codio.com/blog/zybooks-vs-codio" target="_blank" rel="noopener">Codio: zyBooks ilə müqayisə</a></li>
+    <li><a href="https://www.commonsensemedia.org/website-reviews/codehs/user-reviews/adult" target="_blank" rel="noopener">Common Sense Media: CodeHS valideyn rəyləri</a></li>
+    <li><a href="https://www.commonsense.org/education/reviews/codehs/teacher-reviews/5090873" target="_blank" rel="noopener">Common Sense Education: CodeHS müəllim rəyi</a></li>
+    <li><a href="https://blog.pickcode.io/best-replit-teams-for-education-alternatives-in-2025/" target="_blank" rel="noopener">Pickcode: Replit alternativləri (CodeHS qiyməti)</a></li>
+    <li><a href="https://support.code.org/hc/en-us/articles/40542019587213-AI-Tutor-FAQ" target="_blank" rel="noopener">Code.org: AI Tutor FAQ</a></li>
+    <li><a href="https://www.the74million.org/article/khan-academy-artificial-intelligence-promise-kristen-dicerbo/" target="_blank" rel="noopener">The 74: Khanmigo tənqidi</a></li>
+    <li><a href="https://support.khanacademy.org/hc/es/community/posts/42374258753165/comments/42432392143373" target="_blank" rel="noopener">Khan Academy forumu: AI ilə yazılmış kod</a></li>
+    <li><a href="https://www.g2.com/products/codecademy/reviews/codecademy-review-8741203" target="_blank" rel="noopener">G2: Codecademy rəyi</a></li>
+    <li><a href="https://SwitchUp.org/bootcamps/codecademy" target="_blank" rel="noopener">SwitchUp: Codecademy rəyləri</a></li>
+    <li><a href="https://www.capterra.com/p/266830/Codecademy/" target="_blank" rel="noopener">Capterra: Codecademy</a></li>
+    <li><a href="https://www.trustpilot.com/review/mimo.org?page=2" target="_blank" rel="noopener">Trustpilot: Mimo</a></li>
+    <li><a href="https://coddy.tech/vs/mimo" target="_blank" rel="noopener">Coddy: Mimo müqayisəsi</a></li>
+    <li><a href="https://citt.ufl.edu/services/learning-innovation--technology/gradescope/" target="_blank" rel="noopener">UF: Gradescope bələdçisi</a></li>
+    <li><a href="https://teachingcommons.stanford.edu/opportunities/gradescope" target="_blank" rel="noopener">Stanford: Gradescope</a></li>
+    <li><a href="https://blogs.denison.edu/teaching-center-updates/2025/03/11/teaching-magic-school-ai/" target="_blank" rel="noopener">Denison: MagicSchool AI</a></li>
+    <li><a href="https://journals.flvc.org/FLAIRS/article/view/141554" target="_blank" rel="noopener">FLAIRS 2026: Codify adaptiv tutor</a></li>
+    <li><a href="https://par.nsf.gov/servlets/purl/10583650" target="_blank" rel="noopener">NSF: CS1-də ChatGPT təsiri</a></li>
+    <li><a href="https://library.apsce.net/index.php/ICCE/article/download/5603/5535/6775" target="_blank" rel="noopener">ICCE 2025: ChatGPT və kömək istəmə</a></li>
+    <li><a href="https://www.psypost.org/frequent-ai-chatbot-use-associated-with-lower-grades-among-computer-science-students/" target="_blank" rel="noopener">PsyPost: tez-tez AI istifadəsi və aşağı qiymətlər</a></li>
+    <li><a href="https://arxiv.org/pdf/2312.01109" target="_blank" rel="noopener">arXiv: Kattis vs ChatGPT</a></li>
+    <li><a href="https://www.euronews.com/next/2024/07/25/shaping-azerbaijans-digital-education-how-nariman-aliyev-is-empowering-youth-with-technolo" target="_blank" rel="noopener">Euronews: Code Academy, Azərbaycan</a></li>
+    <li><a href="https://www.economy.gov.az/en/post/873/it-akademiya-tehsil-layihesine-baslanilib" target="_blank" rel="noopener">İqtisadiyyat Nazirliyi: IT Akademiya</a></li>
+    <li><a href="https://switchup.org/bootcamps/abb-tech-academy?page=2" target="_blank" rel="noopener">SwitchUp: ABB Tech Academy</a></li>
+  </ol>
+</section>
+
+</div>

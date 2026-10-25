@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Codigo Müəllim Demosu</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,700&family=Nunito:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+<style>
+/* Layout: üstdə məhsul zolağı və rol keçidi; altında müəllim və ya şagird iş sahəsi (iki sütun, telefonda bir sütun) */
+:root {
+  --bg: #F3F6F3;
+  --surface: #FFFFFF;
+  --sunken: #E9EEEA;
+  --ink: #18221D;
+  --muted: #5A685F;
+  --line: #D5DDD7;
+  --accent: #2F6B4F;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #E1EDE5;
+  --warn: #93600F;
+  --warn-soft: #F5EAD6;
+  --crit: #A63A32;
+  --crit-soft: #F6E0DD;
+  --code-bg: #1C2621;
+  --code-fg: #DCE7E0;
+  --font-display: "Source Serif 4", Georgia, serif;
+  --font-body: "Nunito", "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111814; --surface: #18211C; --sunken: #141C17; --ink: #E3EAE5; --muted: #98A99F; --line: #2A3630;
+    --accent: #7CC39E; --accent-ink: #0F1A14; --accent-soft: #1F3329; --warn: #E0AE5E; --warn-soft: #33291A;
+    --crit: #EE8B82; --crit-soft: #3A2220; --code-bg: #0C120F; --code-fg: #DCE7E0; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111814; --surface: #18211C; --sunken: #141C17; --ink: #E3EAE5; --muted: #98A99F; --line: #2A3630;
+  --accent: #7CC39E; --accent-ink: #0F1A14; --accent-soft: #1F3329; --warn: #E0AE5E; --warn-soft: #33291A;
+  --crit: #EE8B82; --crit-soft: #3A2220; --code-bg: #0C120F; --code-fg: #DCE7E0; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
+.pad { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.inner { max-width: 1180px; margin: 0 auto; }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h2 { font-size: 1.1rem; }
+h3 { font-size: 1rem; }
+p { margin: 0; }
+button, select, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.topbar { background: var(--surface); border-bottom: 1px solid var(--line); }
+.topbar .inner { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding-block: 14px; }
+.brand { display: flex; align-items: baseline; gap: 10px; }
+.brand b { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: -0.01em; }
+.brand span { color: var(--muted); font-size: 0.9rem; }
+.tabs { display: flex; gap: 4px; background: var(--sunken); padding: 4px; border-radius: 8px; margin-left: auto; }
+.tabs button { border: 0; background: transparent; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; color: var(--muted); }
+.tabs button[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+.pill { font-family: var(--font-mono); font-size: 0.72rem; padding: 4px 9px; border-radius: 99px; background: var(--sunken); color: var(--muted); white-space: nowrap; }
+.pill.on { background: var(--accent-soft); color: var(--accent); }
+
+.intro { padding-block: 18px 6px; }
+.intro p { color: var(--muted); max-width: 80ch; font-size: 0.95rem; }
+
+main { padding-block: 16px 64px; }
+.view { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.view.student { grid-template-columns: minmax(0, 340px) minmax(0, 1fr); }
+@media (max-width: 860px) { .view, .view.student { grid-template-columns: minmax(0, 1fr); } }
+.col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.step { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.hint-text { color: var(--muted); font-size: 0.9rem; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+.btn { border: 1px solid var(--line); background: var(--surface); padding: 8px 14px; border-radius: 7px; cursor: pointer; font-weight: 600; }
+.btn:hover { background: var(--sunken); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+select, input[type="file"] { border: 1px solid var(--line); background: var(--surface); border-radius: 7px; padding: 7px 10px; max-width: 100%; }
+label.inline { display: flex; gap: 8px; align-items: center; font-size: 0.9rem; color: var(--muted); }
+
+textarea { width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--sunken); padding: 12px; resize: vertical; }
+textarea.material { min-height: 190px; font-size: 0.9rem; font-family: var(--font-mono); }
+textarea.code { min-height: 230px; font-family: var(--font-mono); font-size: 0.9rem; line-height: 1.55; background: var(--code-bg); color: var(--code-fg); border-color: var(--code-bg); tab-size: 4; white-space: pre; overflow-x: auto; }
+
+.weeks { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.week { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--line); cursor: pointer; background: var(--surface); }
+.week:last-child { border-bottom: 0; }
+.week:hover { background: var(--sunken); }
+.week.today { background: var(--accent-soft); }
+.week .wk { font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); }
+.week .tp { font-weight: 600; }
+.week .cc { color: var(--muted); font-size: 0.85rem; display: block; font-weight: 400; }
+.week .tag { font-family: var(--font-mono); font-size: 0.68rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.lab-card { border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: var(--bg); }
+.lab-card h3 { font-size: 1.05rem; }
+.desc { white-space: pre-wrap; }
+pre.mini { margin: 0; background: var(--code-bg); color: var(--code-fg); padding: 10px 12px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.82rem; overflow-x: auto; }
+.tests { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.tests th, .tests td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); font-family: var(--font-mono); vertical-align: top; }
+.tests th { font-family: var(--font-body); font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.scroll { overflow-x: auto; }
+
+.badge { font-family: var(--font-mono); font-size: 0.72rem; padding: 3px 8px; border-radius: 99px; white-space: nowrap; }
+.badge.ok { background: var(--accent-soft); color: var(--accent); }
+.badge.bad { background: var(--crit-soft); color: var(--crit); }
+.badge.mid { background: var(--warn-soft); color: var(--warn); }
+.badge.plain { background: var(--sunken); color: var(--muted); }
+
+details summary { cursor: pointer; color: var(--muted); font-size: 0.9rem; }
+details ol { margin: 8px 0 0; padding-left: 1.3em; font-size: 0.9rem; }
+
+.lablist { display: flex; flex-direction: column; gap: 8px; }
+.lablist .item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; }
+.lablist .item small { display: block; color: var(--muted); }
+
+.heat { border-collapse: collapse; font-size: 0.85rem; min-width: 460px; width: 100%; }
+.heat th, .heat td { padding: 6px; text-align: center; border-bottom: 1px solid var(--line); }
+.heat th { font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); font-weight: 500; }
+.heat td:first-child, .heat th:first-child { text-align: left; white-space: nowrap; }
+.heat td.cell { font-family: var(--font-mono); font-variant-numeric: tabular-nums; border-radius: 4px; }
+.heat tr.me td:first-child { font-weight: 700; color: var(--accent); }
+.c-none { color: var(--muted); }
+.c-low { background: var(--crit-soft); color: var(--crit); }
+.c-mid { background: var(--warn-soft); color: var(--warn); }
+.c-high { background: var(--accent-soft); color: var(--accent); }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.8rem; color: var(--muted); }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.legend .l1::before { background: var(--crit-soft); border: 1px solid var(--crit); }
+.legend .l2::before { background: var(--warn-soft); border: 1px solid var(--warn); }
+.legend .l3::before { background: var(--accent-soft); border: 1px solid var(--accent); }
+.alerts { margin: 0; padding-left: 1.2em; font-size: 0.9rem; display: flex; flex-direction: column; gap: 4px; }
+
+.bars { display: flex; flex-direction: column; gap: 10px; }
+.bar { display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: 4px 10px; font-size: 0.88rem; }
+.bar .track { grid-column: 1 / -1; height: 8px; background: var(--sunken); border-radius: 99px; overflow: hidden; }
+.bar .fill { height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.5s ease; }
+.bar .fill.low { background: var(--crit); }
+.bar .fill.mid { background: var(--warn); }
+.bar .v { text-align: right; font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bar.today .name { font-weight: 700; }
+
+.rec { background: var(--accent-soft); border-radius: 8px; padding: 12px 14px; font-size: 0.92rem; }
+.quiz-q { display: flex; flex-direction: column; gap: 10px; }
+.quiz-opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
+.quiz-opts button { text-align: left; font-family: var(--font-mono); font-size: 0.88rem; }
+.quiz-meta { display: flex; justify-content: space-between; gap: 8px; font-size: 0.8rem; color: var(--muted); font-family: var(--font-mono); }
+
+.console { background: var(--code-bg); color: var(--code-fg); font-family: var(--font-mono); font-size: 0.84rem; border-radius: 8px; padding: 12px; min-height: 64px; white-space: pre-wrap; overflow-x: auto; }
+.console .err { color: #F1A097; }
+.results { display: flex; flex-direction: column; gap: 6px; }
+.res { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 10px; font-size: 0.85rem; align-items: start; }
+.res code { font-family: var(--font-mono); font-size: 0.82rem; overflow-wrap: anywhere; }
+.ai-box { border-left: 3px solid var(--accent); padding: 8px 12px; background: var(--bg); border-radius: 0 6px 6px 0; font-size: 0.93rem; white-space: pre-wrap; }
+
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 8px; font-size: 0.92rem; display: flex; gap: 12px; align-items: center; z-index: 20; max-width: calc(100% - 32px); }
+.toast button { background: transparent; border: 1px solid currentColor; color: inherit; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.spin { display: inline-block; width: 12px; height: 12px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: sp 0.8s linear infinite; vertical-align: -1px; margin-right: 6px; }
+@keyframes sp { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } .bar .fill { transition: none; } }
+</style>
+
+</head>
+<body>
+<div class="topbar pad">
+  <div class="inner">
+    <div class="brand"><b>Codigo</b><span>kursun öz materialından adaptiv lablar</span></div>
+    <a href="index.html" onclick="if (history.length > 1) { history.back(); return false; }" style="font-size:0.85rem;color:var(--accent)">← Sayta qayıt</a>
+    <span class="pill" id="aiPill">AI yoxlanılır…</span>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tabTeacher" aria-selected="true">Müəllim</button>
+      <button role="tab" id="tabStudent" aria-selected="false">Şagird</button>
+    </div>
+  </div>
+</div>
+
+<div class="intro pad"><div class="inner">
+  <p id="introText">Demo axını: müəllim kurs materialını yükləyir, sistem dərs planını çıxarır, günün mövzusuna lab yaradır və testləri özü yoxlayır. Müəllim təsdiqləyəndən sonra lab şagirdə gedir. Şagird giriş quizindən keçir, kodu brauzerdə işlədir, AI yalnız ipucu verir və bilik səviyyəsi yenilənir.</p>
+</div></div>
+
+<main class="pad"><div class="inner">
+
+<!-- MÜƏLLİM -->
+<section class="view" id="viewTeacher">
+  <div class="col">
+    <div class="panel">
+      <div class="panel-head"><span class="step">Addım 1 · Kurs materialı</span></div>
+      <p class="hint-text">Sillabusu yapışdırın və ya .txt / .md fayl yükləyin. Tam versiyada PDF və slaydlar da qəbul olunacaq.</p>
+      <textarea class="material" id="material" aria-label="Kurs materialı"></textarea>
+      <div class="row">
+        <input type="file" id="fileIn" accept=".txt,.md,text/plain,text/markdown" aria-label="Fayl yüklə">
+        <button class="btn primary" id="btnExtract">Dərs planını çıxar</button>
+        <span class="hint-text" id="extractStatus"></span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><span class="step">Addım 2 · Dərs planı</span><span class="hint-text" id="courseName"></span></div>
+      <p class="hint-text">Bugünkü dərsi seçin. Lab bu mövzuya uyğun yaradılacaq.</p>
+      <div class="weeks" id="weeks"></div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="panel">
+      <div class="panel-head"><span class="step">Addım 3 · Günün labı</span><span class="badge plain" id="todayBadge"></span></div>
+      <div class="row">
+        <label class="inline" for="level">Çətinlik
+          <select id="level"><option value="asan">Asan</option><option value="orta" selected>Orta</option><option value="çətin">Çətin</option></select>
+        </label>
+        <button class="btn primary" id="btnGen">Lab yarat</button>
+        <span class="hint-text" id="genStatus"></span>
+      </div>
+      <div id="draft"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><span class="step">Göndərilmiş lablar</span></div>
+      <div class="lablist" id="approvedList"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><span class="step">Sinif paneli · 10-A</span><span class="badge plain">5 nümunə şagird + sən</span></div>
+      <div class="scroll"><table class="heat" id="heat"></table></div>
+      <div class="legend"><span class="l1">0–49 kömək lazımdır</span><span class="l2">50–79 inkişafda</span><span class="l3">80–100 mənimsəyib</span></div>
+      <div id="alerts"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ŞAGİRD -->
+<section class="view student" id="viewStudent" hidden>
+  <div class="col">
+    <div class="panel" id="quizPanel"></div>
+    <div class="panel">
+      <div class="panel-head"><span class="step">Mənim yolum</span></div>
+      <div class="bars" id="bars"></div>
+      <div class="rec" id="rec"></div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="panel">
+      <div class="panel-head">
+        <span class="step">Bugünkü lab</span>
+        <select id="labPick" aria-label="Lab seç"></select>
+      </div>
+      <div id="labInfo"></div>
+      <textarea class="code" id="code" spellcheck="false" aria-label="Kod redaktoru"></textarea>
+      <div class="row">
+        <button class="btn" id="btnRun">İşə sal</button>
+        <button class="btn primary" id="btnCheck">Testlərlə yoxla</button>
+        <button class="btn" id="btnHint">İpucu al</button>
+        <button class="btn" id="btnReset">Sıfırla</button>
+      </div>
+      <div class="console" id="console" aria-live="polite">Kodu yazıb "İşə sal" və ya "Testlərlə yoxla" düyməsini bas.</div>
+      <div class="results" id="results"></div>
+      <div id="hintOut"></div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+// ---------- Nümunə məlumatlar ----------
+const SAMPLE_MATERIAL = `Kurs: Python Əsasları (10-cu sinif)
+Müəllim: İnformatika kafedrası
+
+Həftə 1: Dəyişənlər və məlumat tipləri — int, float, str, print
+Həftə 2: Şərt operatorları — if, elif, else, müqayisə operatorları
+Həftə 3: Dövrlər — for, while, range, toplama məsələləri
+Həftə 4: Siyahılar — indeks, append, dilimləmə, min və max
+Həftə 5: Funksiyalar — def, parametrlər, return
+Həftə 6: Sətirlərlə iş — split, join, sətir metodları
+Həftə 7: Lüğətlər — açar-dəyər cütləri, sayma məsələləri
+Həftə 8: Mini layihə — öyrənilənləri birləşdirən tapşırıq
+
+Qiymətləndirmə: həftəlik lablar 40%, quizlər 20%, layihə 40%.`;
+
+// AI olmadan istifadə olunan hazır lablar (həftəyə görə)
+const FALLBACK_LABS = {
+  1: { title: "Düzbucaqlının sahəsi", function_name: "rectangle_area",
+       description: "rectangle_area(a, b) funksiyasını yaz. Funksiya tərəfləri a və b olan düzbucaqlının sahəsini qaytarsın.\nNümunə: rectangle_area(3, 4) → 12",
+       starter_code: "def rectangle_area(a, b):\n    # kodunu bura yaz\n    pass\n",
+       solution_code: "def rectangle_area(a, b):\n    return a * b\n",
+       tests: [{args:"[3, 4]",expected:"12"},{args:"[1, 1]",expected:"1"},{args:"[0, 5]",expected:"0"},{args:"[2.5, 2]",expected:"5.0"},{args:"[10, 7]",expected:"70"}],
+       hints: ["Sahə hansı riyazi əməllə hesablanır?","Funksiya nəticəni çap etməməli, qaytarmalıdır.","return açar sözündən istifadə et."] },
+  2: { title: "Balı qiymətə çevir", function_name: "grade",
+       description: "grade(score) funksiyasını yaz. 90 və yuxarı → \"A\", 75–89 → \"B\", 60–74 → \"C\", 60-dan aşağı → \"F\" qaytarsın.\nNümunə: grade(82) → \"B\"",
+       starter_code: "def grade(score):\n    # kodunu bura yaz\n    pass\n",
+       solution_code: "def grade(score):\n    if score >= 90:\n        return \"A\"\n    elif score >= 75:\n        return \"B\"\n    elif score >= 60:\n        return \"C\"\n    return \"F\"\n",
+       tests: [{args:"[95]",expected:"\"A\""},{args:"[75]",expected:"\"B\""},{args:"[60]",expected:"\"C\""},{args:"[59]",expected:"\"F\""},{args:"[90]",expected:"\"A\""}],
+       hints: ["Şərtləri hansı ardıcıllıqla yoxlamaq lazımdır: böyükdən kiçiyə, yoxsa əksinə?","Sərhəd dəyərlərinə bax: 75 \"B\" olmalıdır. Sən > yoxsa >= istifadə etmisən?","Hər budaqda return yazmağı unutma."] },
+  3: { title: "Cüt ədədlərin cəmi", function_name: "sum_even",
+       description: "sum_even(n) funksiyasını yaz. Funksiya 1-dən n-ə qədər (n daxil) bütün cüt ədədlərin cəmini qaytarsın.\nNümunə: sum_even(10) → 30, çünki 2 + 4 + 6 + 8 + 10 = 30",
+       starter_code: "def sum_even(n):\n    # kodunu bura yaz\n    pass\n",
+       solution_code: "def sum_even(n):\n    total = 0\n    for i in range(1, n + 1):\n        if i % 2 == 0:\n            total += i\n    return total\n",
+       tests: [{args:"[10]",expected:"30"},{args:"[1]",expected:"0"},{args:"[2]",expected:"2"},{args:"[7]",expected:"12"},{args:"[0]",expected:"0"}],
+       hints: ["Cəmi saxlamaq üçün dövrdən əvvəl hansı dəyişəni yaratmalısan?","range(1, n) n-in özünü daxil edirmi? sum_even(2) nə qaytarır?","Ədədin cüt olduğunu % operatoru ilə necə yoxlayarsan?"] },
+  4: { title: "Ən böyük fərq", function_name: "max_diff",
+       description: "max_diff(nums) funksiyasını yaz. Siyahıdakı ən böyük və ən kiçik ədədin fərqini qaytarsın.\nNümunə: max_diff([3, 9, 1]) → 8",
+       starter_code: "def max_diff(nums):\n    # kodunu bura yaz\n    pass\n",
+       solution_code: "def max_diff(nums):\n    return max(nums) - min(nums)\n",
+       tests: [{args:"[[3, 9, 1]]",expected:"8"},{args:"[[5]]",expected:"0"},{args:"[[-2, 4]]",expected:"6"},{args:"[[7, 7, 7]]",expected:"0"},{args:"[[10, -10, 3]]",expected:"20"}],
+       hints: ["Siyahının ən böyük elementini tapan hazır funksiya hansıdır?","Tək elementli siyahıda fərq nə olmalıdır?","Mənfi ədədlər nəticəni dəyişirmi? [-2, 4] üçün yoxla."] },
+  5: { title: "Orta qiymət", function_name: "average",
+       description: "average(nums) funksiyasını yaz. Siyahının ədədi ortasını iki onluq rəqəmə yuvarlaqlaşdırıb qaytarsın. Siyahı boşdursa 0 qaytarsın.\nNümunə: average([4, 5, 6]) → 5.0",
+       starter_code: "def average(nums):\n    # kodunu bura yaz\n    pass\n",
+       solution_code: "def average(nums):\n    if len(nums) == 0:\n        return 0\n    return round(sum(nums) / len(nums), 2)\n",
+       tests: [{args:"[[4, 5, 6]]",expected:"5.0"},{args:"[[]]",expected:"0"},{args:"[[1, 2]]",expected:"1.5"},{args:"[[1, 2, 2]]",expected:"1.67"},{args:"[[10]]",expected:"10.0"}],
+       hints: ["Boş siyahıda len(nums) nəyə bərabərdir və bölmə nə edər?","round() funksiyası neçə arqument qəbul edir?","Əvvəl boş siyahını yoxla, sonra hesabla."] },
+  6: { title: "Sözləri say", function_name: "count_words",
+       description: "count_words(text) funksiyasını yaz. Mətndə neçə söz olduğunu qaytarsın. Sözlər bir və ya bir neçə boşluqla ayrılır.\nNümunə: count_words(\"Salam dünya\") → 2",
+       starter_code: "def count_words(text):\n    # kodunu bura yaz\n    pass\n",
+       solution_code: "def count_words(text):\n    return len(text.split())\n",
+       tests: [{args:"[\"Salam dünya\"]",expected:"2"},{args:"[\"\"]",expected:"0"},{args:"[\"  bir   iki  \"]",expected:"2"},{args:"[\"Python\"]",expected:"1"},{args:"[\"a b c d e\"]",expected:"5"}],
+       hints: ["Sətri hissələrə bölən metod hansıdır?","split(\" \") ilə split() arasında artıq boşluqlarda fərq varmı?","Siyahının uzunluğunu necə tapırsan?"] },
+  7: { title: "Hərfləri say", function_name: "char_count",
+       description: "char_count(word) funksiyasını yaz. Sözdəki hər hərfin neçə dəfə təkrarlandığını lüğət kimi qaytarsın.\nNümunə: char_count(\"ana\") → {\"a\": 2, \"n\": 1}",
+       starter_code: "def char_count(word):\n    # kodunu bura yaz\n    pass\n",
+       solution_code: "def char_count(word):\n    counts = {}\n    for ch in word:\n        if ch in counts:\n            counts[ch] += 1\n        else:\n            counts[ch] = 1\n    return counts\n",
+       tests: [{args:"[\"ana\"]",expected:"{\"a\": 2, \"n\": 1}"},{args:"[\"\"]",expected:"{}"},{args:"[\"bbb\"]",expected:"{\"b\": 3}"},{args:"[\"kod\"]",expected:"{\"k\": 1, \"o\": 1, \"d\": 1}"},{args:"[\"aab\"]",expected:"{\"a\": 2, \"b\": 1}"}],
+       hints: ["Boş lüğəti necə yaradırsan?","Hərf lüğətdə yoxdursa nə etməlisən, varsa nə?","in operatoru lüğətdə açarı yoxlaya bilir."] }
+};
+
+// Adaptiv giriş quizi: hər mövzuda əvvəl asan sual, düzgün cavabda çətin sual
+const QUIZ = {
+  2: { easy: { q: "x = 7 olduqda bu kod nə çap edir?", code: "if x > 5:\n    print('böyük')\nelse:\n    print('kiçik')", opts: ["böyük","kiçik","Xəta","Heç nə"], a: 0 },
+       hard: { q: "Bu kod nə çap edir?", code: "x = 0\nif x:\n    print('A')\nelif x == 0:\n    print('B')\nelse:\n    print('C')", opts: ["A","B","C","A və B"], a: 1 } },
+  3: { easy: { q: "Bu kod neçə sətir çap edir?", code: "for i in range(3):\n    print(i)", opts: ["2","3","4","0"], a: 1 },
+       hard: { q: "Bu kod nə çap edir?", code: "s = 0\nfor i in range(1, 6, 2):\n    s += i\nprint(s)", opts: ["15","9","6","5"], a: 1 } },
+  4: { easy: { q: "a = [4, 8, 15] olduqda a[1] nədir?", code: "", opts: ["4","8","15","Xəta"], a: 1 },
+       hard: { q: "Bu kod nə çap edir?", code: "a = [1, 2, 3, 4, 5]\nprint(a[1:4])", opts: ["[1, 2, 3, 4]","[2, 3, 4]","[2, 3, 4, 5]","[1, 2, 3]"], a: 1 } },
+  5: { easy: { q: "Funksiyadan nəticə qaytarmaq üçün hansı açar söz istifadə olunur?", code: "", opts: ["print","def","return","yield"], a: 2 },
+       hard: { q: "Bu kod nə çap edir?", code: "def f(x, y=2):\n    return x * y\nprint(f(3) + f(1, 5))", opts: ["11","10","8","Xəta"], a: 0 } }
+};
+
+// Sinif panelində göstərilən uydurma nümunə şagirdlər
+const CLASSMATES = ["Aysel M.", "Murad Q.", "Leyla H.", "Elvin R.", "Nigar S."];
+
+// ---------- Vəziyyət ----------
+const S = {
+  course: { name: "", weeks: [] },
+  today: 3,
+  draft: null,
+  labs: [],
+  activeLab: null,
+  code: {},
+  mastery: {},
+  quiz: { done: false, idx: 0, plan: [], answers: [] },
+  hintIdx: {},
+  lastRun: {},
+  aiSource: "fallback"
+};
+let sample = null;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+const LEVEL_NAME = { asan: "Asan", orta: "Orta", "çətin": "Çətin" };
+const MODE_NAME = { hint: "AI ipucu verir", off: "AI söndürülüb", exam: "İmtahan rejimi" };
+
+function toast(msg, actionLabel, action) {
+  const t = $("toast");
+  t.innerHTML = "";
+  const s = document.createElement("span"); s.textContent = msg; t.append(s);
+  if (actionLabel) { const b = document.createElement("button"); b.textContent = actionLabel; b.onclick = () => { t.hidden = true; action(); }; t.append(b); }
+  t.hidden = false;
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.hidden = true, 5000);
+}
+
+// ---------- Plan çıxarma ----------
+function parseWeeksLocally(text) {
+  const nameMatch = text.match(/Kurs\s*:\s*(.+)/i);
+  const weeks = [];
+  const re = /(?:Həftə|Hefte|Week)\s*(\d+)\s*[:.\-]\s*(.+)/gi;
+  let m;
+  while ((m = re.exec(text))) {
+    const rest = m[2].trim();
+    const parts = rest.split(/\s+[—–-]\s+/);
+    weeks.push({ week: Number(m[1]), topic: parts[0].trim(), concepts: (parts[1] || "").split(/,\s*/).filter(Boolean) });
+  }
+  return { name: nameMatch ? nameMatch[1].trim() : "Kurs", weeks };
+}
+
+async function extractPlan() {
+  const text = $("material").value.trim();
+  if (!text) { $("extractStatus").textContent = "Əvvəlcə material əlavə edin."; return; }
+  const btn = $("btnExtract"); btn.disabled = true;
+  $("extractStatus").innerHTML = '<span class="spin"></span>Material oxunur…';
+  let plan = null;
+  if (sample) {
+    try {
+      const r = await sample.json(
+        "Sən məktəb və kurslar üçün təhsil platformasısan. Aşağıdakı kurs materialından həftəlik dərs planını çıxar.\n" +
+        "Yalnız JSON qaytar: {\"course\": \"kursun adı\", \"weeks\": [{\"week\": 1, \"topic\": \"qısa mövzu adı\", \"concepts\": [\"anlayış\", \"anlayış\"]}]}\n" +
+        "Ən çox 12 həftə. Mövzu adları Azərbaycan dilində, qısa olsun.\n\nMATERİAL:\n\"\"\"\n" + text.slice(0, 12000) + "\n\"\"\"",
+        { modelTier: "quick" });
+      if (r && Array.isArray(r.weeks) && r.weeks.length) {
+        plan = { name: String(r.course || "Kurs"), weeks: r.weeks.map((w, i) => ({ week: Number(w.week) || i + 1, topic: String(w.topic || ""), concepts: Array.isArray(w.concepts) ? w.concepts.map(String) : [] })) };
+      }
+    } catch (e) { if (["not_granted", "sampling_disabled"].includes(e.code)) setAi(null); }
+  }
+  if (!plan) { await new Promise(r => setTimeout(r, 700)); plan = parseWeeksLocally(text); }
+  btn.disabled = false;
+  if (!plan.weeks.length) { $("extractStatus").textContent = "Həftələr tapılmadı. \"Həftə 1: mövzu\" formatını yoxlayın."; return; }
+  S.course = plan;
+  if (!plan.weeks.some(w => w.week === S.today)) S.today = plan.weeks[0].week;
+  $("extractStatus").textContent = plan.weeks.length + " həftə tapıldı" + (sample ? " (AI ilə)" : "");
+  renderWeeks(); renderTeacherMisc(); renderStudent();
+}
+
+function renderWeeks() {
+  $("courseName").textContent = S.course.name;
+  const el = $("weeks"); el.innerHTML = "";
+  for (const w of S.course.weeks) {
+    const d = document.createElement("div");
+    d.className = "week" + (w.week === S.today ? " today" : "");
+    d.tabIndex = 0; d.setAttribute("role", "button");
+    d.innerHTML = '<span class="wk">Həftə ' + esc(w.week) + '</span><span class="tp">' + esc(w.topic) + '<span class="cc">' + esc(w.concepts.join(", ")) + '</span></span>' + (w.week === S.today ? '<span class="tag">Bu gün</span>' : '<span></span>');
+    const pick = () => { S.today = w.week; S.draft = null; renderWeeks(); renderDraft(); renderTeacherMisc(); };
+    d.onclick = pick; d.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } };
+    el.append(d);
+  }
+  const t = weekObj(S.today);
+  $("todayBadge").textContent = t ? "Həftə " + t.week + " · " + t.topic : "";
+}
+const weekObj = n => S.course.weeks.find(w => w.week === n);
+
+// ---------- Python icrası (Skulpt) ----------
+function builtinRead(x) {
+  if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined) throw "Fayl tapılmadı: '" + x + "'";
+  return Sk.builtinFiles["files"][x];
+}
+async function runPython(src) {
+  if (typeof Sk === "undefined") return { out: "", err: "Python mühiti yüklənmədi. Səhifəni yeniləyin." };
+  let out = "";
+  Sk.configure({ output: t => { out += t; }, read: builtinRead, __future__: Sk.python3, execLimit: 4000, yieldLimit: 100, inputfun: () => "" });
+  Sk.execStart = Date.now();
+  try {
+    await Sk.misceval.asyncToPromise(() => Sk.importMainWithBody("<stdin>", false, src, true));
+    return { out, err: null };
+  } catch (e) {
+    let msg = e.toString();
+    if (/TimeLimit|Timeout/i.test(msg)) msg = "Vaxt bitdi: kod 4 saniyədən çox işlədi. Sonsuz dövr ola bilər.";
+    return { out, err: msg };
+  }
+}
+function harness(fn, tests) {
+  let s = "\n\n__tests = [\n" + tests.map(t => "    (" + t.args + ", " + t.expected + "),").join("\n") + "\n]\n";
+  s += "for __i in range(len(__tests)):\n" +
+       "    __a, __e = __tests[__i]\n" +
+       "    try:\n" +
+       "        __g = " + fn + "(*__a)\n" +
+       "        if __g == __e:\n" +
+       "            print('@@T|' + str(__i) + '|OK|' + repr(__g))\n" +
+       "        else:\n" +
+       "            print('@@T|' + str(__i) + '|FAIL|' + repr(__g))\n" +
+       "    except Exception as __x:\n" +
+       "        print('@@T|' + str(__i) + '|ERR|' + str(__x))\n";
+  return s;
+}
+async function runTests(code, lab) {
+  const r = await runPython(code + harness(lab.function_name, lab.tests));
+  const results = lab.tests.map(t => ({ status: "ERR", got: r.err ? "işləmədi" : "nəticə yoxdur", test: t }));
+  const userOut = [];
+  for (const line of r.out.split("\n")) {
+    if (line.startsWith("@@T|")) {
+      const [, i, st, ...rest] = line.split("|");
+      if (results[+i]) { results[+i].status = st; results[+i].got = rest.join("|"); }
+    } else if (line.trim()) userOut.push(line);
+  }
+  return { results, passed: results.filter(x => x.status === "OK").length, err: r.err, userOut: userOut.join("\n") };
+}
+
+// ---------- Lab yaratma ----------
+function isLab(o) {
+  return o && typeof o.function_name === "string" && /^[A-Za-z_]\w*$/.test(o.function_name) &&
+    typeof o.solution_code === "string" && typeof o.starter_code === "string" &&
+    Array.isArray(o.tests) && o.tests.length > 0 && o.tests.every(t => t && typeof t.args === "string" && typeof t.expected === "string");
+}
+
+async function generateLab(regenerate) {
+  const w = weekObj(S.today); if (!w) return;
+  const level = $("level").value;
+  const btn = $("btnGen"); btn.disabled = true;
+  $("genStatus").innerHTML = '<span class="spin"></span>' + (sample ? "AI lab yazır…" : "Lab hazırlanır…");
+  let lab = null, source = "fallback";
+  if (sample) {
+    try {
+      const excerpt = $("material").value.slice(0, 3000);
+      const r = await sample.json(
+        "Proqramlaşdırma müəllimi üçün bir Python lab tapşırığı yarat.\n" +
+        "Kurs: " + S.course.name + "\nBugünkü mövzu: Həftə " + w.week + " — " + w.topic + "\nAnlayışlar: " + w.concepts.join(", ") + "\nÇətinlik: " + level + "\n" +
+        "Kurs materialından parça:\n\"\"\"\n" + excerpt + "\n\"\"\"\n\n" +
+        "Qaydalar:\n" +
+        "- Tapşırıq bir Python funksiyası yazmaqdır və bugünkü mövzunun anlayışlarını işlətməlidir. Sonrakı həftələrin mövzularını tələb etmə.\n" +
+        "- import, f-string, input() və fayl əməliyyatlarından istifadə etmə.\n" +
+        "- description Azərbaycan dilində, 2-4 cümlə və bir nümunə: \"Nümunə: f(...) → ...\".\n" +
+        "- 5 test. \"args\" funksiyanın arqumentlərinin Python siyahısı kimi yazılışıdır (məs. \"[10]\" və ya \"[[1, 2], 3]\"). \"expected\" gözlənilən nəticənin Python literalıdır (məs. \"30\", \"'A'\", \"[1, 2]\"). Kənar halları da yoxla.\n" +
+        "- solution_code bütün testlərdən keçən düzgün həlldir. starter_code yalnız funksiya başlığı, \"# kodunu bura yaz\" şərhi və pass.\n" +
+        "- hints: 3 ipucu, getdikcə daha konkret, amma heç biri hazır həll və ya kod vermir.\n\n" +
+        "Yalnız JSON qaytar: {\"title\": \"...\", \"description\": \"...\", \"function_name\": \"...\", \"starter_code\": \"...\", \"solution_code\": \"...\", \"tests\": [{\"args\": \"...\", \"expected\": \"...\"}], \"hints\": [\"...\"]}",
+        regenerate ? { cache: false } : {});
+      if (isLab(r)) { lab = r; source = "ai"; }
+    } catch (e) { if (["not_granted", "sampling_disabled"].includes(e.code)) setAi(null); }
+  }
+  if (!lab) {
+    await new Promise(r => setTimeout(r, 900));
+    const fb = FALLBACK_LABS[w.week] || FALLBACK_LABS[Math.min(7, Math.max(1, w.week))] || FALLBACK_LABS[3];
+    lab = JSON.parse(JSON.stringify(fb));
+  }
+  lab.hints = Array.isArray(lab.hints) ? lab.hints.map(String).slice(0, 3) : [];
+  const draft = { ...lab, id: "lab" + Date.now(), week: w.week, topic: w.topic, level, source, mode: "hint", check: null };
+  S.draft = draft;
+  $("genStatus").innerHTML = '<span class="spin"></span>Həll testlərlə yoxlanır…';
+  renderDraft();
+  const check = await runTests(draft.solution_code, draft);
+  draft.check = check;
+  btn.disabled = false;
+  $("genStatus").textContent = "";
+  renderDraft();
+}
+
+function renderDraft() {
+  const el = $("draft");
+  const d = S.draft;
+  if (!d) { el.innerHTML = '<p class="hint-text">Çətinliyi seçib "Lab yarat" düyməsini basın. Sistem tapşırığı, gizli testləri və ipuclarını hazırlayacaq, sonra nümunə həlli testlərdən keçirib yoxlayacaq.</p>'; return; }
+  const ok = d.check && d.check.passed === d.tests.length;
+  const checkBadge = !d.check ? '<span class="badge plain">yoxlanır…</span>'
+    : ok ? '<span class="badge ok">Nümunə həll ' + d.check.passed + '/' + d.tests.length + ' testdən keçdi</span>'
+         : '<span class="badge bad">Xəta: ' + (d.tests.length - d.check.passed) + ' test keçmədi</span>';
+  el.innerHTML =
+    '<div class="lab-card">' +
+      '<div class="row"><span class="badge plain">' + esc(LEVEL_NAME[d.level]) + '</span><span class="badge plain">' + (d.source === "ai" ? "AI ilə yaradılıb" : "Nümunə lab") + '</span>' + checkBadge + '</div>' +
+      '<h3>' + esc(d.title) + '</h3>' +
+      '<p class="desc">' + esc(d.description) + '</p>' +
+      '<div class="scroll"><table class="tests"><thead><tr><th>Arqumentlər</th><th>Gözlənilən</th><th>Həllin nəticəsi</th></tr></thead><tbody>' +
+        d.tests.map((t, i) => {
+          const r = d.check && d.check.results[i];
+          return '<tr><td>' + esc(t.args) + '</td><td>' + esc(t.expected) + '</td><td>' + (r ? (r.status === "OK" ? '<span class="badge ok">keçdi</span>' : '<span class="badge bad">' + esc(r.got) + '</span>') : "…") + '</td></tr>';
+        }).join("") +
+      '</tbody></table></div>' +
+      '<details><summary>Başlanğıc kod, nümunə həll və ipucları</summary><pre class="mini">' + esc(d.starter_code) + '</pre><pre class="mini" style="margin-top:8px">' + esc(d.solution_code) + '</pre><ol>' + d.hints.map(h => '<li>' + esc(h) + '</li>').join("") + '</ol></details>' +
+      '<div class="row"><label class="inline" for="modeSel">AI rejimi <select id="modeSel"><option value="hint">AI ipucu verir</option><option value="off">AI söndürülüb</option><option value="exam">İmtahan rejimi</option></select></label></div>' +
+      '<div class="row"><button class="btn primary" id="btnApprove"' + (ok ? "" : " disabled") + '>Təsdiqlə və şagirdlərə göndər</button><button class="btn" id="btnRegen">Yenidən yarat</button></div>' +
+      (d.check && !ok ? '<p class="hint-text">Testlərdən keçməyən lab şagirdə göndərilə bilməz. Yenidən yaradın.</p>' : '') +
+    '</div>';
+  $("modeSel").value = d.mode;
+  $("modeSel").onchange = e => { d.mode = e.target.value; };
+  $("btnApprove").onclick = approveDraft;
+  $("btnRegen").onclick = () => generateLab(true);
+}
+
+function approveDraft() {
+  const d = S.draft; if (!d) return;
+  S.labs.unshift(d);
+  S.code[d.id] = d.starter_code;
+  S.activeLab = d.id;
+  S.draft = null;
+  renderDraft(); renderTeacherMisc(); renderStudent();
+  toast("Lab şagirdlərə göndərildi.", "Şagird kimi aç", () => setView("sagird"));
+}
+
+// ---------- Müəllim paneli ----------
+function seeded(name, week) {
+  let h = 0; for (const c of name + ":" + week) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return 25 + (h % 74);
+}
+function cellClass(v) { return v == null ? "c-none" : v < 50 ? "c-low" : v < 80 ? "c-mid" : "c-high"; }
+
+function renderTeacherMisc() {
+  const list = $("approvedList");
+  list.innerHTML = S.labs.length ? "" : '<p class="hint-text">Hələ göndərilmiş lab yoxdur.</p>';
+  for (const l of S.labs) {
+    const it = document.createElement("div"); it.className = "item";
+    it.innerHTML = '<div><b>' + esc(l.title) + '</b><small>Həftə ' + esc(l.week) + ' · ' + esc(LEVEL_NAME[l.level]) + ' · ' + esc(l.tests.length) + ' test</small></div><span class="badge ' + (l.mode === "hint" ? "ok" : l.mode === "exam" ? "mid" : "plain") + '">' + esc(MODE_NAME[l.mode]) + '</span>';
+    list.append(it);
+  }
+  const weeks = S.course.weeks.slice(0, 8);
+  const heat = $("heat");
+  let html = '<thead><tr><th>Şagird</th>' + weeks.map(w => '<th title="' + esc(w.topic) + '">H' + esc(w.week) + '</th>').join("") + '</tr></thead><tbody>';
+  const alerts = [];
+  for (const n of CLASSMATES) {
+    html += '<tr><td>' + esc(n) + '</td>' + weeks.map(w => {
+      const v = w.week <= S.today ? seeded(n, w.week) : null;
+      if (w.week === S.today && v != null && v < 50) alerts.push(n + " — " + w.topic + " (" + v + ")");
+      return '<td class="cell ' + cellClass(v) + '">' + (v == null ? "—" : v) + '</td>';
+    }).join("") + '</tr>';
+  }
+  html += '<tr class="me"><td>Sən (demo)</td>' + weeks.map(w => {
+    const v = S.mastery[w.week] ?? null;
+    return '<td class="cell ' + cellClass(v) + '">' + (v == null ? "—" : v) + '</td>';
+  }).join("") + '</tr></tbody>';
+  heat.innerHTML = html;
+  const t = weekObj(S.today);
+  $("alerts").innerHTML = alerts.length
+    ? '<h3 style="margin-bottom:6px">Bugünkü mövzuda köməyə ehtiyacı olanlar</h3><ul class="alerts">' + alerts.map(a => '<li>' + esc(a) + '</li>').join("") + '</ul><p class="hint-text" style="margin-top:6px">Bu şagirdlərə sistem avtomatik "Asan" təkrar labı təklif edir.</p>'
+    : '<p class="hint-text">' + (t ? "Həftə " + t.week + " üzrə bütün nümunə şagirdlər 50-dən yuxarıdır." : "") + '</p>';
+}
+
+// ---------- Şagird: quiz ----------
+function buildQuizPlan() {
+  return Object.keys(QUIZ).map(Number).filter(wk => weekObj(wk));
+}
+function renderQuiz() {
+  const el = $("quizPanel");
+  const q = S.quiz;
+  if (q.done) {
+    el.innerHTML = '<div class="panel-head"><span class="step">Giriş quizi</span><span class="badge ok">tamamlandı</span></div><p class="hint-text">Cavablarına görə hər mövzu üzrə başlanğıc səviyyən təyin olundu. ' + q.answers.filter(a => a.ok).length + '/' + q.answers.length + ' düzgün cavab.</p><div class="row"><button class="btn" id="btnRequiz">Yenidən keç</button></div>';
+    $("btnRequiz").onclick = () => { S.quiz = { done: false, idx: 0, plan: [], answers: [], started: true }; startQuiz(); };
+    return;
+  }
+  if (!q.started) {
+    el.innerHTML = '<div class="panel-head"><span class="step">Giriş quizi</span><span class="badge mid">4–8 sual</span></div><p class="hint-text">Sistem səviyyəni bilmək üçün qısa test verir. Hər mövzuda düzgün cavab versən, növbəti sual daha çətin olur.</p><div class="row"><button class="btn primary" id="btnQuiz">Quizə başla</button></div>';
+    $("btnQuiz").onclick = startQuiz;
+    return;
+  }
+  const cur = q.queue[0];
+  const item = QUIZ[cur.week][cur.kind];
+  const w = weekObj(cur.week);
+  el.innerHTML = '<div class="quiz-meta"><span>Sual ' + (q.answers.length + 1) + '</span><span>' + esc(w ? w.topic : "") + ' · ' + (cur.kind === "easy" ? "asan" : "çətin") + '</span></div>' +
+    '<div class="quiz-q"><b>' + esc(item.q) + '</b>' + (item.code ? '<pre class="mini">' + esc(item.code) + '</pre>' : '') +
+    '<div class="quiz-opts">' + item.opts.map((o, i) => '<button class="btn" data-i="' + i + '">' + esc(o) + '</button>').join("") + '</div></div>';
+  el.querySelectorAll(".quiz-opts button").forEach(b => b.onclick = () => answerQuiz(Number(b.dataset.i)));
+}
+function startQuiz() {
+  S.quiz.started = true;
+  S.quiz.queue = buildQuizPlan().map(week => ({ week, kind: "easy" }));
+  S.quiz.answers = [];
+  S.quiz.score = {};
+  renderQuiz();
+}
+function answerQuiz(i) {
+  const q = S.quiz;
+  const cur = q.queue.shift();
+  const item = QUIZ[cur.week][cur.kind];
+  const ok = i === item.a;
+  q.answers.push({ ...cur, ok });
+  if (cur.kind === "easy") {
+    if (ok) { q.queue.unshift({ week: cur.week, kind: "hard" }); q.score[cur.week] = 55; }
+    else q.score[cur.week] = 20;
+  } else q.score[cur.week] = ok ? 90 : 55;
+  if (!q.queue.length) {
+    q.done = true;
+    for (const [wk, v] of Object.entries(q.score)) S.mastery[wk] = v;
+    renderStudent(); renderTeacherMisc();
+    toast("Quiz bitdi. Səviyyən yeniləndi.");
+  } else renderQuiz();
+}
+
+// ---------- Şagird: yol və lab ----------
+function levelFor(v) { return v == null ? "orta" : v < 50 ? "asan" : v < 80 ? "orta" : "çətin"; }
+function renderBars() {
+  const el = $("bars"); el.innerHTML = "";
+  for (const w of S.course.weeks.slice(0, 8)) {
+    const v = S.mastery[w.week];
+    const d = document.createElement("div");
+    d.className = "bar" + (w.week === S.today ? " today" : "");
+    d.innerHTML = '<span class="name">H' + esc(w.week) + ' · ' + esc(w.topic) + '</span><span class="v">' + (v == null ? "—" : v) + '</span><div class="track"><div class="fill ' + (v == null ? "" : v < 50 ? "low" : v < 80 ? "mid" : "") + '" style="width:' + (v || 0) + '%"></div></div>';
+    el.append(d);
+  }
+  const t = weekObj(S.today);
+  const v = t ? S.mastery[t.week] : null;
+  let rec;
+  if (!t) rec = "";
+  else if (v == null) rec = "Həftə " + t.week + " (" + t.topic + ") üzrə səviyyən hələ bəlli deyil. Giriş quizini keç və ya bugünkü labı həll et.";
+  else if (v < 50) rec = "Növbəti addım: " + t.topic + " üzrə <b>Asan</b> təkrar lab. Əsas anlayışları möhkəmləndirək.";
+  else if (v < 80) rec = "Növbəti addım: " + t.topic + " üzrə <b>Orta</b> səviyyəli lab. Yaxşı gedirsən.";
+  else rec = "Əla! " + t.topic + " mövzusunu mənimsəmisən. Növbəti addım: <b>Çətin</b> lab və ya növbəti mövzu.";
+  $("rec").innerHTML = rec;
+}
+
+function currentLab() { return S.labs.find(l => l.id === S.activeLab) || S.labs[0]; }
+
+function renderLab() {
+  const pick = $("labPick");
+  pick.innerHTML = S.labs.map(l => '<option value="' + esc(l.id) + '">Həftə ' + esc(l.week) + ' · ' + esc(l.title) + '</option>').join("");
+  const lab = currentLab();
+  if (!lab) { $("labInfo").innerHTML = '<p class="hint-text">Müəllim hələ lab göndərməyib.</p>'; return; }
+  pick.value = lab.id;
+  S.activeLab = lab.id;
+  const hintAllowed = lab.mode === "hint";
+  $("labInfo").innerHTML =
+    '<div class="row"><span class="badge plain">' + esc(LEVEL_NAME[lab.level]) + '</span><span class="badge ' + (hintAllowed ? "ok" : lab.mode === "exam" ? "mid" : "plain") + '">' + esc(MODE_NAME[lab.mode]) + '</span></div>' +
+    '<h3 style="margin-top:8px">' + esc(lab.title) + '</h3><p class="desc" style="margin-top:4px">' + esc(lab.description) + '</p>';
+  $("code").value = S.code[lab.id] ?? lab.starter_code;
+  $("btnHint").hidden = !hintAllowed;
+  const prev = S.lastRun[lab.id];
+  $("results").innerHTML = prev ? prev.html : "";
+  $("console").textContent = prev ? prev.console : 'Kodu yazıb "İşə sal" və ya "Testlərlə yoxla" düyməsini bas.';
+  $("hintOut").innerHTML = "";
+}
+
+function renderStudent() { renderQuiz(); renderBars(); renderLab(); }
+
+async function runCode() {
+  const lab = currentLab(); if (!lab) return;
+  S.code[lab.id] = $("code").value;
+  $("console").innerHTML = '<span class="spin"></span>İşləyir…';
+  const r = await runPython($("code").value);
+  const c = $("console"); c.textContent = r.out || (r.err ? "" : "(kod heç nə çap etmədi)");
+  if (r.err) { const s = document.createElement("span"); s.className = "err"; s.textContent = (r.out ? "\n" : "") + r.err; c.append(s); }
+}
+
+async function checkCode() {
+  const lab = currentLab(); if (!lab) return;
+  const code = $("code").value; S.code[lab.id] = code;
+  $("btnCheck").disabled = true;
+  $("console").innerHTML = '<span class="spin"></span>Testlər işləyir…';
+  const r = await runTests(code, lab);
+  $("btnCheck").disabled = false;
+  const total = lab.tests.length;
+  const exam = lab.mode === "exam";
+  let consoleText = (r.userOut ? r.userOut + "\n" : "") + (r.err ? r.err + "\n" : "") + r.passed + "/" + total + " test keçdi.";
+  let html = "";
+  if (exam) html = '<p class="hint-text">İmtahan rejimində testlərin detalları göstərilmir.</p>';
+  else html = r.results.map(x => '<div class="res"><span class="badge ' + (x.status === "OK" ? "ok" : "bad") + '">' + (x.status === "OK" ? "keçdi" : x.status === "ERR" ? "xəta" : "səhv") + '</span><code>' + esc(lab.function_name) + '(' + esc(x.test.args.replace(/^\[|\]$/g, "")) + ') → ' + esc(x.got) + (x.status === "OK" ? "" : "  ·  gözlənilən: " + esc(x.test.expected)) + '</code></div>').join("");
+  $("console").textContent = consoleText;
+  $("results").innerHTML = html;
+  S.lastRun[lab.id] = { html, console: consoleText, results: r.results, passed: r.passed };
+
+  const prev = S.mastery[lab.week];
+  const used = S.hintIdx[lab.id] || 0;
+  if (r.passed === total) {
+    const gain = { asan: 10, orta: 18, "çətin": 25 }[lab.level] - used * 4;
+    S.mastery[lab.week] = Math.min(100, (prev ?? 40) + Math.max(5, gain));
+    toast("Bütün testlər keçdi. Səviyyən " + (prev ?? "—") + " → " + S.mastery[lab.week]);
+  } else if (prev == null) {
+    S.mastery[lab.week] = Math.round(30 * r.passed / total) + 10;
+  }
+  renderBars(); renderTeacherMisc();
+}
+
+async function getHint() {
+  const lab = currentLab(); if (!lab || lab.mode !== "hint") return;
+  const out = $("hintOut");
+  const n = S.hintIdx[lab.id] || 0;
+  const btn = $("btnHint");
+  const box = document.createElement("div"); box.className = "ai-box";
+  out.innerHTML = ""; out.append(box);
+  if (sample) {
+    btn.disabled = true;
+    box.textContent = "Düşünür…";
+    const last = S.lastRun[lab.id];
+    const failing = last ? last.results.filter(x => x.status !== "OK").slice(0, 3).map(x => lab.function_name + "(" + x.test.args + ") gözlənilən " + x.test.expected + ", alınan " + x.got).join("\n") : "Hələ yoxlanmayıb.";
+    try {
+      await sample(
+        "Sən Sokrat üsulu ilə işləyən, səbirli proqramlaşdırma müəllimisən. Şagirdin bu mövzuda səviyyəsi: " + (S.mastery[lab.week] ?? "bəlli deyil") + "/100.\n" +
+        "Tapşırıq: " + lab.description + "\n\nŞagirdin kodu:\n" + $("code").value.slice(0, 4000) + "\n\nSon yoxlamada keçməyən testlər:\n" + failing + "\n\n" +
+        "Bu, şagirdin " + (n + 1) + "-ci ipucu istəyidir.\n" +
+        "Qaydalar: Hazır həll, düzəldilmiş kod və ya kod sətri yazma. Azərbaycan dilində ən çox 3 qısa cümlə yaz. Səhvin harada ola biləcəyinə işarə et və şagirdi düşündürən bir sualla bitir.",
+        { modelTier: "quick", cache: false, onText: ({ text }) => { box.textContent = text; } });
+      S.hintIdx[lab.id] = n + 1;
+    } catch (e) {
+      if (["not_granted", "sampling_disabled"].includes(e.code)) setAi(null);
+      box.textContent = lab.hints[Math.min(n, lab.hints.length - 1)] || "İpucu əlçatan deyil.";
+      S.hintIdx[lab.id] = n + 1;
+    }
+    btn.disabled = false;
+  } else {
+    const h = lab.hints[n];
+    box.textContent = h ? "İpucu " + (n + 1) + "/" + lab.hints.length + ": " + h : "Bütün ipuclarından istifadə etdin. Kodunu addım-addım print ilə yoxla.";
+    S.hintIdx[lab.id] = n + 1;
+  }
+}
+
+// ---------- Görünüşlər ----------
+function setView(v) {
+  const teacher = v !== "sagird";
+  $("viewTeacher").hidden = !teacher;
+  $("viewStudent").hidden = teacher;
+  $("tabTeacher").setAttribute("aria-selected", teacher);
+  $("tabStudent").setAttribute("aria-selected", !teacher);
+  if (!teacher) renderStudent();
+  try { history.replaceState(null, "", teacher ? "#muellim" : "#sagird"); } catch (e) {}
+}
+
+function setAi(s) {
+  sample = s;
+  const p = $("aiPill");
+  p.textContent = "Demo · nümunə məlumatlar";
+  p.className = "pill on";
+  p.title = "Təqdimat üçün demo: lablar və ipucları hazır nümunələrdir";
+}
+
+// ---------- Başlanğıc ----------
+$("material").value = SAMPLE_MATERIAL;
+S.course = parseWeeksLocally(SAMPLE_MATERIAL);
+const first = { ...JSON.parse(JSON.stringify(FALLBACK_LABS[3])), id: "lab-start", week: 3, topic: "Dövrlər", level: "orta", source: "fallback", mode: "hint", check: null };
+S.labs.push(first); S.code[first.id] = first.starter_code; S.activeLab = first.id;
+
+$("tabTeacher").onclick = () => setView("muellim");
+$("tabStudent").onclick = () => setView("sagird");
+$("btnExtract").onclick = extractPlan;
+$("btnGen").onclick = () => generateLab(false);
+$("btnRun").onclick = runCode;
+$("btnCheck").onclick = checkCode;
+$("btnHint").onclick = getHint;
+$("btnReset").onclick = () => { const l = currentLab(); if (l) { S.code[l.id] = l.starter_code; delete S.lastRun[l.id]; renderLab(); } };
+$("labPick").onchange = e => { S.code[S.activeLab] = $("code").value; S.activeLab = e.target.value; renderLab(); };
+$("code").addEventListener("keydown", e => {
+  if (e.key === "Tab" && !e.shiftKey) {
+    e.preventDefault();
+    const t = e.target, s = t.selectionStart, en = t.selectionEnd;
+    t.value = t.value.slice(0, s) + "    " + t.value.slice(en);
+    t.selectionStart = t.selectionEnd = s + 4;
+  }
+});
+$("code").addEventListener("input", () => { if (S.activeLab) S.code[S.activeLab] = $("code").value; });
+$("fileIn").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => { $("material").value = String(rd.result).slice(0, 50000); $("extractStatus").textContent = f.name + " yükləndi. İndi planı çıxarın."; };
+  rd.readAsText(f);
+};
+
+renderWeeks(); renderDraft(); renderTeacherMisc(); renderStudent();
+setView(location.hash === "#sagird" ? "sagird" : "muellim");
+setAi(null);
+</script>
+
+</body>
+</html>

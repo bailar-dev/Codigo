@@ -1,0 +1,459 @@
+<title>Codigo Pitch Hazırlığı</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Montserrat:wght@700;800&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: pitch hazırlıq sənədi. Üstdə tələb olunan məbləğ bloku, yapışqan bölmə menyusu, sonra yol xəritəsi, büdcə, gəlir proqnozu, suallar və hazırlıq siyahısı. Codigo brend rəngləri. */
+:root {
+  --bg: #F4F9FD;
+  --surface: #FFFFFF;
+  --tint: #E3F1FD;
+  --ink: #13295C;
+  --muted: #5A6B8C;
+  --line: #D9E5F3;
+  --blue: #0E6FD6;
+  --aqua: #2BD3D8;
+  --navy: #1F3F8A;
+  --on-accent: #FFFFFF;
+  --ok: #1F9D63;
+  --ok-soft: #DFF5EA;
+  --warn: #B7791F;
+  --warn-soft: #FBEFD9;
+  --risk: #D9534F;
+  --risk-soft: #FBE4E3;
+  --c1: #0E6FD6; --c2: #2BD3D8; --c3: #1F3F8A; --c4: #7FB8F0; --c5: #14B8C4; --c6: #B3C3DD;
+  --font-display: "Baloo 2", "Nunito", sans-serif;
+  --font-brand: "Montserrat", "Nunito", sans-serif;
+  --font-body: "Nunito", "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A1328; --surface: #111C38; --tint: #16244A; --ink: #EAF0FF; --muted: #9AA9CC; --line: #22325C;
+    --blue: #4FB0F5; --aqua: #2BD3D8; --navy: #9DB8FF; --on-accent: #071226; --ok: #4BD08F; --ok-soft: #12301F;
+    --warn: #F2B866; --warn-soft: #3A2C17; --risk: #FF8A85; --risk-soft: #3A1E1E;
+    --c1: #4FB0F5; --c2: #2BD3D8; --c3: #8FA6FF; --c4: #2F6FB8; --c5: #14B8C4; --c6: #4A5A85; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0A1328; --surface: #111C38; --tint: #16244A; --ink: #EAF0FF; --muted: #9AA9CC; --line: #22325C;
+  --blue: #4FB0F5; --aqua: #2BD3D8; --navy: #9DB8FF; --on-accent: #071226; --ok: #4BD08F; --ok-soft: #12301F;
+  --warn: #F2B866; --warn-soft: #3A2C17; --risk: #FF8A85; --risk-soft: #3A1E1E;
+  --c1: #4FB0F5; --c2: #2BD3D8; --c3: #8FA6FF; --c4: #2F6FB8; --c5: #14B8C4; --c6: #4A5A85; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16.5px; line-height: 1.6; margin: 0; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--surface); }
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.inner { max-width: 1100px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; line-height: 1.15; text-wrap: balance; }
+h1 { font-size: clamp(2.1rem, 4.6vw, 3.2rem); font-weight: 800; }
+h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800; }
+h3 { font-size: 1.2rem; font-weight: 700; }
+p { margin: 0; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; border-radius: 6px; }
+.kicker { font-weight: 800; font-size: 0.78rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--blue); }
+.muted { color: var(--muted); }
+.num { font-variant-numeric: tabular-nums; }
+section.sec { padding-block: 56px; scroll-margin-top: 70px; }
+.sec-head { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; max-width: 760px; }
+.sec-head p { color: var(--muted); }
+
+/* Hero */
+.hero { background: linear-gradient(135deg, #2BD3D8, #0E6FD6 55%, #0B4C9A); color: #FFFFFF; padding-block: 44px 52px; }
+.hero .inner { display: flex; flex-direction: column; gap: 26px; }
+.brandline { display: flex; align-items: center; gap: 12px; }
+.brandline img { width: 52px; height: 52px; border-radius: 22%; box-shadow: 0 12px 26px -12px rgba(0, 0, 0, 0.5); }
+.brandline b { font-family: var(--font-brand); font-weight: 800; font-size: 1.5rem; letter-spacing: -0.01em; }
+.brandline span { display: block; font-size: 0.8rem; font-weight: 700; opacity: 0.85; }
+.hero h1 { color: #FFFFFF; }
+.hero .lead { font-size: 1.1rem; max-width: 64ch; color: rgba(255, 255, 255, 0.9); }
+.ask { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 22px; overflow: hidden; }
+.ask > div { padding: 18px 20px; border-right: 1px solid rgba(255, 255, 255, 0.22); display: flex; flex-direction: column; gap: 2px; }
+.ask > div:last-child { border-right: 0; }
+.ask small { font-weight: 800; font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.85; }
+.ask b { font-family: var(--font-brand); font-size: clamp(1.4rem, 2.6vw, 2rem); font-weight: 800; line-height: 1.15; }
+.ask span { font-size: 0.86rem; opacity: 0.85; }
+@media (max-width: 760px) { .ask { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ask > div:nth-child(2) { border-right: 0; } .ask > div:nth-child(-n+2) { border-bottom: 1px solid rgba(255, 255, 255, 0.22); } }
+
+/* Sticky nav */
+.toc { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.toc .inner { display: flex; gap: 4px; overflow-x: auto; padding-block: 10px; scrollbar-width: none; }
+.toc a { flex: none; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 0.9rem; color: var(--muted); text-decoration: none; }
+.toc a:hover { background: var(--tint); color: var(--blue); }
+
+/* Pitch summary */
+.pitch30 { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 24px 26px; display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 14px 24px; }
+.pitch30 dt { font-weight: 800; color: var(--blue); font-size: 0.9rem; }
+.pitch30 dd { margin: 0; }
+@media (max-width: 620px) { .pitch30 { grid-template-columns: minmax(0, 1fr); gap: 4px; } .pitch30 dd { margin-bottom: 10px; } }
+
+/* Timeline */
+.timeline { display: flex; flex-direction: column; gap: 0; position: relative; }
+.phase { display: grid; grid-template-columns: 150px 28px minmax(0, 1fr); gap: 0 18px; }
+.phase .when { text-align: right; padding-top: 2px; }
+.phase .when b { display: block; font-family: var(--font-brand); font-size: 0.95rem; }
+.phase .when span { font-size: 0.82rem; color: var(--muted); font-weight: 700; }
+.phase .rail { position: relative; display: flex; justify-content: center; }
+.phase .rail::before { content: ""; position: absolute; top: 0; bottom: 0; width: 2px; background: var(--line); }
+.phase:last-child .rail::before { bottom: calc(100% - 16px); }
+.phase .rail i { position: relative; width: 18px; height: 18px; border-radius: 50%; background: var(--surface); border: 3px solid var(--blue); margin-top: 3px; }
+.phase.now .rail i { background: var(--blue); box-shadow: 0 0 0 5px color-mix(in srgb, var(--blue) 22%, transparent); }
+.phase .body { padding-bottom: 28px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.phase .body .card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px 20px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 760px) { .phase { grid-template-columns: 22px minmax(0, 1fr); } .phase .when { grid-column: 2; text-align: left; order: -1; padding-bottom: 6px; } .phase .rail { grid-row: 1 / span 2; } .phase .body .card { grid-template-columns: minmax(0, 1fr); } }
+.card h4 { margin: 0 0 6px; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.card ul { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 4px; font-size: 0.95rem; }
+.kpi li::marker { color: var(--ok); }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 0.74rem; font-weight: 800; padding: 3px 10px; border-radius: 99px; background: var(--tint); color: var(--blue); }
+.chip.ok { background: var(--ok-soft); color: var(--ok); }
+.chip.warn { background: var(--warn-soft); color: var(--warn); }
+.chip.risk { background: var(--risk-soft); color: var(--risk); }
+
+/* Budget */
+.budget { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 36px; align-items: center; }
+@media (max-width: 860px) { .budget { grid-template-columns: minmax(0, 1fr); justify-items: center; } }
+.donut { width: 280px; max-width: 100%; aspect-ratio: 1; border-radius: 50%; position: relative;
+  background: conic-gradient(var(--c1) 0 60%, var(--c2) 60% 72%, var(--c3) 72% 80%, var(--c4) 80% 90%, var(--c5) 90% 94%, var(--c6) 94% 100%); }
+.donut::after { content: ""; position: absolute; inset: 24%; border-radius: 50%; background: var(--bg); }
+.donut .center { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; z-index: 1; }
+.donut .center b { font-family: var(--font-brand); font-size: 1.7rem; display: block; line-height: 1.1; }
+.donut .center span { font-size: 0.82rem; font-weight: 700; color: var(--muted); }
+.legend { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.lg { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto 52px; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.lg i { width: 14px; height: 14px; border-radius: 4px; }
+.lg b { font-weight: 800; }
+.lg .amt { font-family: var(--font-mono); font-weight: 600; font-size: 0.9rem; }
+.lg .pct { text-align: right; font-weight: 800; color: var(--muted); font-size: 0.9rem; }
+.tbl { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; margin-top: 24px; }
+.tbl table { width: 100%; min-width: 620px; border-collapse: collapse; font-size: 0.93rem; }
+.tbl th, .tbl td { text-align: left; padding: 11px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tbl th { font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 800; background: var(--tint); }
+.tbl td.r, .tbl th.r { text-align: right; font-family: var(--font-mono); white-space: nowrap; }
+.tbl tr.grp td { background: var(--bg); font-weight: 800; color: var(--blue); }
+.tbl tr.total td { font-weight: 800; font-size: 1rem; border-bottom: 0; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tranches { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
+@media (max-width: 860px) { .tranches { grid-template-columns: minmax(0, 1fr); } }
+.tr { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+.tr .amt { font-family: var(--font-brand); font-size: 1.6rem; font-weight: 800; color: var(--blue); }
+.tr ul { margin: 0; padding-left: 1.1em; font-size: 0.93rem; color: var(--muted); }
+.scen { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+@media (max-width: 700px) { .scen { grid-template-columns: minmax(0, 1fr); } }
+.scen > div { border-radius: 18px; padding: 20px; border: 1px dashed var(--line); background: var(--surface); }
+.scen > div.main { border: 2px solid var(--blue); }
+
+/* Revenue chart */
+.chart { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 10px; }
+.bar-row { display: grid; grid-template-columns: 120px minmax(0, 1fr) 96px; gap: 12px; align-items: center; font-size: 0.9rem; }
+.bar-row .lbl { font-weight: 800; }
+.bar-row .lbl small { display: block; font-weight: 700; color: var(--muted); font-size: 0.76rem; }
+.track { position: relative; height: 26px; background: var(--tint); border-radius: 8px; }
+.track .fill { position: absolute; inset: 0 auto 0 0; border-radius: 8px; background: linear-gradient(90deg, var(--aqua), var(--blue)); }
+.track .burn { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--risk); }
+.bar-row .v { text-align: right; font-family: var(--font-mono); font-weight: 600; }
+.chart-legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 0.84rem; color: var(--muted); font-weight: 700; padding-top: 6px; }
+.chart-legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.chart-legend .a::before { background: linear-gradient(90deg, var(--aqua), var(--blue)); }
+.chart-legend .b::before { background: var(--risk); width: 3px; }
+@media (max-width: 560px) { .bar-row { grid-template-columns: 84px minmax(0, 1fr) 72px; gap: 8px; font-size: 0.82rem; } }
+.unit { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+@media (max-width: 760px) { .unit { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.unit > div { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+.unit b { display: block; font-family: var(--font-brand); font-size: 1.4rem; color: var(--blue); }
+.unit span { font-size: 0.86rem; color: var(--muted); font-weight: 700; }
+.note { font-size: 0.86rem; color: var(--muted); margin-top: 12px; max-width: 86ch; }
+
+/* Q&A */
+.qa-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; align-items: center; }
+.qa-tools button { font: 800 0.88rem var(--font-body); border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 10px; padding: 8px 14px; cursor: pointer; }
+.qa-tools button[aria-pressed="true"] { background: var(--blue); color: var(--on-accent); border-color: var(--blue); }
+.qa-group { margin-top: 26px; }
+.qa-group > h3 { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.qa-group > h3 span { font-family: var(--font-body); font-size: 0.8rem; color: var(--muted); font-weight: 800; }
+details.q { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 18px; margin-bottom: 10px; }
+details.q[open] { border-color: var(--blue); }
+details.q summary { cursor: pointer; list-style: none; display: flex; gap: 12px; align-items: flex-start; font-weight: 800; }
+details.q summary::-webkit-details-marker { display: none; }
+details.q summary::after { content: "+"; margin-left: auto; font-family: var(--font-mono); color: var(--blue); font-size: 1.2rem; line-height: 1; }
+details.q[open] summary::after { content: "−"; }
+details.q summary .chip { flex: none; margin-top: 2px; }
+.ans { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.ans p { max-width: 80ch; }
+.ans .short { border-left: 3px solid var(--aqua); padding-left: 12px; font-weight: 700; }
+.ans .tip { font-size: 0.88rem; color: var(--muted); }
+.ans .tip b { color: var(--warn); }
+
+/* Checklist */
+.check { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 700px) { .check { grid-template-columns: minmax(0, 1fr); } }
+.check label { display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; cursor: pointer; }
+.check input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--blue); flex: none; }
+.check label:has(input:checked) { border-color: var(--ok); background: var(--ok-soft); }
+.check label:has(input:checked) b { text-decoration: line-through; opacity: 0.7; }
+.check b { display: block; }
+.check span { font-size: 0.88rem; color: var(--muted); }
+footer { padding-block: 32px 48px; color: var(--muted); font-size: 0.86rem; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+
+<header class="hero wrap">
+  <div class="inner">
+    <div class="brandline"><img src="icon.webp" alt=""><div><b>CODIGO</b><span>Sənin kod yoldaşın</span></div></div>
+    <div>
+      <h1>Pitch hazırlığı: yol xəritəsi, büdcə və münsif sualları</h1>
+      <p class="lead" style="margin-top:12px">Münsiflərə nə istədiyimizi, pulu nəyə xərcləyəcəyimizi və hansı nəticələri nə vaxt göstərəcəyimizi bir yerdə toplayan sənəd.</p>
+    </div>
+    <div class="ask" aria-label="Tələb olunan investisiya">
+      <div><small>Tələb</small><b class="num">300 000 AZN</b><span>qrant və ya pre-seed</span></div>
+      <div><small>Müddət</small><b class="num">18 ay</b><span>Noyabr 2026 – Aprel 2028</span></div>
+      <div><small>Aylıq xərc</small><b class="num">≈16 700 AZN</b><span>komanda 5 nəfər</span></div>
+      <div><small>18-ci ayda</small><b class="num">3 000</b><span>şagird, 25 müəssisə</span></div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc wrap" aria-label="Bölmələr">
+  <div class="inner">
+    <a href="#xulase">30 saniyəlik pitch</a><a href="#yol">İnkişaf yolu</a><a href="#budce">Büdcə</a><a href="#gelir">Gəlir proqnozu</a><a href="#suallar">Münsif sualları</a><a href="#hazirliq">Hazırlıq</a>
+  </div>
+</nav>
+
+<main>
+<section class="sec wrap" id="xulase">
+  <div class="inner">
+    <div class="sec-head"><span class="kicker">Xülasə</span><h2>30 saniyədə Codigo</h2><p>Pitch-in əvvəlində və ya "Bir cümlə ilə nə edirsiniz?" sualına bu ardıcıllıqla cavab verin.</p></div>
+    <dl class="pitch30">
+      <dt>Problem</dt><dd>Proqramlaşdırma dərslərində hamı eyni tapşırığı alır, müəllim lab hazırlamağa saatlar sərf edir, ChatGPT isə şagirdin yerinə kodu yazır.</dd>
+      <dt>Həll</dt><dd>Codigo müəllimin öz materialından hər şagird üçün fərdi kvestlər hazırlayır, kodu real yoxlayır və AI tutor hazır cavab vermədən səhvi izah edir.</dd>
+      <dt>Fərqimiz</dt><dd>Müəllimin öz materialı, müəllimin idarə etdiyi AI, Azərbaycan dili. Bazardakı xarici platformalarda bu üçü birlikdə yoxdur.</dd>
+      <dt>Biznes</dt><dd>Kurslara şagird başına ayda 9 AZN, məktəb və universitetlərə illik lisenziya.</dd>
+      <dt>Tələb</dt><dd>18 ay üçün 300 000 AZN. Bu pulla MVP-dən 25 müəssisəyə və gəlirin aylıq xərci keçdiyi nöqtəyə çatırıq.</dd>
+    </dl>
+  </div>
+</section>
+
+<section class="sec wrap" id="yol" style="padding-top:0">
+  <div class="inner">
+    <div class="sec-head"><span class="kicker">İnkişaf yolu</span><h2>Nə vaxt nə edəcəyik</h2><p>Hər mərhələnin ölçülə bilən nəticəsi var. Növbəti maliyyə hissəsi yalnız əvvəlki mərhələnin nəticəsi əldə olunanda açılır.</p></div>
+    <div class="timeline">
+      <div class="phase now"><div class="when"><b>Noy – Dek 2026</b><span>ay 1–2 · indi</span></div><div class="rail"><i></i></div><div class="body">
+        <h3>Mərhələ 0 · Komanda və MVP</h3>
+        <div class="card"><div><h4>Nə edirik</h4><ul><li>5 nəfərlik komanda formalaşır</li><li>Prototipdən real MVP: server, hesablar, verilənlər bazası</li><li>Claude API ilə real AI tutor və lab generasiyası</li><li>3 IT kursu ilə pilot müqaviləsi</li></ul></div><div><h4>Nəticə (KPI)</h4><ul class="kpi"><li>MVP canlıdır, Python modulları hazırdır</li><li>100+ yoxlanmış tapşırıq</li><li>3 imzalı pilot razılaşması</li></ul></div></div>
+      </div></div>
+      <div class="phase"><div class="when"><b>Yan – Mar 2027</b><span>ay 3–5</span></div><div class="rail"><i></i></div><div class="body">
+        <h3>Mərhələ 1 · Kurslarda pilot</h3>
+        <div class="card"><div><h4>Nə edirik</h4><ul><li>3 IT kursunda, 300 şagirdlə pulsuz pilot</li><li>Müəllim rəyi ilə həftəlik təkmilləşdirmə</li><li>Öyrənmə nəticələrinin ölçülməsi: pilotdan əvvəl və sonra test</li></ul></div><div><h4>Nəticə (KPI)</h4><ul class="kpi"><li>Labların 70%-i dəyişikliksiz təsdiqlənir</li><li>Şagirdlərin 40%-i həftəlik aktivdir</li><li>Müəllimin lab hazırlıq vaxtı 3 dəfə azalır</li></ul></div></div>
+      </div></div>
+      <div class="phase"><div class="when"><b>Apr – İyn 2027</b><span>ay 6–8</span></div><div class="rail"><i></i></div><div class="body">
+        <h3>Mərhələ 2 · İlk gəlir və məktəblər</h3>
+        <div class="card"><div><h4>Nə edirik</h4><ul><li>Pilot kursları ödənişli plana keçir</li><li>2 məktəbdə pilot, valideyn hesabatı</li><li>JavaScript modulu, ikinci oyun dünyası</li></ul></div><div><h4>Nəticə (KPI)</h4><ul class="kpi"><li>600 şagird, ilk ödəyən müştərilər</li><li>Aylıq gəlir 2 000+ AZN</li><li>Məktəb pilotu başlayıb</li></ul></div></div>
+      </div></div>
+      <div class="phase"><div class="when"><b>İyl – Sen 2027</b><span>ay 9–11</span></div><div class="rail"><i></i></div><div class="body">
+        <h3>Mərhələ 3 · Universitetlər və yeni dillər</h3>
+        <div class="card"><div><h4>Nə edirik</h4><ul><li>C++ və Java dəstəyi</li><li>Universitet laboratoriyaları üçün avtomatik qiymətləndirmə</li><li>LMS inteqrasiyası (Moodle, Google Classroom)</li></ul></div><div><h4>Nəticə (KPI)</h4><ul class="kpi"><li>10 müəssisə, 1 000 şagird</li><li>Aylıq gəlir 4 500+ AZN</li><li>1 universitetdə pilot</li></ul></div></div>
+      </div></div>
+      <div class="phase"><div class="when"><b>Okt 2027 – Apr 2028</b><span>ay 12–18</span></div><div class="rail"><i></i></div><div class="body">
+        <h3>Mərhələ 4 · Miqyas və növbəti raund</h3>
+        <div class="card"><div><h4>Nə edirik</h4><ul><li>Bakıdan kənar regionlarda kurslar və məktəblər</li><li>Mobil tətbiq (şagird üçün)</li><li>Qonşu bazarların araşdırması, seed raunduna hazırlıq</li></ul></div><div><h4>Nəticə (KPI)</h4><ul class="kpi"><li>25 müəssisə, 3 000 şagird</li><li>Aylıq gəlir aylıq xərci keçir (≈18 700 AZN)</li><li>Seed raundu üçün data və müştəri hekayələri</li></ul></div></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec wrap" id="budce" style="padding-top:0">
+  <div class="inner">
+    <div class="sec-head"><span class="kicker">Büdcə</span><h2>300 000 AZN nəyə xərclənəcək</h2><p>Pulun 60%-i komandaya gedir, çünki məhsulu insanlar qurur. Qalanı texnologiya, məzmun, pilot və ehtiyat üçündür.</p></div>
+    <div class="budget">
+      <div class="donut" role="img" aria-label="Büdcə bölgüsü: komanda 60%, texnologiya 12%, məzmun 8%, pilot və marketinq 10%, hüquqi 4%, ehtiyat 6%"><div class="center"><div><b class="num">300K</b><span>AZN · 18 ay</span></div></div></div>
+      <div class="legend">
+        <div class="lg"><i style="background:var(--c1)"></i><b>Komanda</b><span class="amt num">180 000</span><span class="pct">60%</span></div>
+        <div class="lg"><i style="background:var(--c2)"></i><b>Texnologiya və AI</b><span class="amt num">36 000</span><span class="pct">12%</span></div>
+        <div class="lg"><i style="background:var(--c3)"></i><b>Məzmun və kurikulum</b><span class="amt num">24 000</span><span class="pct">8%</span></div>
+        <div class="lg"><i style="background:var(--c4)"></i><b>Pilot və marketinq</b><span class="amt num">30 000</span><span class="pct">10%</span></div>
+        <div class="lg"><i style="background:var(--c5)"></i><b>Hüquqi və əməliyyat</b><span class="amt num">12 000</span><span class="pct">4%</span></div>
+        <div class="lg"><i style="background:var(--c6)"></i><b>Ehtiyat fondu</b><span class="amt num">18 000</span><span class="pct">6%</span></div>
+      </div>
+    </div>
+
+    <div class="tbl"><table>
+      <thead><tr><th>Xərc maddəsi</th><th>Hesablama</th><th class="r">AZN</th></tr></thead>
+      <tbody>
+        <tr class="grp"><td colspan="3">Komanda · 180 000</td></tr>
+        <tr><td>Texniki rəhbər, full-stack</td><td>3 000 × 18 ay</td><td class="r">54 000</td></tr>
+        <tr><td>Backend və AI mühəndisi</td><td>2 800 × 18 ay</td><td class="r">50 400</td></tr>
+        <tr><td>Frontend developer</td><td>2 200 × 18 ay</td><td class="r">39 600</td></tr>
+        <tr><td>UX/UI dizayner (yarım ştat)</td><td>1 200 × 18 ay</td><td class="r">21 600</td></tr>
+        <tr><td>Metodist-müəllim (yarım ştat)</td><td>800 × 18 ay</td><td class="r">14 400</td></tr>
+        <tr class="grp"><td colspan="3">Texnologiya və AI · 36 000</td></tr>
+        <tr><td>AI API (Claude): tutor, lab generasiyası</td><td>≈1 000 × 18 ay, şagird sayı ilə artır</td><td class="r">18 000</td></tr>
+        <tr><td>Bulud serverlər, baza, kod icrası mühiti</td><td>600 × 18 ay</td><td class="r">10 800</td></tr>
+        <tr><td>Alətlər: GitHub, Figma, monitorinq</td><td>300 × 18 ay</td><td class="r">5 400</td></tr>
+        <tr><td>Təhlükəsizlik auditi</td><td>bir dəfə</td><td class="r">1 800</td></tr>
+        <tr class="grp"><td colspan="3">Məzmun və kurikulum · 24 000</td></tr>
+        <tr><td>Python, JS, C++, Java üzrə 600 tapşırıq və test</td><td>müəllimlərlə birlikdə</td><td class="r">15 000</td></tr>
+        <tr><td>Oyun dünyaları, illüstrasiya, animasiya</td><td>3 dünya</td><td class="r">6 000</td></tr>
+        <tr><td>Azərbaycan dilində AI keyfiyyət testi</td><td>eval dəsti</td><td class="r">3 000</td></tr>
+        <tr class="grp"><td colspan="3">Pilot və marketinq · 30 000</td></tr>
+        <tr><td>Pilot müəssisələrdə təlim və dəstək</td><td>müəllim təlimləri</td><td class="r">10 000</td></tr>
+        <tr><td>Rəqəmsal marketinq</td><td>sosial şəbəkə, reklam</td><td class="r">9 000</td></tr>
+        <tr><td>Tədbirlər, hakatonlar, məktəb turları</td><td>regionlar daxil</td><td class="r">8 000</td></tr>
+        <tr><td>Satış materialları, demo video</td><td></td><td class="r">3 000</td></tr>
+        <tr class="grp"><td colspan="3">Hüquqi və əməliyyat · 12 000</td></tr>
+        <tr><td>Şirkət, mühasibat</td><td>400 × 18 ay</td><td class="r">7 200</td></tr>
+        <tr><td>Məlumat qorunması, müqavilələr, hüquqi məsləhət</td><td></td><td class="r">4 800</td></tr>
+        <tr class="grp"><td colspan="3">Ehtiyat fondu · 18 000</td></tr>
+        <tr><td>Gözlənilməz xərclər, gecikmələr</td><td>büdcənin 6%-i</td><td class="r">18 000</td></tr>
+        <tr class="total"><td>Cəmi</td><td>aylıq orta ≈16 700</td><td class="r">300 000</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="sec-head" style="margin-top:36px;margin-bottom:0"><h3>Pul hissə-hissə, nəticəyə görə</h3><p>Münsiflər üçün güclü arqument: riski özümüz bölürük.</p></div>
+    <div class="tranches">
+      <div class="tr"><span class="chip">1-ci hissə · başlanğıc</span><span class="amt num">120 000</span><ul><li>Komanda və MVP</li><li>Pilot hazırlığı</li><li>Mərhələ 0–1</li></ul></div>
+      <div class="tr"><span class="chip ok">2-ci hissə · pilotdan sonra</span><span class="amt num">105 000</span><ul><li>Şərt: 300 şagird, 70% təsdiqlənən lab</li><li>İlk gəlir, məktəblər</li><li>Mərhələ 2–3</li></ul></div>
+      <div class="tr"><span class="chip warn">3-cü hissə · miqyas</span><span class="amt num">75 000</span><ul><li>Şərt: 10 müəssisə, 4 500 AZN aylıq gəlir</li><li>Regionlar, mobil tətbiq</li><li>Mərhələ 4</li></ul></div>
+    </div>
+    <div class="scen">
+      <div class="main"><span class="chip">Əsas plan</span><h3 style="margin-top:8px">300 000 AZN · 18 ay</h3><p class="muted" style="margin-top:6px">5 nəfərlik komanda, 4 dil, 25 müəssisə, gəlirin xərci keçməsi.</p></div>
+      <div><span class="chip warn">Minimum plan</span><h3 style="margin-top:8px">150 000 AZN · 12 ay</h3><p class="muted" style="margin-top:6px">3 nəfərlik komanda, yalnız Python və kurslar, 10 müəssisə. Münsiflər "daha az versək?" desə, bunu deyin.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec wrap" id="gelir" style="padding-top:0">
+  <div class="inner">
+    <div class="sec-head"><span class="kicker">Gəlir proqnozu</span><h2>Pul bitəndə nə olacaq?</h2><p>18-ci ayda aylıq gəlir aylıq xərcdən çox olur. Bu, proqnozdur: fərziyyələr aşağıda yazılıb.</p></div>
+    <div class="chart" aria-label="Aylıq gəlir proqnozu">
+      <div class="bar-row"><span class="lbl">Mart 2027<small>pilot, pulsuz</small></span><div class="track"><div class="fill" style="width:0%"></div><div class="burn" style="left:83.5%"></div></div><span class="v num">0</span></div>
+      <div class="bar-row"><span class="lbl">İyun 2027<small>600 şagird</small></span><div class="track"><div class="fill" style="width:10.8%"></div><div class="burn" style="left:83.5%"></div></div><span class="v num">2 160</span></div>
+      <div class="bar-row"><span class="lbl">Sentyabr 2027<small>1 000 şagird</small></span><div class="track"><div class="fill" style="width:22.5%"></div><div class="burn" style="left:83.5%"></div></div><span class="v num">4 500</span></div>
+      <div class="bar-row"><span class="lbl">Dekabr 2027<small>1 800 şagird</small></span><div class="track"><div class="fill" style="width:49.6%"></div><div class="burn" style="left:83.5%"></div></div><span class="v num">9 910</span></div>
+      <div class="bar-row"><span class="lbl">Mart 2028<small>2 500 şagird</small></span><div class="track"><div class="fill" style="width:77.5%"></div><div class="burn" style="left:83.5%"></div></div><span class="v num">15 500</span></div>
+      <div class="bar-row"><span class="lbl">Aprel 2028<small>3 000 şagird</small></span><div class="track"><div class="fill" style="width:93.5%"></div><div class="burn" style="left:83.5%"></div></div><span class="v num">18 700</span></div>
+      <div class="chart-legend"><span class="a">Aylıq gəlir, AZN (şkala 0–20 000)</span><span class="b">Aylıq xərc ≈16 700 AZN</span></div>
+    </div>
+    <div class="unit">
+      <div><b class="num">9 AZN</b><span>şagird başına aylıq qiymət</span></div>
+      <div><b class="num">&lt; 1 AZN</b><span>şagird başına aylıq AI xərci</span></div>
+      <div><b class="num">40–60%</b><span>aktiv şagirdlərdən ödəyənlər</span></div>
+      <div><b class="num">500–1 000</b><span>məktəb lisenziyası, AZN/ay</span></div>
+    </div>
+    <p class="note">Fərziyyələr: ödəyən şagirdlərin payı 40%-dən 60%-ə qalxır. Məktəb lisenziyaları dekabr 2027-dən başlayır (aylıq 1 000 AZN), aprel 2028-də 2 500 AZN olur. AI xərci: bir ipucu ≈3 000 giriş və 200 çıxış tokenidir, Claude Opus 5.5 qiyməti ilə təxminən $0.016 edir. Ayda 30 ipucu ≈ $0.5 olur, keşləmə ilə daha az. Bütün rəqəmlər pilotdan sonra real data ilə yenilənməlidir.</p>
+  </div>
+</section>
+
+<section class="sec wrap" id="suallar" style="padding-top:0">
+  <div class="inner">
+    <div class="sec-head"><span class="kicker">Münsif sualları</span><h2>Gələ biləcək 24 sual və cavablar</h2><p>Hər sualın qısa cavabı (30 saniyə) və məsləhəti var. Komanda ilə məşq edin: biri soruşsun, digəri cavab versin.</p></div>
+    <div class="qa-tools" role="group" aria-label="Süzgəc">
+      <button type="button" data-f="all" aria-pressed="true">Hamısı</button>
+      <button type="button" data-f="hard" aria-pressed="false">Yalnız çətin suallar</button>
+      <button type="button" id="openAll">Hamısını aç</button>
+      <button type="button" id="closeAll">Hamısını bağla</button>
+    </div>
+    <div id="qa"></div>
+  </div>
+</section>
+
+<section class="sec wrap" id="hazirliq" style="padding-top:0">
+  <div class="inner">
+    <div class="sec-head"><span class="kicker">Hazırlıq</span><h2>Pitch-dən əvvəl edilməli olanlar</h2><p>İşarələdikləriniz bu brauzerdə yadda qalır.</p></div>
+    <div class="check" id="check"></div>
+  </div>
+</section>
+</main>
+
+<footer class="wrap"><div class="inner">Codigo · pitch hazırlıq sənədi · Oktyabr 2026. Büdcə və proqnozlar ilkin təxminlərdir, komanda ilə dəqiqləşdirilməlidir.</div></footer>
+
+<script>
+const QA = [
+  { g: "Problem və bazar", items: [
+    { q: "Bu problem həqiqətən varmı? Sübutunuz nədir?", hard: false, a: "Bəli. Bazardakı platformaların istifadəçi rəylərində eyni şikayətlər təkrarlanır: hazır kurs müəllimin proqramına uyğun gəlmir, zəif şagird geridə qalır, AI hazır kod verir. CS1 tədqiqatları göstərir ki, ChatGPT-dən çox istifadə edən tələbələr müəllimdən daha az kömək istəyir və öyrənmə nəticəsi yaxşılaşmır.", tip: "Pitch-dən əvvəl 5–10 müəllimlə danışın və onların sözlərini sitat gətirin. Real müəllimin sözü hər statistikadan güclüdür." },
+    { q: "Bazar nə qədər böyükdür?", hard: true, a: "Azərbaycanda minlərlə ümumtəhsil məktəbi, onlarla universitet və çoxlu IT kursu var. Code Academy təkcə 10 000-dən çox gənc yetişdirib, dövlətin Code for Future proqramı 5 000 məzun hədəfləyir. Biz əvvəl IT kurslarından başlayırıq: 3 000 şagird ayda təxminən 16 000 AZN gəlir deməkdir.", tip: "<b>Diqqət:</b> məktəb və universitet sayını rəsmi mənbədən (Elm və Təhsil Nazirliyi) yoxlayıb dəqiq rəqəm deyin. Yoxlanmamış rəqəm söyləməyin." },
+    { q: "Rəqibləriniz kimdir? CodeHS və Codecademy niyə bunu etmir?", hard: false, a: "CodeHS, Codecademy, Code.org öz hazır kurslarını satır və Azərbaycan dilində işləmir. Bizim fərqimiz: məzmunu müəllim gətirir, Codigo ondan tapşırıq yaradır, AI-ni müəllim idarə edir. Xarici platformalar üçün kiçik dil bazarına uyğunlaşmaq prioritet deyil, bizim üçün isə əsas bazardır.", tip: "Rəqibləri pisləməyin. \"Onlar yaxşı işləyir, amma başqa problemi həll edir\" deyin." },
+    { q: "ChatGPT pulsuzdur. Niyə Codigo-ya ehtiyac var?", hard: true, a: "ChatGPT cavabı verir, Codigo isə öyrədir. ChatGPT şagirdin səviyyəsini, müəllimin proqramını və sinifdə kimin geridə qaldığını bilmir. Müəllim ChatGPT-ni söndürə bilmir, Codigo-da isə AI rejimini müəllim seçir. Üstəlik kodu real testlərlə yoxlayırıq və nəticəni müəllimə göstəririk.", tip: "Bu, demək olar ki, mütləq soruşulacaq. Cavabı demoda göstərin: \"kodu yaz\" yazın və tutorun imtina etdiyini göstərin." },
+  ]},
+  { g: "Məhsul və texnologiya", items: [
+    { q: "Prototip real işləyir, yoxsa sadəcə dizayndır?", hard: true, a: "Kod hissəsi realdır: şagirdin yazdığı Python kodu brauzerdə işə düşür və gizli testlərdən keçirilir. Prototipdə AI tutor hazır qaydalarla işləyir. MVP-də onu Claude API ilə əvəz edəcəyik, bunun üçün texniki plan hazırdır.", tip: "Dürüst olun. Münsiflər şişirdilmiş iddianı tez tutur, dürüstlük isə etibar qazandırır." },
+    { q: "AI səhv tapşırıq və ya səhv test yaratsa nə olacaq?", hard: false, a: "Hər tapşırığın nümunə həlli şagirdə getməzdən əvvəl testlərdən avtomatik keçirilir. Keçməyən tapşırıq göndərilmir. Sonra müəllim baxıb təsdiqləyir. Yəni iki qat yoxlama var: maşın və insan.", tip: "Demoda müəllim tərəfində \"Testlərlə yoxla\" düyməsini göstərin." },
+    { q: "AI şagirdə cavabı verməyəcəyinə necə zəmanət verirsiniz?", hard: false, a: "Rejim serverdə yoxlanır, AI-nin cavabında reference həllə oxşar kod aşkarlanarsa, cavab bloklanır. Hər dəyişiklikdən əvvəl 50 halda \"həll sızdırma\" testi işlədirik. Hədəfimiz 1%-dən az sızmadır.", tip: "" },
+    { q: "Nə üçün Python? C++ və Java nə vaxt olacaq?", hard: false, a: "Python məktəb və kurslarda ən geniş yayılmış başlanğıc dilidir. Bir dildə mükəmməl işləyən sistem qurub sonra genişlənirik: JavaScript 2027-nin II rübündə, C++ və Java III rübündə.", tip: "" },
+    { q: "İnternet zəif olan regionlarda necə işləyəcək?", hard: true, a: "Platforma brauzerdə işləyir və yüngüldür. Kodun ilkin icrası şagirdin brauzerində baş verir, ona görə zəif internetdə də işləyir. Tam oflayn rejim yol xəritəmizdə regionlara çıxış mərhələsindədir.", tip: "Bilmədiyiniz şeyi vəd etməyin. \"Planlaşdırırıq\" ilə \"var\" arasındakı fərqi qoruyun." },
+    { q: "Böyük şirkət bu ideyanı kopyalasa nə edəcəksiniz?", hard: true, a: "Üstünlüyümüz texnologiya yox, yerli bağlılıqdır: Azərbaycan dilində məzmun və AI keyfiyyəti, müəllimlərlə qurduğumuz əlaqə, yerli kurikuluma uyğunluq və topladığımız öyrənmə datası. Böyük şirkət kiçik bazara bu qədər yatırım etməz, biz isə bunu əsas işimiz kimi görürük.", tip: "" },
+  ]},
+  { g: "Müştəri və biznes", items: [
+    { q: "Kim pul ödəyəcək: şagird, valideyn, yoxsa məktəb?", hard: false, a: "Müəssisə ödəyir. IT kursları şagird başına ayda 9 AZN, məktəb və universitetlər illik lisenziya. Şagird və valideyndən birbaşa pul almırıq. Bu, satışı sadələşdirir və məktəbdə bərabərlik yaradır.", tip: "" },
+    { q: "Niyə kurslardan başlayırsınız, məktəblərdən yox?", hard: false, a: "Kurslarda qərarı bir nəfər verir, nəticəni sürətlə görürük və gəlir tez gəlir. Dövlət məktəblərinə satış uzun çəkir. Kurslardakı uğur hekayələri məktəblərə girişimizi asanlaşdıracaq.", tip: "" },
+    { q: "Artıq müştəriniz və ya pilot partnyorunuz varmı?", hard: true, a: "Cavabı real vəziyyətə görə deyin. İdeal halda: \"X və Y kursları ilə pilot üzrə niyyət məktubu imzalamışıq.\"", tip: "<b>Ən vacib hazırlıq:</b> pitch-dən əvvəl ən azı 2–3 kursdan niyyət məktubu (LOI) alın. Bu, müştəri sübutudur və məbləği əsaslandırır." },
+    { q: "Müəllimlər yeni sistemə müqavimət göstərməyəcək?", hard: false, a: "Codigo müəllimə yeni iş yükləmir, əksinə ən çox vaxt aparan işi, yəni lab və test hazırlığını götürür. Müəllim öz materialı ilə işləyir və son sözü o deyir. Pilotda müəllimlər üçün təlim və dəstək büdcəmizdə nəzərdə tutulub.", tip: "" },
+    { q: "9 AZN qiyməti haradan çıxdı?", hard: true, a: "Bu, ilkin qiymətdir. Kurslarda 14 həftəlik proqram 1 500 dollara qədər ola bilir, 9 AZN bunun kiçik hissəsidir. AI xərcimiz şagird başına ayda 1 AZN-dən azdır, yəni marja yüksəkdir. Pilotda qiyməti real müştərilərlə yoxlayacağıq.", tip: "" },
+  ]},
+  { g: "Maliyyə və investisiya", items: [
+    { q: "Niyə məhz 300 000 AZN?", hard: true, a: "Bu, 5 nəfərlik komanda ilə 18 ay işləmək üçün lazım olan məbləğdir: gəlirin aylıq xərci keçdiyi nöqtəyə qədər. Xərcin 60%-i maaşlardır. Hər maddə büdcə cədvəlində göstərilib.", tip: "Cədvəli əzbər bilin: komanda 180K, texnologiya 36K, məzmun 24K, pilot 30K, hüquqi 12K, ehtiyat 18K." },
+    { q: "Daha az versək, nə edə bilərsiniz?", hard: false, a: "150 000 AZN ilə 12 ayda 3 nəfərlik komanda ilə yalnız Python və kurslara fokuslanarıq, 10 müəssisəyə çatarıq. Amma universitet, yeni dillər və regionlar sonraya qalar.", tip: "" },
+    { q: "Pul bitəndə nə olacaq?", hard: true, a: "Proqnozumuza görə 18-ci ayda aylıq gəlir (≈18 700 AZN) aylıq xərcdən (≈16 700 AZN) çox olur. Bu nöqtədə ya öz gəlirimizlə böyüyürük, ya da real data ilə seed raundu cəlb edirik.", tip: "" },
+    { q: "Pulun düzgün xərcləndiyinə necə zəmanət verirsiniz?", hard: false, a: "Pulu üç hissəyə bölməyi təklif edirik. Hər növbəti hissə yalnız əvvəlki mərhələnin KPI-ları əldə olunanda açılır. Rüblük hesabat veririk.", tip: "Bu təklif münsiflərə riskin bölüşdürüldüyünü göstərir və etibarı artırır." },
+    { q: "Şirkətdə hansı payı verirsiniz? Şirkətin dəyəri nədir?", hard: true, a: "Qrant olarsa pay vermirik. İnvestisiya olarsa, pre-seed mərhələsində 10–15% pay danışıla bilər. Dəqiq şərtləri danışıqda müzakirə etməyə hazırıq.", tip: "<b>Diqqət:</b> pay faizini komanda ilə əvvəlcədən razılaşdırın və mümkünsə mentor və ya hüquqşünasla məsləhətləşin." },
+  ]},
+  { g: "Komanda və risklər", items: [
+    { q: "Komandanız kimdir? Niyə məhz siz bunu edə bilərsiniz?", hard: true, a: "Hər üzvün adını, rolunu və bu layihəyə aid təcrübəsini bir cümlə ilə deyin. Kim kod yazır, kim təhsil sahəsini bilir, kim satış edir.", tip: "Komandada müəllim və ya təhsil təcrübəsi olan biri varsa, mütləq vurğulayın. Yoxdursa, metodist-müəllimin büdcədə olduğunu deyin." },
+    { q: "Uşaqların məlumatları necə qorunur?", hard: false, a: "Minimum şəxsi məlumat saxlayırıq, məktəb rejimində valideyn razılığı tələb olunur, AI-yə şagirdin adı və şəxsi məlumatı göndərilmir. Məlumatlar müəssisəyə görə ayrılır və müəssisə onları istədiyi vaxt silə bilər. Büdcədə təhlükəsizlik auditi var.", tip: "" },
+    { q: "Ən böyük riskiniz nədir?", hard: true, a: "AI-nin yaratdığı tapşırıqların keyfiyyəti və müəllimlərin etibarı. Bunu iki qat yoxlama (avtomatik test və müəllim təsdiqi) və pilotda yaxın əməkdaşlıqla idarə edirik. İkinci risk satışın uzun çəkməsidir, ona görə kurslardan başlayırıq.", tip: "Risk yoxdur deməyin. Riski bilən və planı olan komanda daha inandırıcıdır." },
+    { q: "5 ildən sonra Codigo harada olacaq?", hard: false, a: "Azərbaycanda kod təhsili üçün əsas platforma, ölkənin hər regionunda məktəb və kurslarda. Sonra oxşar dil və təhsil ehtiyacı olan qonşu bazarlara çıxış.", tip: "" },
+  ]}
+];
+const CHECK = [
+  ["2–3 kursdan niyyət məktubu alın", "Ən güclü müştəri sübutu budur"],
+  ["5–10 müəllimlə müsahibə edin", "Onların sözlərini pitch-də sitat gətirin"],
+  ["Komanda slaydını hazırlayın", "Ad, rol, təcrübə, foto"],
+  ["Demo ssenarisini 3 dəfə məşq edin", "Səhv kod → AI diaqnoz → düzgün kod → XP → müəllim paneli"],
+  ["Demonun ehtiyat videosunu çəkin", "İnternet kəsilərsə videonu göstərin"],
+  ["Bazar rəqəmlərini rəsmi mənbədən yoxlayın", "Məktəb və universitet sayları"],
+  ["Büdcə rəqəmlərini əzbərləyin", "180K / 36K / 24K / 30K / 12K / 18K"],
+  ["Pay faizini komanda ilə razılaşdırın", "İnvestor soruşarsa, hamı eyni cavabı versin"],
+  ["Çətin sualları komanda ilə məşq edin", "Bu səhifədə \"Yalnız çətin suallar\" süzgəcini istifadə edin"],
+  ["Demonu sıfırlayın", "Profil → Demonu sıfırla, təmiz başlayın"]
+];
+
+const qa = document.getElementById("qa");
+QA.forEach(group => {
+  const g = document.createElement("div"); g.className = "qa-group";
+  const h = document.createElement("h3"); h.textContent = group.g;
+  const c = document.createElement("span"); c.textContent = group.items.length + " sual"; h.append(c); g.append(h);
+  group.items.forEach(it => {
+    const d = document.createElement("details"); d.className = "q"; d.dataset.hard = it.hard ? "1" : "0";
+    const s = document.createElement("summary");
+    const chip = document.createElement("span"); chip.className = "chip " + (it.hard ? "risk" : "ok"); chip.textContent = it.hard ? "çətin" : "standart";
+    const t = document.createElement("span"); t.textContent = it.q;
+    s.append(chip, t); d.append(s);
+    const a = document.createElement("div"); a.className = "ans";
+    const p = document.createElement("p"); p.className = "short"; p.textContent = it.a; a.append(p);
+    if (it.tip) { const tp = document.createElement("p"); tp.className = "tip"; tp.innerHTML = it.tip; a.append(tp); }
+    d.append(a); g.append(d);
+  });
+  qa.append(g);
+});
+document.querySelectorAll("[data-f]").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("[data-f]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  const hardOnly = b.dataset.f === "hard";
+  document.querySelectorAll("details.q").forEach(d => { d.hidden = hardOnly && d.dataset.hard !== "1"; });
+  document.querySelectorAll(".qa-group").forEach(g => { g.hidden = ![...g.querySelectorAll("details.q")].some(d => !d.hidden); });
+}));
+document.getElementById("openAll").addEventListener("click", () => document.querySelectorAll("details.q").forEach(d => d.open = true));
+document.getElementById("closeAll").addEventListener("click", () => document.querySelectorAll("details.q").forEach(d => d.open = false));
+
+const KEY = "codigo-pitch-check";
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) {}
+const ck = document.getElementById("check");
+CHECK.forEach(([t, s], i) => {
+  const l = document.createElement("label"); l.htmlFor = "ck" + i;
+  const inp = document.createElement("input"); inp.type = "checkbox"; inp.id = "ck" + i; inp.checked = !!saved[i];
+  inp.addEventListener("change", () => { saved[i] = inp.checked; try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {} });
+  const d = document.createElement("div"); const b = document.createElement("b"); b.textContent = t; const sp = document.createElement("span"); sp.textContent = s; d.append(b, sp);
+  l.append(inp, d); ck.append(l);
+});
+</script>

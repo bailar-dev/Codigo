@@ -1,0 +1,889 @@
+<title>Codigo · Sənin öyrənmə yolun</title>
+<link rel="stylesheet" href="journey.css">
+<script src="journey.js"></script>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Montserrat:wght@600;800&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script>window.react = window.React;</script>
+<script src="https://unpkg.com/lucide-react@0.460.0/dist/umd/lucide-react.min.js"></script>
+<script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        brand: { 50: "#ECF6FF", 100: "#D7ECFD", 200: "#B2DAF8", 400: "#2BA3E0", 500: "#0E6FD6", 600: "#0A5DBB", 700: "#0B4C9A", 900: "#0E2A54" },
+        aqua: { 50: "#E9FBFB", 100: "#C9F4F2", 300: "#7FE6E2", 400: "#2BD3D8", 500: "#14B8C4" },
+        navy: "#1F3F8A",
+        capy: { 50: "#FFF5EC", 100: "#FCEBDC", 300: "#F2C49A", 400: "#E9A46A", 600: "#B8723A", 800: "#5A3420" },
+        ink: { 900: "#102A54", 700: "#2E4470", 500: "#5A6B8C", 400: "#8090AE", 300: "#B3BFD6", 200: "#DCE5F5", 100: "#EDF2FB", 50: "#F5F8FF" },
+        mint: { 100: "#DFF5EA", 500: "#1F9D63", 600: "#178552" },
+        rose: { 100: "#FBE4E3", 500: "#D9534F" },
+        gold: { 100: "#FFF1D6", 500: "#E0A100" },
+        code: { 900: "#0B1226", 800: "#101A33", 700: "#18244A", 600: "#22325C" }
+      },
+      fontFamily: {
+        display: ["Baloo 2", "Nunito", "sans-serif"],
+        body: ["Nunito", "Segoe UI", "Roboto", "sans-serif"],
+        brand: ["Montserrat", "Nunito", "sans-serif"],
+        mono: ["JetBrains Mono", "Consolas", "monospace"]
+      },
+      boxShadow: { soft: "0 10px 30px -14px rgba(16,42,84,.35)", pop: "0 24px 60px -24px rgba(16,42,84,.45)" }
+    }
+  }
+};
+</script>
+<style>
+/* Layout: tətbiq. Desktopda sol menyu + üst status zolağı + məzmun; telefonda alt tab bar. Kvest ekranı üç panelli iş sahəsidir. Tək açıq tema (brend), kod sahəsi tünd. */
+:root {
+  --bg: #F5F8FF;
+  --ink: #102A54;
+  --brand: #0E6FD6;
+  --capy: #E9A46A;
+  --mono: "JetBrains Mono", Consolas, monospace;
+  color-scheme: light;
+}
+html, body, #root { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: "Nunito", "Segoe UI", Roboto, sans-serif; margin: 0; -webkit-font-smoothing: antialiased; }
+.gutter-x { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.ed-layer { position: absolute; inset: 0; margin: 0; padding: 14px 16px 40px; font: 13.5px/1.75 var(--mono); white-space: pre; tab-size: 4; }
+.ed-pre { overflow: hidden; pointer-events: none; color: #D7DEF2; }
+.ed-ta { overflow: auto; color: transparent; caret-color: #7FE3B4; background: transparent; resize: none; border: 0; outline: none; }
+.ed-ta::selection { background: rgba(43,211,216,.35); color: transparent; }
+.ed-gut { font: 13.5px/1.75 var(--mono); padding: 14px 10px 40px 0; overflow: hidden; text-align: right; user-select: none; color: #4A5A85; }
+.tk-kw { color: #C792EA; } .tk-bi { color: #82AAFF; } .tk-fn { color: #7FE3B4; } .tk-str { color: #FFCB6B; } .tk-num { color: #F78C6C; } .tk-com { color: #5C6E99; font-style: italic; }
+.xpfill { background: linear-gradient(90deg, #2BD3D8, #0E6FD6 60%, #1F3F8A); transition: width .9s cubic-bezier(.2,.8,.2,1); }
+.float { animation: float 4s ease-in-out infinite; }
+@keyframes float { 50% { transform: translateY(-8px); } }
+.pop-in { animation: popIn .35s cubic-bezier(.2,.9,.3,1.3) both; }
+@keyframes popIn { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
+.rise { animation: rise .25s ease-out both; }
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.burst span { position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; border-radius: 2px; animation: burst .9s ease-out forwards; }
+@keyframes burst { to { transform: translate(var(--dx), var(--dy)) rotate(220deg); opacity: 0; } }
+.pulse { animation: pulse 2s ease-out infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(14,111,214,.5); } 70%,100% { box-shadow: 0 0 0 12px rgba(14,111,214,0); } }
+.dots span { animation: dots 1.2s infinite; display: inline-block; } .dots span:nth-child(2) { animation-delay: .15s; } .dots span:nth-child(3) { animation-delay: .3s; }
+@keyframes dots { 0%,60%,100% { opacity: .25; } 30% { opacity: 1; } }
+::-webkit-scrollbar { width: 10px; height: 10px; } ::-webkit-scrollbar-thumb { background: #C9D5EC; border-radius: 10px; border: 2px solid transparent; background-clip: padding-box; }
+.dark-scroll::-webkit-scrollbar-thumb { background: #22325C; }
+:focus-visible { outline: 3px solid #0E6FD6; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .float, .pop-in, .rise, .burst span, .pulse, .dots span { animation: none !important; } .xpfill { transition: none; } }
+</style>
+
+<div id="root"></div>
+
+<script>
+(function () {
+const { useState, useEffect, useRef, useMemo, useCallback } = React;
+const html = htm.bind(React.createElement);
+const Lc = window.LucideReact || {};
+function Icon({ name, ...p }) { const C = Lc[name]; return C ? html`<${C} ...${p} />` : null; }
+const LOGO = "data:image/webp;base64,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";
+const Logo = ({ className }) => html`<img src=${LOGO} alt="" className=${cls("rounded-[22%] shadow-[0_8px_20px_-10px_rgba(14,111,214,.6)] shrink-0 aspect-square object-cover", className)} />`;
+const Capy = ({ className }) => html`<img src=${LOGO} alt="" className=${cls("rounded-[22%] shadow-[0_10px_24px_-12px_rgba(14,111,214,.55)] shrink-0 aspect-square object-cover", className)} />`;
+const Wordmark = ({ className = "", tagline = false, light = false }) => html`<span className=${cls("inline-flex flex-col leading-none", className)}><span className=${cls("font-brand font-extrabold tracking-tight", light ? "text-white" : "text-navy")}>CODIGO</span>${tagline ? html`<span className=${cls("font-brand font-semibold text-[0.42em] mt-1.5 tracking-normal", light ? "text-white/80" : "text-ink-500")}>Sənin kod yoldaşın</span>` : null}</span>`;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const cls = (...a) => a.filter(Boolean).join(" ");
+
+// ================= DATA =================
+const MODULES = [
+  { id: "vars", name: "Dəyişənlər", icon: "Box", desc: "int, str, hesablamalar" },
+  { id: "cond", name: "Şərtlər", icon: "GitBranch", desc: "if, elif, else" },
+  { id: "loops", name: "Dövrlər", icon: "Repeat", desc: "for, range, while" },
+  { id: "lists", name: "Siyahılar", icon: "List", desc: "indeks, append, gəzmək" },
+  { id: "funcs", name: "Funksiyalar", icon: "Braces", desc: "def, return, parametrlər" },
+  { id: "strings", name: "Sətirlər", icon: "Type", desc: "split, join, metodlar" },
+  { id: "dicts", name: "Lüğətlər", icon: "BookMarked", desc: "açar-dəyər, sayma" },
+  { id: "rec", name: "Rekursiya", icon: "Infinity", desc: "baza halı, çağırış" }
+];
+const LEVEL_XP = [0, 300, 700, 1200, 1800, 2500, 3300, 4200, 5200, 6400];
+const DIFF = { asan: { label: "Asan", gain: 15, cls: "bg-mint-100 text-mint-600" }, orta: { label: "Orta", gain: 20, cls: "bg-brand-100 text-brand-600" }, "çətin": { label: "Çətin", gain: 25, cls: "bg-rose-100 text-rose-500" } };
+
+const T = (args, expected) => ({ args, expected });
+const QUESTS = [
+  { id: "area", module: "vars", diff: "asan", xp: 100, title: "Otağın sahəsi", fn: "rectangle_area",
+    story: "Kodi yeni otaq tikir. Döşəməyə nə qədər xalça lazım olduğunu hesablamaq üçün otağın sahəsini tap.",
+    task: "rectangle_area(a, b) funksiyası tərəfləri a və b olan otağın sahəsini qaytarsın.",
+    example: "rectangle_area(3, 4) → 12",
+    starter: "def rectangle_area(a, b):\n    # kodunu bura yaz\n    pass\n",
+    solution: "def rectangle_area(a, b):\n    return a * b\n",
+    tests: [T("[3, 4]", "12"), T("[1, 1]", "1"), T("[0, 5]", "0"), T("[10, 7]", "70")],
+    hints: ["Sahə hansı riyazi əməllə hesablanır?", "Funksiya nəticəni çap etməməli, qaytarmalıdır.", "return açar sözündən istifadə et."] },
+  { id: "greet", module: "vars", diff: "asan", xp: 100, title: "Robotun salamı", fn: "make_greeting",
+    story: "Robot Kodi hər yeni şagirdi adı ilə salamlamalıdır.",
+    task: "make_greeting(name) funksiyası \"Salam, AD!\" sətrini qaytarsın.",
+    example: "make_greeting(\"Aysel\") → \"Salam, Aysel!\"",
+    starter: "def make_greeting(name):\n    # kodunu bura yaz\n    pass\n",
+    solution: "def make_greeting(name):\n    return \"Salam, \" + name + \"!\"\n",
+    tests: [T("[\"Aysel\"]", "\"Salam, Aysel!\""), T("[\"Kodi\"]", "\"Salam, Kodi!\""), T("[\"A\"]", "\"Salam, A!\"")],
+    hints: ["Sətirləri + ilə birləşdirmək olar.", "Vergül və boşluğu unutma: \"Salam, \"", "Sonda nida işarəsi də olmalıdır."] },
+  { id: "grade", module: "cond", diff: "orta", xp: 150, title: "Balı qiymətə çevir", fn: "grade",
+    story: "Kodi imtahan ballarını qiymətə çevirən maşın qurur.",
+    task: "grade(score): 90 və yuxarı → \"A\", 75–89 → \"B\", 60–74 → \"C\", 60-dan aşağı → \"F\".",
+    example: "grade(82) → \"B\"",
+    starter: "def grade(score):\n    # kodunu bura yaz\n    pass\n",
+    solution: "def grade(score):\n    if score >= 90:\n        return \"A\"\n    elif score >= 75:\n        return \"B\"\n    elif score >= 60:\n        return \"C\"\n    return \"F\"\n",
+    tests: [T("[95]", "\"A\""), T("[75]", "\"B\""), T("[60]", "\"C\""), T("[59]", "\"F\""), T("[90]", "\"A\"")],
+    hints: ["Şərtləri böyükdən kiçiyə doğru yoxla.", "Sərhəd dəyərlərinə bax: 75 \"B\" olmalıdır. > yoxsa >= lazımdır?", "Hər budaqda return yaz."] },
+  { id: "max3", module: "cond", diff: "orta", xp: 150, title: "Ən hündür qüllə", fn: "tallest",
+    story: "Üç qüllədən ən hündürünü tap, amma max() funksiyasından istifadə etmə.",
+    task: "tallest(a, b, c) üç ədəddən ən böyüyünü qaytarsın. max() olmadan.",
+    example: "tallest(3, 9, 4) → 9",
+    starter: "def tallest(a, b, c):\n    # kodunu bura yaz\n    pass\n",
+    solution: "def tallest(a, b, c):\n    if a >= b and a >= c:\n        return a\n    elif b >= c:\n        return b\n    return c\n",
+    tests: [T("[3, 9, 4]", "9"), T("[7, 2, 1]", "7"), T("[1, 2, 8]", "8"), T("[5, 5, 5]", "5")],
+    hints: ["Əvvəl a-nın digər ikisindən böyük olub-olmadığını yoxla.", "and operatoru iki şərti birləşdirir.", "Bərabər ədədlər üçün >= istifadə et."] },
+  { id: "shields", module: "loops", diff: "orta", xp: 200, title: "Enerji qalxanları", fn: "make_shields", tag: "range",
+    story: "Gəmiyə meteor yağışı yaxınlaşır! Dövr ilə düz n ədəd enerji qalxanı yarat.",
+    task: "make_shields(n) [\"Qalxan-1\", ..., \"Qalxan-n\"] siyahısını qaytarsın.",
+    example: "make_shields(3) → [\"Qalxan-1\", \"Qalxan-2\", \"Qalxan-3\"]",
+    starter: "def make_shields(n):\n    shields = []\n    # for dövrü ilə qalxanları əlavə et\n    return shields\n",
+    solution: "def make_shields(n):\n    shields = []\n    for i in range(1, n + 1):\n        shields.append(\"Qalxan-\" + str(i))\n    return shields\n",
+    tests: [T("[3]", "[\"Qalxan-1\", \"Qalxan-2\", \"Qalxan-3\"]"), T("[1]", "[\"Qalxan-1\"]"), T("[0]", "[]"), T("[5]", "[\"Qalxan-1\", \"Qalxan-2\", \"Qalxan-3\", \"Qalxan-4\", \"Qalxan-5\"]")],
+    hints: ["range(1, n) son ədədi daxil edirmi? print(list(range(1, 3))) ilə yoxla.", "Ədədi sətrə çevirmək üçün str() lazımdır.", "Nömrələmə 1-dən başlayır, range isə 0-dan."] },
+  { id: "sumeven", module: "loops", diff: "orta", xp: 200, title: "Cüt ədədlərin cəmi", fn: "sum_even", tag: "range",
+    story: "Kristal mədənində yalnız cüt nömrəli tunellərdə enerji var. Hamısını topla.",
+    task: "sum_even(n) 1-dən n-ə qədər (n daxil) cüt ədədlərin cəmini qaytarsın.",
+    example: "sum_even(10) → 30",
+    starter: "def sum_even(n):\n    # kodunu bura yaz\n    pass\n",
+    solution: "def sum_even(n):\n    total = 0\n    for i in range(1, n + 1):\n        if i % 2 == 0:\n            total += i\n    return total\n",
+    tests: [T("[10]", "30"), T("[1]", "0"), T("[2]", "2"), T("[7]", "12")],
+    hints: ["Cəmi saxlamaq üçün dövrdən əvvəl dəyişən yarat.", "range(1, n) n-in özünü daxil edirmi? sum_even(2) nə qaytarır?", "Ədədin cüt olduğunu % operatoru ilə yoxla."] },
+  { id: "strongest", module: "lists", diff: "orta", xp: 250, title: "Ən güclü kristal", fn: "find_strongest",
+    story: "Mağarada kristallar var. Siyahını gəz və ən güclüsünü tap. max() istifadə etmə!",
+    task: "find_strongest(crystals) siyahıdakı ən böyük ədədi qaytarsın. max() olmadan.",
+    example: "find_strongest([42, 87, 15]) → 87",
+    starter: "def find_strongest(crystals):\n    strongest = crystals[0]\n    # siyahını gəz və müqayisə et\n    return strongest\n",
+    solution: "def find_strongest(crystals):\n    strongest = crystals[0]\n    for c in crystals:\n        if c > strongest:\n            strongest = c\n    return strongest\n",
+    tests: [T("[[42, 87, 15]]", "87"), T("[[5]]", "5"), T("[[-3, -1, -7]]", "-1"), T("[[1, 2, 99, 3]]", "99")],
+    hints: ["Hər kristalı indiki ən güclü ilə müqayisə et.", "Daha güclüsünü tapanda dəyişəni yenilə.", "Mənfi ədədlər üçün də işləməlidir."] },
+  { id: "maxdiff", module: "lists", diff: "asan", xp: 200, title: "Temperatur fərqi", fn: "max_diff",
+    story: "Planetdə gündüz isti, gecə soyuqdur. Ən böyük temperatur fərqini tap.",
+    task: "max_diff(nums) siyahıdakı ən böyük və ən kiçik ədədin fərqini qaytarsın.",
+    example: "max_diff([3, 9, 1]) → 8",
+    starter: "def max_diff(nums):\n    # kodunu bura yaz\n    pass\n",
+    solution: "def max_diff(nums):\n    return max(nums) - min(nums)\n",
+    tests: [T("[[3, 9, 1]]", "8"), T("[[5]]", "0"), T("[[-2, 4]]", "6")],
+    hints: ["Hazır max() və min() funksiyaları var.", "Tək elementli siyahıda fərq nədir?", "Mənfi ədədlər nəticəni dəyişirmi?"] },
+  { id: "teleport", module: "funcs", diff: "orta", xp: 250, title: "Teleport portalı", fn: "teleport",
+    story: "Kodi portal açmağı öyrənir. Yeni koordinatları hesabla.",
+    task: "teleport(x, y, d) (x + d, y + d) cütünü qaytarsın.",
+    example: "teleport(2, 3, 5) → (7, 8)",
+    starter: "def teleport(x, y, d):\n    # kodunu bura yaz\n    pass\n",
+    solution: "def teleport(x, y, d):\n    return (x + d, y + d)\n",
+    tests: [T("[2, 3, 5]", "(7, 8)"), T("[0, 0, 0]", "(0, 0)"), T("[-1, 4, 2]", "(1, 6)")],
+    hints: ["Funksiya iki dəyəri vergüllə ayıraraq qaytara bilər.", "print yox, return lazımdır.", "Hər koordinata d əlavə et."] },
+  { id: "average", module: "funcs", diff: "orta", xp: 250, title: "Orta enerji", fn: "average",
+    story: "Komandanın orta enerji səviyyəsini hesabla.",
+    task: "average(nums) ədədi ortanı 2 rəqəmə yuvarlaqlaşdırıb qaytarsın. Boş siyahı → 0.",
+    example: "average([4, 5, 6]) → 5.0",
+    starter: "def average(nums):\n    # kodunu bura yaz\n    pass\n",
+    solution: "def average(nums):\n    if len(nums) == 0:\n        return 0\n    return round(sum(nums) / len(nums), 2)\n",
+    tests: [T("[[4, 5, 6]]", "5.0"), T("[[]]", "0"), T("[[1, 2]]", "1.5")],
+    hints: ["Boş siyahıda len() nəyə bərabərdir?", "round(x, 2) iki rəqəmə yuvarlaqlaşdırır.", "Əvvəl boş siyahını yoxla."] },
+  { id: "words", module: "strings", diff: "orta", xp: 250, title: "Gizli mesaj", fn: "count_words",
+    story: "Kosmosdan mesaj gəldi. Neçə sözdən ibarət olduğunu tap.",
+    task: "count_words(text) mətndəki sözlərin sayını qaytarsın.",
+    example: "count_words(\"Salam dünya\") → 2",
+    starter: "def count_words(text):\n    # kodunu bura yaz\n    pass\n",
+    solution: "def count_words(text):\n    return len(text.split())\n",
+    tests: [T("[\"Salam dünya\"]", "2"), T("[\"\"]", "0"), T("[\"  bir   iki  \"]", "2")],
+    hints: ["Sətri hissələrə bölən metod hansıdır?", "split() artıq boşluqları necə idarə edir?", "Siyahının uzunluğunu len() verir."] },
+  { id: "chars", module: "dicts", diff: "çətin", xp: 300, title: "Hərf sayğacı", fn: "char_count",
+    story: "Şifrəni açmaq üçün hər hərfin neçə dəfə təkrarlandığını bilməliyik.",
+    task: "char_count(word) hər hərfin sayını lüğət kimi qaytarsın.",
+    example: "char_count(\"ana\") → {\"a\": 2, \"n\": 1}",
+    starter: "def char_count(word):\n    counts = {}\n    # kodunu bura yaz\n    return counts\n",
+    solution: "def char_count(word):\n    counts = {}\n    for ch in word:\n        if ch in counts:\n            counts[ch] += 1\n        else:\n            counts[ch] = 1\n    return counts\n",
+    tests: [T("[\"ana\"]", "{\"a\": 2, \"n\": 1}"), T("[\"\"]", "{}"), T("[\"bbb\"]", "{\"b\": 3}")],
+    hints: ["Hərf lüğətdə yoxdursa nə etməli, varsa nə?", "in operatoru açarı yoxlayır.", "counts[ch] += 1"] },
+  { id: "fact", module: "rec", diff: "çətin", xp: 350, title: "Faktorial qülləsi", fn: "factorial",
+    story: "Qüllənin hər mərtəbəsi əvvəlkindən böyükdür. Rekursiya ilə faktorialı tap.",
+    task: "factorial(n) n! qaytarsın, rekursiya ilə. factorial(0) = 1.",
+    example: "factorial(5) → 120",
+    starter: "def factorial(n):\n    # baza halı və rekursiv çağırış\n    pass\n",
+    solution: "def factorial(n):\n    if n == 0:\n        return 1\n    return n * factorial(n - 1)\n",
+    tests: [T("[5]", "120"), T("[0]", "1"), T("[1]", "1"), T("[6]", "720")],
+    hints: ["Hansı n üçün cavabı dərhal bilirik?", "factorial(n) = n * factorial(n - 1)", "Baza halı olmasa, funksiya sonsuz çağırılır."] }
+];
+
+const DRAFTS = [
+  { id: "countdown", module: "loops", diff: "asan", xp: 150, title: "Raket buraxılışı", fn: "countdown",
+    story: "Raket buraxılmazdan əvvəl geri sayım lazımdır.", task: "countdown(n) [n, n-1, ..., 1] siyahısını qaytarsın.", example: "countdown(3) → [3, 2, 1]",
+    starter: "def countdown(n):\n    # kodunu bura yaz\n    pass\n", solution: "def countdown(n):\n    result = []\n    for i in range(n, 0, -1):\n        result.append(i)\n    return result\n",
+    tests: [T("[3]", "[3, 2, 1]"), T("[1]", "[1]"), T("[0]", "[]")], hints: ["range üçüncü arqumenti addımdır.", "Geri saymaq üçün addım -1 olmalıdır.", "range(n, 0, -1) 0-ı daxil edirmi?"] },
+  { id: "second", module: "lists", diff: "çətin", xp: 300, title: "Gümüş medal", fn: "second_largest",
+    story: "Yarışda ikinci yeri tutanı tap.", task: "second_largest(nums) ikinci ən böyük fərqli ədədi qaytarsın.", example: "second_largest([4, 9, 7]) → 7",
+    starter: "def second_largest(nums):\n    # kodunu bura yaz\n    pass\n", solution: "def second_largest(nums):\n    uniq = sorted(set(nums))\n    return uniq[-2]\n",
+    tests: [T("[[4, 9, 7]]", "7"), T("[[1, 2]]", "1"), T("[[5, 5, 3]]", "3")], hints: ["Təkrarlanan ədədləri necə silərsən?", "sorted() siyahını sıralayır.", "Sondan ikinci element [-2]-dir."] },
+  { id: "leap", module: "cond", diff: "orta", xp: 150, title: "Uzun il", fn: "is_leap",
+    story: "Təqvim robotu fevralın neçə gün olduğunu bilməlidir.", task: "is_leap(year) il uzun ildirsə True qaytarsın.", example: "is_leap(2024) → True",
+    starter: "def is_leap(year):\n    # kodunu bura yaz\n    pass\n", solution: "def is_leap(year):\n    return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)\n",
+    tests: [T("[2024]", "True"), T("[1900]", "False"), T("[2000]", "True"), T("[2023]", "False")], hints: ["4-ə bölünən illər adətən uzundur.", "100-ə bölünənlər istisnadır.", "400-ə bölünənlər yenə uzundur."] },
+  { id: "palin", module: "strings", diff: "orta", xp: 250, title: "Güzgü söz", fn: "is_palindrome",
+    story: "Güzgü qapısı yalnız tərsinə də eyni oxunan sözləri qəbul edir.", task: "is_palindrome(word) söz tərsinə eyni oxunursa True qaytarsın.", example: "is_palindrome(\"ana\") → True",
+    starter: "def is_palindrome(word):\n    # kodunu bura yaz\n    pass\n", solution: "def is_palindrome(word):\n    return word == word[::-1]\n",
+    tests: [T("[\"ana\"]", "True"), T("[\"kod\"]", "False"), T("[\"\"]", "True")], hints: ["Sətri tərsinə çevirmək üçün dilimləmə istifadə et.", "word[::-1]", "Müqayisə == ilə edilir."] }
+];
+
+const QUIZ = {
+  vars: { easy: { q: "Bu kod nə çap edir?", code: "x = 5\ny = x + 2\nprint(y)", opts: ["5", "7", "x + 2", "Xəta"], a: 1 }, hard: { q: "Bu kod nə çap edir?", code: "a = \"3\"\nb = 2\nprint(a * b)", opts: ["6", "33", "Xəta", "32"], a: 1 } },
+  cond: { easy: { q: "x = 7 olduqda nə çap olunur?", code: "if x > 5:\n    print(\"böyük\")\nelse:\n    print(\"kiçik\")", opts: ["böyük", "kiçik", "Xəta", "Heç nə"], a: 0 }, hard: { q: "Bu kod nə çap edir?", code: "x = 0\nif x:\n    print(\"A\")\nelif x == 0:\n    print(\"B\")\nelse:\n    print(\"C\")", opts: ["A", "B", "C", "A və B"], a: 1 } },
+  loops: { easy: { q: "Bu kod neçə sətir çap edir?", code: "for i in range(3):\n    print(i)", opts: ["2", "3", "4", "0"], a: 1 }, hard: { q: "Bu kod nə çap edir?", code: "s = 0\nfor i in range(1, 6, 2):\n    s += i\nprint(s)", opts: ["15", "9", "6", "5"], a: 1 } },
+  lists: { easy: { q: "a = [4, 8, 15] olduqda a[1] nədir?", code: "", opts: ["4", "8", "15", "Xəta"], a: 1 }, hard: { q: "Bu kod nə çap edir?", code: "a = [1, 2, 3, 4, 5]\nprint(a[1:4])", opts: ["[1, 2, 3, 4]", "[2, 3, 4]", "[2, 3, 4, 5]", "[1, 2, 3]"], a: 1 } },
+  funcs: { easy: { q: "Funksiyadan nəticə qaytarmaq üçün hansı söz istifadə olunur?", code: "", opts: ["print", "def", "return", "yield"], a: 2 }, hard: { q: "Bu kod nə çap edir?", code: "def f(x, y=2):\n    return x * y\nprint(f(3) + f(1, 5))", opts: ["11", "10", "8", "Xəta"], a: 0 } }
+};
+
+const ACH = [
+  { id: "quiz", title: "Diaqnoz", desc: "Giriş testini tamamla", icon: "Stethoscope" },
+  { id: "first", title: "İlk addım", desc: "İlk kvesti həll et", icon: "Footprints" },
+  { id: "perfect", title: "İlk cəhddə", desc: "Kvesti ilk cəhddə həll et", icon: "Target" },
+  { id: "nohint", title: "Müstəqil", desc: "İpucusuz kvest həll et", icon: "Brain" },
+  { id: "comeback", title: "Səhvdən dərs", desc: "Uğursuz cəhddən sonra həll et", icon: "RotateCcw" },
+  { id: "three", title: "Üçlük", desc: "3 kvest həll et", icon: "Medal" },
+  { id: "loops", title: "Dövr ustası", desc: "Dövrlər modulunu 80%-ə çatdır", icon: "Repeat" },
+  { id: "lvl3", title: "Səviyyə 3", desc: "3-cü səviyyəyə çat", icon: "Crown" },
+  { id: "five", title: "Beşlik", desc: "5 kvest həll et", icon: "Trophy" }
+];
+
+const CLASSMATES = [
+  { name: "Aysel M.", m: { vars: 92, cond: 85, loops: 71, lists: 60, funcs: 35 } },
+  { name: "Murad Q.", m: { vars: 94, cond: 88, loops: 91, lists: 64, funcs: 50 } },
+  { name: "Leyla H.", m: { vars: 82, cond: 41, loops: 58, lists: 20 } },
+  { name: "Elvin R.", m: { vars: 77, cond: 69, loops: 38 } },
+  { name: "Nigar S.", m: { vars: 88, cond: 79, loops: 66, lists: 45 } },
+  { name: "Tural Ə.", m: { vars: 64, cond: 47 } }
+];
+
+const SAMPLE_SYLLABUS = `Kurs: Python Əsasları (10-A)
+Həftə 1: Dəyişənlər — int, str, hesablamalar
+Həftə 2: Şərtlər — if, elif, else
+Həftə 3: Dövrlər — for, range, while
+Həftə 4: Siyahılar — indeks, append, gəzmək
+Həftə 5: Funksiyalar — def, return
+Həftə 6: Sətirlər — split, join
+Həftə 7: Lüğətlər — açar-dəyər, sayma
+Həftə 8: Rekursiya — baza halı`;
+
+// ================= PYTHON (Skulpt) =================
+function builtinRead(x) {
+  if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined) throw "Fayl tapılmadı: '" + x + "'";
+  return Sk.builtinFiles["files"][x];
+}
+async function runPython(src) {
+  if (typeof Sk === "undefined") return { out: "", err: "Python mühiti yüklənmədi. Səhifəni yeniləyin." };
+  let out = "";
+  Sk.configure({ output: t => { out += t; }, read: builtinRead, __future__: Sk.python3, execLimit: 4000, yieldLimit: 100, inputfun: () => "" });
+  Sk.execStart = Date.now();
+  try { await Sk.misceval.asyncToPromise(() => Sk.importMainWithBody("<stdin>", false, src, true)); return { out, err: null }; }
+  catch (e) { let m = e.toString(); if (/TimeLimit|Timeout/i.test(m)) m = "TimeLimitError: kod 4 saniyədən çox işlədi"; return { out, err: m }; }
+}
+function harness(fn, tests) {
+  return "\n\n__tests = [\n" + tests.map(t => "    (" + t.args + ", " + t.expected + "),").join("\n") + "\n]\n" +
+    "for __i in range(len(__tests)):\n    __a, __e = __tests[__i]\n    try:\n        __g = " + fn + "(*__a)\n" +
+    "        if __g == __e:\n            print('@@T|' + str(__i) + '|OK|' + repr(__g))\n        else:\n            print('@@T|' + str(__i) + '|FAIL|' + repr(__g))\n" +
+    "    except Exception as __x:\n        print('@@T|' + str(__i) + '|ERR|' + str(__x))\n";
+}
+async function runTests(code, q) {
+  const r = await runPython(code + harness(q.fn, q.tests));
+  const results = q.tests.map(t => ({ status: "ERR", got: "", test: t }));
+  const user = [];
+  for (const line of r.out.split("\n")) {
+    if (line.startsWith("@@T|")) { const [, i, st, ...rest] = line.split("|"); if (results[+i]) { results[+i].status = st; results[+i].got = rest.join("|"); } }
+    else if (line.trim()) user.push(line);
+  }
+  if (r.err) results.forEach(x => { if (!x.got) x.got = "işləmədi"; });
+  return { results, passed: results.filter(x => x.status === "OK").length, err: r.err, user };
+}
+function diagnose(q, res, code) {
+  const err = res.err || "";
+  const line = (err.match(/line (\d+)/) || [])[1];
+  if (/SyntaxError/.test(err)) return { tag: "syntax", text: "Sintaksis xətası" + (line ? " " + line + "-ci sətirdə" : "") + ". if, for və def sətirlərinin sonunda iki nöqtə (:) olmalıdır. Mötərizələrin bağlandığını da yoxla." };
+  if (/IndentationError|indent/i.test(err)) return { tag: "indent", text: "Girinti xətası" + (line ? " " + line + "-ci sətirdə" : "") + ". Python-da blokun içi 4 boşluqla içəri yazılır." };
+  const nm = err.match(/name '(\w+)' is not defined/);
+  if (nm) return { tag: "name", text: "‘" + nm[1] + "’ adı təyin olunmayıb. Yazılışı yoxla və ya dəyişəni istifadə etməzdən əvvəl yarat." };
+  if (/TimeLimit/.test(err)) return { tag: "loop", text: "Kod çox uzun işlədi. Sonsuz dövr ola bilər: while şərti nə vaxt yalan olur?" };
+  if (/RecursionError|maximum recursion/i.test(err)) return { tag: "base", text: "Rekursiya dayanmır. Baza halını yoxla: hansı n üçün funksiya dərhal cavab qaytarır?" };
+  if (/TypeError/.test(err)) return { tag: "type", text: "Tip xətası: məsələn ədədlə sətri birləşdirmək olmur. str() və ya int() ilə çevirməyi yoxla." };
+  const fails = res.results.filter(x => x.status !== "OK");
+  if (fails.length && fails.every(x => x.got === "None")) return { tag: "return", text: "Funksiya heç nə qaytarmır (None). print yox, return istifadə et." };
+  if (q.tag === "range" && fails.length && /range\s*\(/.test(code)) return { tag: "offbyone", text: "Off-by-one: nəticə bir element az və ya çox çıxır. range() son ədədi daxil etmir. n-in özü dövrə düşürmü?" };
+  const f = fails[0];
+  if (f) return { tag: "logic", text: q.fn + "(" + f.test.args.slice(1, -1) + ") üçün " + f.test.expected + " gözlənilirdi, amma " + (f.got || "xəta") + " alındı. Bu girişlə kodun addım-addım nə etdiyini düşün." };
+  return null;
+}
+
+// ================= HIGHLIGHT =================
+const KW = new Set(["def","for","in","if","elif","else","while","return","import","from","as","and","or","not","True","False","None","class","break","continue","pass","lambda"]);
+const BI = new Set(["print","range","len","max","min","sum","list","dict","str","int","float","enumerate","abs","round","sorted","set"]);
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function highlight(src) {
+  const re = /(#[^\n]*)|([fFrRbB]?"(?:[^"\\\n]|\\.)*"?|[fFrRbB]?'(?:[^'\\\n]|\\.)*'?)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)(?=\s*\()|([A-Za-z_]\w*)/g;
+  let out = "", last = 0, m;
+  while ((m = re.exec(src))) {
+    out += esc(src.slice(last, m.index)); const t = m[0];
+    if (m[1]) out += '<span class="tk-com">' + esc(t) + "</span>";
+    else if (m[2]) out += '<span class="tk-str">' + esc(t) + "</span>";
+    else if (m[3]) out += '<span class="tk-num">' + t + "</span>";
+    else if (KW.has(t)) out += '<span class="tk-kw">' + t + "</span>";
+    else if (BI.has(t)) out += '<span class="tk-bi">' + t + "</span>";
+    else if (m[4]) out += '<span class="tk-fn">' + t + "</span>";
+    else out += t;
+    last = re.lastIndex;
+  }
+  return out + esc(src.slice(last)) + "\n";
+}
+
+// ================= STATE =================
+const KEY = "codigo-journey-v2";
+const COURSE_KEY = KEY + ":course";
+const dayKey = (d = new Date()) => [d.getFullYear(), String(d.getMonth()+1).padStart(2,"0"), String(d.getDate()).padStart(2,"0")].join("-");
+const yesterdayKey = () => { const d = new Date(); d.setDate(d.getDate()-1); return dayKey(d); };
+const fresh = () => ({
+  user: null, onboarded: false, track: "self", mastery: {}, xp: 0, completed: {}, attempts: {}, hintsUsed: {}, codes: {},
+  achievements: [], xpDays: [0,0,0,0,0,0,0], streak: 0, streakToday: false,
+  published: [], modes: {}, activity: [], plan: null, misconceptions: {}, lessons: {}, dailyXP: {}, dailyGoal: 100, lastActive: null
+});
+function normalizeDay(s) {
+  const today = dayKey();
+  const xpDays = Array.from({length:7},(_,i)=>{ const d=new Date(); d.setDate(d.getDate()-6+i); return s.dailyXP[dayKey(d)] || 0; });
+  return {...s, xpDays, streakToday:s.lastActive===today, streak: s.lastActive===today || s.lastActive===yesterdayKey() ? s.streak : 0};
+}
+function awardXP(s, amount) {
+  const today=dayKey();
+  return normalizeDay({...s, xp:s.xp+amount, dailyXP:{...s.dailyXP,[today]:(s.dailyXP[today]||0)+amount},
+    streak:s.lastActive===today?s.streak:s.lastActive===yesterdayKey()?s.streak+1:1, lastActive:today});
+}
+function withCourse(s) {
+  if (s.track !== "class") return s;
+  try { const c=JSON.parse(localStorage.getItem(COURSE_KEY)||"null"); return c?{...s,...c}:s; } catch(e) { return s; }
+}
+function load() { try { const s=JSON.parse(localStorage.getItem(KEY)||"null"); return normalizeDay(withCourse(s?{...fresh(),...s}:fresh())); } catch(e) {return fresh();} }
+function profileKey(name, track) { return KEY+":profile:"+name.trim().toLocaleLowerCase("az")+":"+track; }
+function save(s) {
+  try {
+    localStorage.setItem(KEY,JSON.stringify(s));
+    if(s.user) localStorage.setItem(profileKey(s.user.name,s.track),JSON.stringify(s));
+    if(s.user?.role==="teacher") localStorage.setItem(COURSE_KEY,JSON.stringify({plan:s.plan,published:s.published,modes:s.modes}));
+  } catch(e) { /* Browser storage may be unavailable; keep the live session usable. */ }
+}
+function loginState(name,role,track) {
+  let s=fresh();
+  try { const stored=JSON.parse(localStorage.getItem(profileKey(name,track))||"null"); if(stored)s={...s,...stored}; } catch(e) {}
+  return normalizeDay(withCourse({...s,user:{name,role},track}));
+}
+const levelOf = xp => { let l = 1; for (let i = 0; i < LEVEL_XP.length; i++) if (xp >= LEVEL_XP[i]) l = i + 1; return l; };
+const levelRange = xp => { const l = levelOf(xp); const lo = LEVEL_XP[l - 1], hi = LEVEL_XP[l] ?? lo + 1200; return { l, cur: xp - lo, need: hi - lo }; };
+const allQuests = st => [...QUESTS, ...DRAFTS.filter(d => st.track === "class" && st.published.includes(d.id))];
+const moduleDone = (st, id) => !!st.lessons[id] && allQuests(st).filter(q=>q.module===id).every(q=>st.completed[q.id]);
+const unlocked = (st, i) => i===0 || (st.mastery[MODULES[i].id]||0)>=50 || (st.mastery[MODULES[i-1].id]||0)>=50 || moduleDone(st,MODULES[i-1].id);
+const currentModule = st => { const i=MODULES.findIndex((m,i)=>unlocked(st,i)&&!moduleDone(st,m.id)); return i<0?MODULES.length-1:i; };
+const nowStr = () => new Date().toLocaleTimeString("az-AZ", { hour: "2-digit", minute: "2-digit" });
+
+// ================= SHARED UI =================
+function Btn({ kind = "primary", size = "md", className = "", children, ...p }) {
+  const k = { primary: "bg-brand-500 text-white hover:bg-brand-600 shadow-[0_8px_20px_-10px_#0E6FD6]", ghost: "bg-white text-ink-900 ring-1 ring-ink-200 hover:ring-brand-400", soft: "bg-brand-50 text-brand-600 hover:bg-brand-100", mint: "bg-mint-500 text-white hover:bg-mint-600", dark: "bg-code-700 text-white hover:bg-code-600", danger: "bg-rose-100 text-rose-500 hover:bg-rose-500 hover:text-white" }[kind];
+  const s = { sm: "px-3 py-2 text-sm rounded-xl", md: "px-4 py-2.5 rounded-xl", lg: "px-6 py-3.5 text-lg rounded-2xl" }[size];
+  return html`<button className=${cls("inline-flex items-center justify-center gap-2 font-extrabold transition active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed", k, s, className)} ...${p}>${children}</button>`;
+}
+const Card = ({ className = "", children, ...p }) => html`<div className=${cls("bg-white rounded-3xl ring-1 ring-ink-200 p-5", className)} ...${p}>${children}</div>`;
+const DiffTag = ({ d }) => html`<span className=${cls("text-xs font-extrabold px-2.5 py-1 rounded-full", DIFF[d].cls)}>${DIFF[d].label}</span>`;
+function Ring({ value, size = 56, stroke = 6, color = "#0E6FD6", children }) {
+  const r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  return html`<div className="relative grid place-items-center" style=${{ width: size, height: size }}>
+    <svg width=${size} height=${size} className="-rotate-90 absolute inset-0"><circle cx=${size / 2} cy=${size / 2} r=${r} fill="none" stroke="#E5ECF8" strokeWidth=${stroke}/><circle cx=${size / 2} cy=${size / 2} r=${r} fill="none" stroke=${color} strokeWidth=${stroke} strokeLinecap="round" strokeDasharray=${c} strokeDashoffset=${c * (1 - Math.min(100, value) / 100)} style=${{ transition: "stroke-dashoffset .8s ease" }}/></svg>
+    <div className="relative">${children}</div></div>`;
+}
+const mColor = v => v == null || v === 0 ? "#B3BFD6" : v < 50 ? "#D9534F" : v < 80 ? "#0E6FD6" : "#1F9D63";
+
+function Toasts({ items }) {
+  return html`<div className="fixed z-50 flex flex-col gap-2 items-end pointer-events-none" style=${{ top: "calc(16px + env(safe-area-inset-top, 0px))", right: "max(16px, env(safe-area-inset-right, 0px))", left: "max(16px, env(safe-area-inset-left, 0px))" }}>
+    ${items.map(t => html`<div key=${t.id} className="pop-in pointer-events-auto flex items-center gap-3 bg-white rounded-2xl shadow-pop ring-1 ring-ink-200 px-4 py-3 max-w-sm" role="status">
+      <span className=${cls("w-10 h-10 rounded-xl grid place-items-center shrink-0", t.kind === "level" ? "bg-gold-100 text-gold-500" : t.kind === "ach" ? "bg-capy-100 text-capy-800" : t.kind === "err" ? "bg-rose-100 text-rose-500" : "bg-mint-100 text-mint-600")}><${Icon} name=${t.icon || "Check"} size=${20} /></span>
+      <div className="min-w-0"><div className="font-display font-bold leading-tight">${t.title}</div>${t.sub ? html`<div className="text-sm text-ink-500">${t.sub}</div>` : null}</div></div>`)}
+  </div>`;
+}
+
+// ================= ONBOARDING QUIZ =================
+function Onboarding({ name, onDone }) {
+  const order = Object.keys(QUIZ);
+  const [queue, setQueue] = useState(() => order.map(m => ({ m, k: "easy" })));
+  const [score, setScore] = useState({});
+  const [count, setCount] = useState(0);
+  const [picked, setPicked] = useState(null);
+  const [intro, setIntro] = useState(true);
+  const cur = queue[0];
+  if (intro) return html`<div className="min-h-full grid place-items-center gutter-x py-10 bg-gradient-to-b from-aqua-50 to-white">
+    <div className="max-w-lg text-center rise"><${Capy} className="w-48 mx-auto float" />
+      <h1 className="font-display text-4xl font-extrabold mt-4">Salam, ${name.split(" ")[0]}!</h1>
+      <p className="text-ink-500 text-lg mt-3">Mən Codigo-nun kapibarasıyam. Əvvəlcə qısa test edək ki, sənə uyğun yol qurum. Düz cavab versən, suallar çətinləşəcək.</p>
+      <div className="flex justify-center gap-6 mt-6 text-sm font-extrabold text-ink-500"><span className="flex items-center gap-2"><${Icon} name="Clock" size=${18} className="text-brand-500" />3 dəqiqə</span><span className="flex items-center gap-2"><${Icon} name="ListChecks" size=${18} className="text-brand-500" />5–10 sual</span></div>
+      <${Btn} size="lg" className="mt-8" onClick=${() => setIntro(false)}>Testə başla <${Icon} name="ArrowRight" size=${20} /><//>
+    </div></div>`;
+  if (!cur) {
+    return html`<div className="min-h-full grid place-items-center gutter-x py-10 bg-gradient-to-b from-aqua-50 to-white">
+      <div className="max-w-lg w-full rise"><div className="text-center"><${Capy} className="w-36 mx-auto" /><h1 className="font-display text-4xl font-extrabold mt-2">Yolun hazırdır!</h1><p className="text-ink-500 mt-2">Cavablarına görə hər mövzu üzrə başlanğıc səviyyən:</p></div>
+      <${Card} className="mt-6 grid gap-3">${order.map(m => { const mod = MODULES.find(x => x.id === m); const v = score[m]; return html`<div key=${m} className="flex items-center gap-3"><span className="w-28 font-extrabold">${mod.name}</span><div className="flex-1 h-3 rounded-full bg-ink-100 overflow-hidden"><div className="h-full rounded-full" style=${{ width: v + "%", background: mColor(v) }}></div></div><span className="w-10 text-right font-mono text-sm">${v}</span></div>`; })}<//>
+      <${Btn} size="lg" className="w-full mt-6" onClick=${() => onDone(score)}>Öyrənmə yoluma bax <${Icon} name="ArrowRight" size=${20} /><//></div></div>`;
+  }
+  const item = QUIZ[cur.m][cur.k];
+  const total = Math.max(count + queue.length, 5);
+  const answer = i => {
+    if (picked != null) return;
+    setPicked(i);
+    const ok = i === item.a;
+    setTimeout(() => {
+      const ns = { ...score };
+      const rest = queue.slice(1);
+      if (cur.k === "easy") { ns[cur.m] = ok ? 55 : 20; if (ok) rest.unshift({ m: cur.m, k: "hard" }); }
+      else ns[cur.m] = ok ? 85 : 55;
+      setScore(ns); setQueue(rest); setCount(c => c + 1); setPicked(null);
+    }, 750);
+  };
+  return html`<div className="min-h-full flex flex-col gutter-x py-6 bg-gradient-to-b from-aqua-50 to-white">
+    <div className="max-w-2xl w-full mx-auto flex items-center gap-4"><${Logo} className="w-9 h-9" /><div className="flex-1 h-3 rounded-full bg-white ring-1 ring-ink-200 overflow-hidden"><div className="h-full bg-brand-500 rounded-full transition-all" style=${{ width: (count / total) * 100 + "%" }}></div></div><span className="font-mono text-sm font-bold text-ink-500">${count + 1}/${total}</span></div>
+    <div className="flex-1 grid place-items-center py-8"><div key=${cur.m + cur.k} className="max-w-2xl w-full rise">
+      <div className="flex items-center gap-2 text-sm font-extrabold"><span className="px-3 py-1 rounded-full bg-white ring-1 ring-ink-200">${MODULES.find(x => x.id === cur.m).name}</span><span className=${cls("px-3 py-1 rounded-full", cur.k === "easy" ? "bg-mint-100 text-mint-600" : "bg-rose-100 text-rose-500")}>${cur.k === "easy" ? "asan" : "çətin"}</span></div>
+      <h2 className="font-display text-3xl font-extrabold mt-4">${item.q}</h2>
+      ${item.code ? html`<pre className="mt-4 bg-code-900 text-[#E4ECFF] rounded-2xl p-5 font-mono text-[15px] leading-7 overflow-x-auto" dangerouslySetInnerHTML=${{ __html: highlight(item.code) }}></pre>` : null}
+      <div className="grid sm:grid-cols-2 gap-3 mt-6">${item.opts.map((o, i) => { const state = picked == null ? "" : i === item.a ? "ring-mint-500 bg-mint-100" : i === picked ? "ring-rose-500 bg-rose-100" : "opacity-50"; return html`<button key=${i} onClick=${() => answer(i)} className=${cls("text-left rounded-2xl bg-white ring-2 ring-ink-200 hover:ring-brand-500 px-5 py-4 font-mono font-semibold text-lg transition", state)}><span className="inline-grid place-items-center w-7 h-7 rounded-lg bg-ink-100 text-ink-500 text-sm mr-3 font-body font-extrabold">${"ABCD"[i]}</span>${o}</button>`; })}</div>
+    </div></div></div>`;
+}
+
+// ================= STUDENT: TOPBAR =================
+function XPBar({ xp }) {
+  const { l, cur, need } = levelRange(xp);
+  const [w, setW] = useState(0);
+  useEffect(() => { const t = setTimeout(() => setW(cur / need * 100), 50); return () => clearTimeout(t); }, [cur, need, l]);
+  return html`<div className="flex items-center gap-3 min-w-0">
+    <span className="w-10 h-10 rounded-xl bg-gold-100 text-gold-500 grid place-items-center font-display font-extrabold text-lg shrink-0" title="Səviyyə">${l}</span>
+    <div className="min-w-0 flex-1 sm:w-48"><div className="flex justify-between text-xs font-extrabold text-ink-500"><span>Səviyyə ${l}</span><span className="font-mono">${cur}/${need} XP</span></div>
+    <div className="h-2.5 mt-1 rounded-full bg-ink-100 overflow-hidden"><div key=${l} className="xpfill h-full rounded-full" style=${{ width: w + "%" }}></div></div></div></div>`;
+}
+
+const S_NAV = [["home", "Öyrən", "House"], ["path", "Mövzular", "Route"], ["quests", "Kvestlər", "Swords"], ["ach", "Nailiyyətlər", "Trophy"], ["profile", "Profil", "CircleUser"]];
+const T_NAV = [["t-home", "Panel", "LayoutDashboard"], ["t-material", "Material", "FileUp"], ["t-labs", "Tapşırıqlar", "FlaskConical"], ["t-class", "Sinif", "Users"], ["profile", "Profil", "CircleUser"]];
+
+function Shell({ st, route, go, children, title, full }) {
+  const nav = st.user.role === "teacher" ? T_NAV : S_NAV;
+  const initials = st.user.name.split(" ").map(s => s[0]).join("").slice(0, 2).toUpperCase();
+  return html`<div className="h-full flex">
+    <aside className="hidden lg:flex flex-col w-64 shrink-0 bg-white border-r border-ink-200 py-5" style=${{ paddingLeft: "max(16px, env(safe-area-inset-left, 0px))", paddingRight: "16px" }}>
+      <button onClick=${() => go(nav[0][0])} className="flex items-center gap-3 px-2 text-left"><${Logo} className="w-11 h-11" /><${Wordmark} className="text-2xl" tagline=${true} /></button>
+      <span className=${cls("mx-2 mt-3 self-start text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full", st.user.role === "teacher" ? "bg-capy-100 text-capy-800" : "bg-brand-50 text-brand-600")}>${st.user.role === "teacher" ? "Müəllim paneli" : st.track === "class" ? "Sinif yolu" : "Müstəqil yol"}</span>
+      <nav className="mt-6 flex flex-col gap-1" aria-label="Əsas menyu">${nav.map(([id, label, ic]) => html`<button key=${id} onClick=${() => go(id)} aria-current=${route === id ? "page" : undefined} className=${cls("flex items-center gap-3 px-3 py-3 rounded-2xl font-extrabold transition", route === id ? "bg-brand-50 text-brand-600" : "text-ink-500 hover:bg-ink-50 hover:text-ink-900")}><${Icon} name=${ic} size=${21} />${label}</button>`)}</nav>
+      <div className="mt-auto">
+        ${st.user.role === "student" ? html`<div className="rounded-3xl bg-capy-50 ring-1 ring-capy-100 p-4 flex items-center gap-3"><${Capy} className="w-14" /><div className="text-sm"><b>${st.streak} gün ardıcıl!</b><div className="text-ink-500">Bu gün də bir kvest həll et.</div></div></div>` : html`<div className="rounded-3xl bg-brand-50 p-4 text-sm"><b>10-A · Python</b><div className="text-ink-500">${CLASSMATES.length + 1} şagird</div></div>`}
+      </div>
+    </aside>
+    <div className="flex-1 min-w-0 flex flex-col">
+      <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-ink-200 gutter-x py-3 flex items-center gap-4">
+        <div className="lg:hidden"><${Logo} className="w-9 h-9" /></div>
+        <h1 className="font-display text-xl sm:text-2xl font-extrabold truncate">${title}</h1>
+        <div className="ml-auto flex items-center gap-3 sm:gap-5">
+          ${st.user.role === "student" ? html`<div className="hidden sm:block"><${XPBar} xp=${st.xp} /></div>
+          <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-capy-50 text-capy-600 font-extrabold" title="Ardıcıl günlər"><${Icon} name="Flame" size=${18} fill="currentColor" />${st.streak}</div>` : null}
+          <button onClick=${() => go("profile")} className="w-10 h-10 rounded-full bg-brand-500 text-white font-extrabold grid place-items-center" aria-label="Profil">${initials}</button>
+        </div>
+      </header>
+      <main className=${cls("flex-1 min-h-0", full ? "flex flex-col" : "overflow-y-auto pb-28 lg:pb-10")}>${children}</main>
+    </div>
+    <nav className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-white border-t border-ink-200 flex justify-around pt-2" style=${{ paddingBottom: "max(8px, env(safe-area-inset-bottom, 0px))", paddingLeft: "max(8px, env(safe-area-inset-left, 0px))", paddingRight: "max(8px, env(safe-area-inset-right, 0px))" }} aria-label="Alt menyu">
+      ${nav.map(([id, label, ic]) => html`<button key=${id} onClick=${() => go(id)} className=${cls("flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl text-[11px] font-extrabold", route === id ? "text-brand-600" : "text-ink-400")}><${Icon} name=${ic} size=${22} />${label}</button>`)}
+    </nav>
+  </div>`;
+}
+
+// ================= STUDENT: QUESTS =================
+function QuestList({ st, openQuest }) {
+  const [f, setF] = useState("all");
+  const qs = allQuests(st).filter(q => { const done = !!st.completed[q.id]; return f === "all" || (f === "done" ? done : !done); });
+  return html`<div className="gutter-x py-6 max-w-6xl mx-auto">
+    <div className="flex flex-wrap gap-2 mb-5" role="tablist">${[["all", "Hamısı"], ["todo", "Həll olunmamış"], ["done", "Tamamlanmış"]].map(([id, l]) => html`<button key=${id} role="tab" aria-selected=${f === id} onClick=${() => setF(id)} className=${cls("px-4 py-2 rounded-xl font-extrabold text-sm", f === id ? "bg-brand-500 text-white" : "bg-white ring-1 ring-ink-200 text-ink-500")}>${l}</button>`)}</div>
+    <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">${qs.map(q => {
+      const mi = MODULES.findIndex(m => m.id === q.module), open = unlocked(st, mi), done = st.completed[q.id], mod = MODULES[mi];
+      const mode = st.modes[q.id] || "hint";
+      return html`<button key=${q.id} disabled=${!open} onClick=${() => openQuest(q.id)} className="text-left bg-white rounded-3xl ring-1 ring-ink-200 hover:ring-brand-500 hover:-translate-y-1 hover:shadow-soft transition p-5 flex flex-col gap-3 disabled:opacity-55 disabled:hover:translate-y-0 disabled:hover:ring-ink-200 disabled:hover:shadow-none">
+        <div className="flex items-center gap-2"><span className="w-10 h-10 rounded-xl bg-brand-50 text-brand-500 grid place-items-center"><${Icon} name=${open ? mod.icon : "Lock"} size=${19} /></span><span className="text-sm font-extrabold text-ink-500">${mod.name}</span><span className="ml-auto"><${DiffTag} d=${q.diff} /></span></div>
+        <div><h3 className="font-display text-xl font-bold">${q.title}</h3><p className="text-sm text-ink-500 mt-1 line-clamp-2">${q.story}</p></div>
+        <div className="mt-auto flex items-center gap-2 text-sm font-extrabold"><span className="text-gold-500 flex items-center gap-1"><${Icon} name="Zap" size=${16} fill="currentColor" />${q.xp} XP</span>
+          ${mode === "exam" ? html`<span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-500 text-xs">İmtahan</span>` : null}
+          ${st.published.includes(q.id) ? html`<span className="px-2 py-0.5 rounded-full bg-capy-100 text-capy-800 text-xs">Yeni</span>` : null}
+          <span className="ml-auto">${done ? html`<span className="text-mint-600 flex items-center gap-1"><${Icon} name="CircleCheck" size=${17} />Həll olunub</span>` : open ? html`<span className="text-brand-600 flex items-center gap-1">Başla <${Icon} name="ArrowRight" size=${16} /></span>` : html`<span className="text-ink-400">Kilidli</span>`}</span></div>
+      </button>`;
+    })}</div>
+  </div>`;
+}
+
+// ================= STUDENT: WORKSPACE =================
+function Editor({ code, setCode, onRun }) {
+  const ta = useRef(), pre = useRef(), gut = useRef();
+  const lines = code.split("\n").length;
+  const sync = () => { const t = ta.current; pre.current.scrollTop = t.scrollTop; pre.current.scrollLeft = t.scrollLeft; gut.current.scrollTop = t.scrollTop; };
+  const onKeyDown = e => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); onRun(); return; }
+    if (e.key === "Tab" && !e.shiftKey) { e.preventDefault(); const t = e.target, s = t.selectionStart, en = t.selectionEnd; setCode(code.slice(0, s) + "    " + code.slice(en)); requestAnimationFrame(() => { t.selectionStart = t.selectionEnd = s + 4; }); }
+    if (e.key === "Enter" && !e.ctrlKey) {
+      const t = e.target, s = t.selectionStart; const lineStart = code.lastIndexOf("\n", s - 1) + 1; const line = code.slice(lineStart, s);
+      let indent = line.match(/^\s*/)[0]; if (/:\s*$/.test(line)) indent += "    ";
+      e.preventDefault(); setCode(code.slice(0, s) + "\n" + indent + code.slice(t.selectionEnd)); requestAnimationFrame(() => { t.selectionStart = t.selectionEnd = s + 1 + indent.length; });
+    }
+  };
+  return html`<div className="flex flex-1 min-h-[260px] bg-code-900">
+    <div ref=${gut} className="ed-gut w-11 shrink-0" aria-hidden="true">${Array.from({ length: lines }, (_, i) => html`<div key=${i}>${i + 1}</div>`)}</div>
+    <div className="relative flex-1 min-w-0">
+      <pre ref=${pre} className="ed-layer ed-pre" aria-hidden="true" dangerouslySetInnerHTML=${{ __html: highlight(code) }}></pre>
+      <textarea ref=${ta} className="ed-layer ed-ta dark-scroll" spellCheck="false" autoCapitalize="off" autoComplete="off" aria-label="Python kod redaktoru" value=${code} onChange=${e => setCode(e.target.value)} onScroll=${sync} onKeyDown=${onKeyDown}></textarea>
+    </div>
+  </div>`;
+}
+
+function Workspace({ st, qid, update, back, toast, celebrate }) {
+  const q = allQuests(st).find(x => x.id === qid);
+  const code = st.codes[qid] ?? q.starter;
+  const mode = st.modes[qid] || "hint";
+  const [term, setTerm] = useState([{ t: "Codigo Python 3 · kodu yaz və \"Yoxla\" düyməsini bas (Ctrl+Enter)", c: "text-[#7480A6]" }]);
+  const [results, setResults] = useState(null);
+  const [running, setRunning] = useState(false);
+  const [chat, setChat] = useState(() => [{ from: "ai", kind: "intro", text: mode === "hint" ? "Salam! Bu kvestdə yanındayam. Çətinlik çəksən, sual ver və ya \"İpucu\" düyməsini bas. Kodu sənin yerinə yazmayacağam, amma birlikdə tapacağıq." : mode === "exam" ? "Bu kvest imtahan rejimindədir. Müəllim AI köməyini bağlayıb. Uğurlar!" : "Bu kvest üçün müəllim AI köməyini söndürüb. Testlərin nəticəsinə diqqətlə bax." }]);
+  const [typing, setTyping] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [tab, setTab] = useState("task");
+  const [burst, setBurst] = useState(0);
+  const termRef = useRef(), chatRef = useRef();
+  useEffect(() => { termRef.current && (termRef.current.scrollTop = 1e6); }, [term]);
+  useEffect(() => { chatRef.current && (chatRef.current.scrollTop = 1e6); }, [chat, typing]);
+  const setCode = v => update(s => ({ ...s, codes: { ...s.codes, [qid]: v } }));
+  const hints = st.hintsUsed[qid] || 0;
+  const done = !!st.completed[qid];
+  const aiOn = mode === "hint";
+  const say = async (m, delay = 650) => { setTyping(true); await sleep(delay); setTyping(false); setChat(c => [...c, { from: "ai", ...m }]); };
+
+  const runOnly = async () => {
+    if (running) return;
+    setRunning(true); setTab("term");
+    setTerm(t => [...t, { t: "PS C:\\Codigo> python " + q.fn + ".py", c: "text-[#4FC1FF]" }]);
+    const r = await runPython(code);
+    const lines = r.out.split("\n").filter(Boolean).map(t => ({ t }));
+    setTerm(t => [...t, ...(lines.length ? lines : [{ t: "(kod heç nə çap etmədi. Funksiyanı yoxlamaq üçün \"Yoxla\" bas)", c: "text-[#7480A6]" }]), ...(r.err ? [{ t: r.err, c: "text-[#FF8A85]" }] : [])]);
+    setRunning(false);
+  };
+
+  const check = async () => {
+    if (running) return;
+    setRunning(true); setTab("term");
+    setTerm(t => [...t, { t: "PS C:\\Codigo> codigo test " + q.fn + ".py", c: "text-[#4FC1FF]" }]);
+    const r = await runTests(code, q);
+    for (const u of r.user) setTerm(t => [...t, { t: u }]);
+    for (let i = 0; i < r.results.length; i++) {
+      await sleep(160); const x = r.results[i];
+      setTerm(t => [...t, { t: (x.status === "OK" ? "  ✔ " : "  ✘ ") + (mode === "exam" ? "Test " + (i + 1) : q.fn + "(" + x.test.args.slice(1, -1) + ") → " + x.got + (x.status === "OK" ? "" : "   gözlənilən: " + x.test.expected)), c: x.status === "OK" ? "text-[#7FE3B4]" : "text-[#FF8A85]" }]);
+    }
+    if (r.err && !r.results.some(x => x.status === "OK")) setTerm(t => [...t, { t: r.err, c: "text-[#FF8A85]" }]);
+    const ok = r.passed === q.tests.length;
+    setResults(r); setRunning(false);
+    const attempts = (st.attempts[qid] || 0) + 1;
+    if (ok) {
+      setTerm(t => [...t, { t: "★ " + r.passed + "/" + q.tests.length + " test keçdi" + (done ? "" : " · +" + q.xp + " XP"), c: "text-[#FFCB6B] font-bold" }]);
+      if (!done) { setBurst(Date.now()); celebrate(q, { attempts, hints }); }
+      if (aiOn) say({ kind: "success", text: done ? "Yenə əla! Bu kvesti artıq həll etmişdin." : attempts === 1 ? "Möhtəşəm, ilk cəhddə! " + MODULES.find(m => m.id === q.module).name + " modulunda irəliləyişin artdı." : "Əla! Səhvini özün tapıb düzəltdin. Ən yaxşı öyrənmə belə olur." });
+    } else {
+      setTerm(t => [...t, { t: "✘ " + r.passed + "/" + q.tests.length + " test keçdi", c: "text-[#FF8A85] font-bold" }]);
+      const d = diagnose(q, r, code);
+      update(s => {
+        const ms = { ...s.misconceptions };
+        if (d && d.tag !== "logic") { const key = q.module + ":" + d.tag; const labels = { offbyone: "off-by-one (range sərhədləri)", syntax: "sintaksis", indent: "girinti", name: "dəyişən adları", loop: "sonsuz dövr", base: "rekursiya baza halı", type: "tip çevirmə", return: "return əvəzinə print" }; ms[key] = { module: q.module, label: labels[d.tag] || d.tag, count: (ms[key]?.count || 0) + 1 }; }
+        return { ...s, attempts: { ...s.attempts, [qid]: attempts }, misconceptions: ms, activity: [{ who: s.user.name, text: q.title + ": " + r.passed + "/" + q.tests.length + " test" + (d ? " · " + d.tag : ""), ok: false, time: nowStr() }, ...s.activity].slice(0, 30) };
+      });
+      if (aiOn && d) say({ kind: "diag", text: d.text });
+    }
+  };
+
+  const hint = async () => {
+    if (!aiOn) return;
+    const i = Math.min(hints, q.hints.length - 1);
+    update(s => ({ ...s, hintsUsed: { ...s.hintsUsed, [qid]: hints + 1 } }));
+    await say({ kind: "hint", text: "İpucu " + (i + 1) + "/" + q.hints.length + ": " + q.hints[i] + (hints >= q.hints.length - 1 ? " Bu son ipucudur." : "") });
+  };
+  const send = async e => {
+    e.preventDefault(); const t = msg.trim(); if (!t || !aiOn) return; setMsg("");
+    setChat(c => [...c, { from: "me", text: t }]);
+    if (/həll|kod(u)? yaz|cavab(ı)? ver|düzgün variant|solution/i.test(t)) return say({ kind: "hint", text: "Hazır kodu yazmayacağam, çünki bu kvest səni məşq etdirmək üçündür. Amma birlikdə gedək: " + q.hints[Math.min(hints, q.hints.length - 1)] });
+    if (/niyə|səhv|işləmir|keçmir/i.test(t) && results) { const d = diagnose(q, results, code); return say({ kind: "diag", text: d ? d.text : "Bütün testlər keçir, kodun düzgündür!" }); }
+    if (/nümunə|misal|example/i.test(t)) return say({ kind: "hint", text: "Nümunə: " + q.example + ". Öz kodunla eyni girişi yoxla: print(" + q.fn + "(" + q.tests[0].args.slice(1, -1) + "))" });
+    return say({ kind: "hint", text: "Yaxşı sual. Gəl tapşırığı kiçik hissələrə bölək: " + q.hints[Math.min(hints, q.hints.length - 1)] });
+  };
+
+  const TaskPanel = html`<div className="p-5 flex flex-col gap-4 overflow-y-auto">
+    <div className="flex items-center gap-2 flex-wrap"><${DiffTag} d=${q.diff} /><span className="text-xs font-extrabold px-2.5 py-1 rounded-full bg-gold-100 text-gold-500">+${q.xp} XP</span>${done ? html`<span className="text-xs font-extrabold px-2.5 py-1 rounded-full bg-mint-100 text-mint-600">Həll olunub</span>` : null}</div>
+    <h2 className="font-display text-2xl font-extrabold leading-tight">${q.title}</h2>
+    <div className="rounded-2xl bg-capy-50 ring-1 ring-capy-100 p-4 flex gap-3"><${Capy} className="w-12 shrink-0" /><p className="text-sm text-ink-700">${q.story}</p></div>
+    <div><h3 className="font-extrabold text-sm uppercase tracking-wider text-ink-400 mb-1">Tapşırıq</h3><p className="font-semibold">${q.task}</p></div>
+    <div><h3 className="font-extrabold text-sm uppercase tracking-wider text-ink-400 mb-1">Nümunə</h3><code className="block font-mono text-sm bg-ink-50 rounded-xl px-3 py-2">${q.example}</code></div>
+    <div><h3 className="font-extrabold text-sm uppercase tracking-wider text-ink-400 mb-2">Testlər ${mode === "exam" ? "(gizli)" : ""}</h3>
+      <div className="grid gap-1.5">${q.tests.map((t, i) => { const r = results?.results[i]; return html`<div key=${i} className="flex items-center gap-2 text-sm"><span className=${cls("w-6 h-6 rounded-full grid place-items-center shrink-0", !r ? "bg-ink-100 text-ink-400" : r.status === "OK" ? "bg-mint-500 text-white" : "bg-rose-500 text-white")}><${Icon} name=${!r ? "Circle" : r.status === "OK" ? "Check" : "X"} size=${13} strokeWidth=${3} /></span><span className="font-mono truncate">${mode === "exam" ? "Gizli test " + (i + 1) : q.fn + "(" + t.args.slice(1, -1) + ")"}</span></div>`; })}</div></div>
+  </div>`;
+
+  const TutorPanel = html`<div className="flex flex-col min-h-0 h-full">
+    <div className="px-4 py-3 border-b border-ink-200 flex items-center gap-2"><span className="w-8 h-8 rounded-xl bg-brand-500 text-white grid place-items-center"><${Icon} name="Bot" size=${17} /></span><b>AI Tutor</b><span className=${cls("ml-auto text-xs font-extrabold px-2.5 py-1 rounded-full", aiOn ? "bg-mint-100 text-mint-600" : "bg-rose-100 text-rose-500")}>${mode === "hint" ? "ipucu rejimi" : mode === "exam" ? "imtahan" : "söndürülüb"}</span></div>
+    <div ref=${chatRef} className="flex-1 min-h-[200px] overflow-y-auto p-4 flex flex-col gap-3">
+      ${chat.map((m, i) => m.from === "me" ? html`<div key=${i} className="self-end max-w-[85%] bg-brand-500 text-white rounded-2xl rounded-br-md px-3.5 py-2.5 text-sm font-semibold rise">${m.text}</div>`
+        : html`<div key=${i} className="flex gap-2 rise"><${Capy} className="w-8 h-8 shrink-0" /><div className=${cls("rounded-2xl rounded-tl-md px-3.5 py-2.5 text-sm", m.kind === "diag" ? "bg-rose-100" : m.kind === "success" ? "bg-mint-100" : "bg-ink-50")}>${m.kind === "diag" ? html`<b className="block text-rose-500 text-xs uppercase tracking-wider mb-0.5">Diaqnoz</b>` : m.kind === "success" ? html`<b className="block text-mint-600 text-xs uppercase tracking-wider mb-0.5">Uğur</b>` : null}${m.text}</div></div>`)}
+      ${typing ? html`<div className="flex gap-2 items-center text-ink-400 text-sm"><${Capy} className="w-8 h-8" /><span className="dots font-extrabold"><span>●</span><span>●</span><span>●</span></span></div>` : null}
+    </div>
+    <div className="p-3 border-t border-ink-200 grid gap-2">
+      <${Btn} kind="soft" size="sm" disabled=${!aiOn} onClick=${hint}><${Icon} name="Lightbulb" size=${16} />İpucu al (${Math.min(hints, q.hints.length)}/${q.hints.length})<//>
+      <form onSubmit=${send} className="flex gap-2"><label htmlFor="tutorMsg" className="sr-only">Sual</label><input id="tutorMsg" disabled=${!aiOn} value=${msg} onInput=${e => setMsg(e.target.value)} placeholder=${aiOn ? "Sual ver..." : "AI bağlıdır"} className="flex-1 min-w-0 rounded-xl ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500 outline-none px-3 py-2 text-sm disabled:bg-ink-50" /><button disabled=${!aiOn} className="w-10 h-10 rounded-xl bg-brand-500 text-white grid place-items-center disabled:opacity-40" aria-label="Göndər"><${Icon} name="Send" size=${17} /></button></form>
+    </div>
+  </div>`;
+
+  return html`<div className="flex-1 min-h-0 flex flex-col">
+    <div className="gutter-x py-2.5 border-b border-ink-200 bg-white flex items-center gap-3">
+      <button onClick=${back} className="flex items-center gap-1.5 font-extrabold text-ink-500 hover:text-brand-600"><${Icon} name="ArrowLeft" size=${18} />Kvestlər</button>
+      <span className="text-ink-300">/</span><span className="font-extrabold truncate">${q.title}</span>
+      <div className="ml-auto flex lg:hidden gap-1 bg-ink-50 rounded-xl p-1" role="tablist">${[["task", "Tapşırıq"], ["term", "Nəticə"], ["ai", "AI"]].map(([id, l]) => html`<button key=${id} role="tab" aria-selected=${tab === id} onClick=${() => setTab(id)} className=${cls("px-3 py-1.5 rounded-lg text-xs font-extrabold", tab === id ? "bg-white text-brand-600 shadow-soft" : "text-ink-500")}>${l}</button>`)}</div>
+    </div>
+    <div className="flex-1 min-h-0 grid lg:grid-cols-[340px_1fr_320px]">
+      <aside className=${cls("bg-white border-r border-ink-200 min-h-0", tab === "task" ? "block" : "hidden", "lg:block lg:overflow-y-auto")}>${TaskPanel}</aside>
+      <section className="flex flex-col min-h-0 min-w-0">
+        <div className="flex items-center gap-2 bg-code-800 px-4 py-2 border-b border-code-700"><span className="w-2.5 h-2.5 rounded-full bg-[#FFCB6B]"></span><span className="font-mono text-sm text-[#C9D3EE]">${q.fn}.py</span><button onClick=${() => setCode(q.starter)} className="ml-auto text-xs font-extrabold text-[#8FA3CF] hover:text-white flex items-center gap-1"><${Icon} name="RotateCcw" size=${14} />Sıfırla</button></div>
+        <${Editor} code=${code} setCode=${setCode} onRun=${check} />
+        <div className="bg-code-800 border-t border-code-700 px-4 py-3 flex flex-wrap items-center gap-2 relative">
+          <${Btn} kind="dark" size="sm" disabled=${running} onClick=${runOnly}><${Icon} name="Play" size=${15} />İşə sal<//>
+          <div className="relative ml-auto">
+            ${burst ? html`<div key=${burst} className="burst absolute inset-0 pointer-events-none" aria-hidden="true">${Array.from({ length: 16 }, (_, i) => { const a = i / 16 * Math.PI * 2; return html`<span key=${i} style=${{ background: ["#0E6FD6", "#E9A46A", "#1F9D63", "#FFCB6B"][i % 4], "--dx": Math.cos(a) * 80 + "px", "--dy": Math.sin(a) * 60 + "px" }}></span>`; })}</div>` : null}
+            <${Btn} kind="mint" disabled=${running} onClick=${check}>${running ? html`<${Icon} name="LoaderCircle" size=${18} className="animate-spin" />` : html`<${Icon} name="CircleCheck" size=${18} />`}${running ? "Yoxlanır…" : "Yoxla və təhvil ver"}<//>
+          </div>
+        </div>
+        <div ref=${termRef} className=${cls("bg-code-900 font-mono text-[12.5px] leading-6 px-4 py-3 overflow-y-auto dark-scroll text-[#C9D3EE] border-t border-code-700", tab === "term" ? "block" : "hidden", "lg:block h-48 lg:h-44")} aria-live="polite">
+          ${term.map((l, i) => html`<div key=${i} className=${cls("whitespace-pre-wrap break-words", l.c)}>${l.t}</div>`)}
+        </div>
+      </section>
+      <aside className=${cls("bg-white border-l border-ink-200 min-h-0", tab === "ai" ? "flex" : "hidden", "lg:flex flex-col h-[520px] lg:h-auto")}>${TutorPanel}</aside>
+    </div>
+  </div>`;
+}
+
+// ================= STUDENT: ACHIEVEMENTS & PROFILE =================
+function Achievements({ st }) {
+  return html`<div className="gutter-x py-6 max-w-6xl mx-auto">
+    <div className="rounded-[28px] bg-capy-50 ring-1 ring-capy-100 p-6 flex items-center gap-5 mb-6"><${Capy} className="w-24" /><div><h2 className="font-display text-3xl font-extrabold">${st.achievements.length} / ${ACH.length} nişan</h2><p className="text-ink-500">Kvest həll et, səhvlərindən öyrən və yeni nişanlar aç.</p></div></div>
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">${ACH.map(a => { const got = st.achievements.includes(a.id); return html`<div key=${a.id} className=${cls("rounded-3xl p-5 text-center flex flex-col items-center gap-2 ring-1", got ? "bg-white ring-capy-300" : "bg-ink-50 ring-ink-200")}>
+      <span className=${cls("w-16 h-16 rounded-2xl grid place-items-center", got ? "bg-gradient-to-br from-capy-300 to-capy-400 text-white shadow-soft" : "bg-ink-200 text-ink-400")}><${Icon} name=${got ? a.icon : "Lock"} size=${30} /></span>
+      <b className=${got ? "" : "text-ink-400"}>${a.title}</b><span className="text-xs text-ink-500">${a.desc}</span></div>`; })}</div>
+  </div>`;
+}
+
+function Profile({ st, update, logout, switchRole }) {
+  const solved = Object.keys(st.completed).length;
+  const avg = Math.round(MODULES.reduce((a, m) => a + (st.mastery[m.id] || 0), 0) / MODULES.length);
+  return html`<div className="gutter-x py-6 max-w-3xl mx-auto grid gap-5">
+    <${Card} className="flex items-center gap-5"><span className="w-20 h-20 rounded-3xl bg-brand-500 text-white grid place-items-center font-display text-3xl font-extrabold">${st.user.name.split(" ").map(s => s[0]).join("").slice(0, 2)}</span><div><h2 className="font-display text-3xl font-extrabold">${st.user.name}</h2><div className="text-ink-500 font-bold">${st.user.role === "teacher" ? "Müəllim · Sinif kodu: CODIGO" : (st.track === "class" ? "Sinif yolu" : "Müstəqil yol") + " · Python · Səviyyə " + levelOf(st.xp)}</div></div><//>
+    ${st.user.role === "student" ? html`<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">${[["XP", st.xp, "Zap"], ["Kvest", solved, "Swords"], ["Orta səviyyə", avg, "Gauge"], ["Ardıcıl gün", st.streak, "Flame"]].map(([l, v, ic]) => html`<${Card} key=${l} className="text-center"><${Icon} name=${ic} size=${22} className="mx-auto text-brand-500" /><b className="block font-display text-2xl mt-1">${v}</b><span className="text-xs font-extrabold text-ink-500">${l}</span><//>`)}</div>` : null}
+    <${Card} className="grid gap-3">
+      <h3 className="font-display text-xl font-bold">Parametrlər</h3>
+      <button onClick=${switchRole} className="flex items-center gap-3 rounded-2xl ring-1 ring-ink-200 hover:ring-brand-500 p-4 text-left"><span className="w-10 h-10 rounded-xl bg-brand-50 text-brand-500 grid place-items-center"><${Icon} name="Repeat" size=${19} /></span><span className="flex-1"><b>${st.user.role === "teacher" ? "Şagird görünüşünə keç" : "Müəllim görünüşünə keç"}</b><span className="block text-sm text-ink-500">Demo sinif görünüşü · kod: CODIGO</span></span></button>
+      <button onClick=${() => update(() => ({ ...fresh(), user: st.user, track:st.track, published:st.published, plan:st.plan, modes:st.modes }))} className="flex items-center gap-3 rounded-2xl ring-1 ring-ink-200 hover:ring-rose-500 p-4 text-left"><span className="w-10 h-10 rounded-xl bg-rose-100 text-rose-500 grid place-items-center"><${Icon} name="RotateCcw" size=${19} /></span><span className="flex-1"><b>Demonu sıfırla</b><span className="block text-sm text-ink-500">Bütün irəliləyiş silinir, giriş testi yenidən başlayır</span></span></button>
+      <button onClick=${logout} className="flex items-center gap-3 rounded-2xl ring-1 ring-ink-200 hover:ring-brand-500 p-4 text-left"><span className="w-10 h-10 rounded-xl bg-ink-100 text-ink-500 grid place-items-center"><${Icon} name="LogOut" size=${19} /></span><b>Çıxış</b></button>
+    <//>
+  </div>`;
+}
+
+// ================= TEACHER =================
+function classRows(st) {
+  const me = { name: (st.user.role === "student" ? st.user.name : "Leyla Həsənova") + " (canlı)", m: st.mastery, live: true };
+  return [me, ...CLASSMATES];
+}
+function THome({ st, go }) {
+  const rows = classRows(st);
+  const ci = 2;
+  const need = rows.filter(r => (r.m[MODULES[ci].id] || 0) < 50);
+  const avg = Math.round(rows.reduce((a, r) => a + (r.m.loops || 0), 0) / rows.length);
+  const pending = DRAFTS.filter(d => !st.published.includes(d.id)).length;
+  const cell = v => v == null || v === 0 ? "bg-ink-50 text-ink-300" : v < 50 ? "bg-rose-100 text-rose-500" : v < 80 ? "bg-brand-100 text-brand-600" : "bg-mint-100 text-mint-600";
+  return html`<div className="gutter-x py-6 max-w-6xl mx-auto grid gap-5">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">${[["Şagird", rows.length, "Users", "bg-brand-50 text-brand-500"], ["Dövrlər üzrə orta", avg, "Gauge", "bg-mint-100 text-mint-600"], ["Köməyə ehtiyac", need.length, "LifeBuoy", "bg-rose-100 text-rose-500"], ["Təsdiq gözləyən", pending, "FlaskConical", "bg-capy-100 text-capy-800"]].map(([l, v, ic, c]) => html`<${Card} key=${l} className="flex items-center gap-4"><span className=${cls("w-12 h-12 rounded-2xl grid place-items-center", c)}><${Icon} name=${ic} size=${22} /></span><div><b className="font-display text-3xl leading-none">${v}</b><div className="text-sm font-extrabold text-ink-500">${l}</div></div><//>`)}</div>
+    <div className="grid lg:grid-cols-3 gap-5">
+      <${Card} className="lg:col-span-2 overflow-x-auto">
+        <div className="flex items-center justify-between mb-4"><h3 className="font-display text-xl font-bold">Sinif xəritəsi · 10-A</h3><span className="text-xs font-extrabold text-ink-400">nümunə şagirdlər + canlı şagird</span></div>
+        <table className="w-full min-w-[560px] text-sm"><thead><tr><th className="text-left font-extrabold text-ink-400 pb-2">Şagird</th>${MODULES.slice(0, 6).map(m => html`<th key=${m.id} className="font-extrabold text-ink-400 pb-2 text-xs">${m.name}</th>`)}</tr></thead>
+        <tbody>${rows.map(r => html`<tr key=${r.name}><td className=${cls("py-1 pr-3 font-extrabold whitespace-nowrap", r.live && "text-brand-600")}>${r.name}</td>${MODULES.slice(0, 6).map(m => { const v = r.m[m.id]; return html`<td key=${m.id} className="p-1"><div className=${cls("rounded-lg text-center py-1.5 font-mono font-bold", cell(v))}>${v || "—"}</div></td>`; })}</tr>`)}</tbody></table>
+      <//>
+      <${Card} className="flex flex-col gap-3">
+        <h3 className="font-display text-xl font-bold">Canlı fəaliyyət</h3>
+        ${st.activity.length ? html`<div className="grid gap-2 max-h-80 overflow-y-auto">${st.activity.map((a, i) => html`<div key=${i} className="flex gap-3 text-sm"><span className=${cls("w-8 h-8 rounded-xl grid place-items-center shrink-0", a.ok ? "bg-mint-100 text-mint-600" : "bg-rose-100 text-rose-500")}><${Icon} name=${a.ok ? "Check" : "X"} size=${16} /></span><div className="min-w-0"><b>${a.who}</b><div className="text-ink-500 truncate">${a.text}</div></div><span className="ml-auto text-xs text-ink-400 font-mono">${a.time}</span></div>`)}</div>`
+          : html`<p className="text-sm text-ink-500">Şagird görünüşündə kvest həll edin, nəticələr burada canlı görünəcək.</p>`}
+      <//>
+    </div>
+    <${Card} className="ring-rose-500/30">
+      <div className="flex items-center gap-2 mb-3"><${Icon} name="LifeBuoy" size=${20} className="text-rose-500" /><h3 className="font-display text-xl font-bold">Dövrlər mövzusunda köməyə ehtiyacı olanlar</h3></div>
+      <div className="flex flex-wrap gap-2">${need.map(r => html`<span key=${r.name} className="px-3 py-2 rounded-xl bg-rose-100 text-rose-500 font-extrabold text-sm">${r.name} · ${r.m.loops || 0}</span>`)}</div>
+      <p className="text-sm text-ink-500 mt-3">Codigo bu şagirdlərə avtomatik asan təkrar kvesti təklif edir.</p>
+    <//>
+  </div>`;
+}
+
+function TMaterial({ st, update, toast }) {
+  const [text, setText] = useState(SAMPLE_SYLLABUS);
+  const [busy, setBusy] = useState(false);
+  const parse = async () => {
+    setBusy(true); await sleep(900);
+    const weeks = []; const re = /(?:Həftə|Week)\s*(\d+)\s*[:.\-]\s*(.+)/gi; let m;
+    while ((m = re.exec(text))) { const [topic, rest] = m[2].split(/\s+[—–-]\s+/); weeks.push({ week: +m[1], topic: topic.trim(), concepts: (rest || "").split(/,\s*/).filter(Boolean) }); }
+    const name = (text.match(/Kurs\s*:\s*(.+)/i) || [])[1] || "Kurs";
+    update(s => ({ ...s, plan: { name, weeks } })); setBusy(false);
+    toast({ title: weeks.length + " həftəlik plan hazırdır", sub: name, icon: "CalendarCheck" });
+  };
+  const onFile = e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => setText(String(r.result).slice(0, 40000)); r.readAsText(f); };
+  return html`<div className="gutter-x py-6 max-w-6xl mx-auto grid lg:grid-cols-2 gap-5">
+    <${Card} className="flex flex-col gap-4">
+      <div className="flex items-center gap-3"><span className="w-11 h-11 rounded-2xl bg-brand-50 text-brand-500 grid place-items-center"><${Icon} name="FileUp" size=${22} /></span><div><h3 className="font-display text-xl font-bold">Kurs materialı</h3><p className="text-sm text-ink-500">Sillabusu yapışdır və ya .txt fayl yüklə</p></div></div>
+      <label htmlFor="matFile" className="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-ink-200 hover:border-brand-500 p-5 cursor-pointer font-extrabold text-ink-500"><${Icon} name="Upload" size=${20} />Fayl seç (.txt, .md)<input id="matFile" type="file" accept=".txt,.md" className="sr-only" onChange=${onFile} /></label>
+      <label htmlFor="matText" className="sr-only">Material mətni</label>
+      <textarea id="matText" value=${text} onInput=${e => setText(e.target.value)} className="min-h-[260px] rounded-2xl ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500 outline-none p-4 font-mono text-sm bg-ink-50"></textarea>
+      <${Btn} onClick=${parse} disabled=${busy}>${busy ? html`<${Icon} name="LoaderCircle" size=${18} className="animate-spin" />Material oxunur…` : html`<${Icon} name="Sparkles" size=${18} />Dərs planını çıxar`}<//>
+    <//>
+    <${Card} className="flex flex-col gap-3">
+      <h3 className="font-display text-xl font-bold">${st.plan ? st.plan.name : "Dərs planı"}</h3>
+      ${st.plan ? html`<div className="grid gap-2">${st.plan.weeks.map(w => html`<div key=${w.week} className="flex items-center gap-3 rounded-2xl ring-1 ring-ink-200 p-3 rise"><span className="w-12 h-12 rounded-xl bg-brand-500 text-white grid place-items-center font-display font-extrabold">H${w.week}</span><div className="min-w-0"><b>${w.topic}</b><div className="text-sm text-ink-500 truncate">${w.concepts.join(", ")}</div></div></div>`)}</div>`
+        : html`<div className="flex-1 grid place-items-center text-center py-10"><div><${Capy} className="w-28 mx-auto opacity-80" /><p className="text-ink-500 mt-3 max-w-xs">Materialı yükləyib "Dərs planını çıxar" düyməsini bas. Həftələr və mövzular burada görünəcək.</p></div></div>`}
+    <//>
+  </div>`;
+}
+
+function TLabs({ st, update, toast }) {
+  const [busy, setBusy] = useState(null);
+  const [checks, setChecks] = useState({});
+  const [modes, setModes] = useState({});
+  const validate = async d => {
+    setBusy(d.id); await sleep(500);
+    const r = await runTests(d.solution, d);
+    setChecks(c => ({ ...c, [d.id]: r })); setBusy(null);
+  };
+  const approve = d => {
+    update(s => ({ ...s, published: [...s.published, d.id], modes: { ...s.modes, [d.id]: modes[d.id] || "hint" } }));
+    toast({ title: "Şagirdlərə göndərildi", sub: d.title, icon: "Send" });
+  };
+  const setMode = (id, m) => update(s => ({ ...s, modes: { ...s.modes, [id]: m } }));
+  const pending = DRAFTS.filter(d => !st.published.includes(d.id));
+  const live = allQuests(st);
+  const ModeSel = ({ id, value, onChange }) => html`<select value=${value} onChange=${e => onChange(e.target.value)} className="rounded-xl ring-1 ring-ink-200 px-3 py-2 text-sm font-bold bg-white" aria-label="AI rejimi"><option value="hint">AI ipucu verir</option><option value="off">AI söndürülüb</option><option value="exam">İmtahan</option></select>`;
+  return html`<div className="gutter-x py-6 max-w-6xl mx-auto grid gap-6">
+    <div><h2 className="font-display text-2xl font-extrabold">Təsdiq gözləyənlər <span className="text-ink-400">${pending.length}</span></h2><p className="text-ink-500 text-sm">AI materialdan bu tapşırıqları hazırlayıb. Yoxla, rejimi seç və şagirdlərə göndər.</p></div>
+    ${pending.length ? html`<div className="grid md:grid-cols-2 gap-4">${pending.map(d => { const c = checks[d.id]; const ok = c && c.passed === d.tests.length; return html`<${Card} key=${d.id} className="flex flex-col gap-3">
+      <div className="flex items-center gap-2"><span className="text-xs font-extrabold px-2.5 py-1 rounded-full bg-capy-100 text-capy-800 flex items-center gap-1"><${Icon} name="Sparkles" size=${13} />AI yaratdı</span><${DiffTag} d=${d.diff} /><span className="ml-auto text-sm font-extrabold text-ink-500">${MODULES.find(m => m.id === d.module).name}</span></div>
+      <h3 className="font-display text-xl font-bold">${d.title}</h3><p className="text-sm text-ink-700">${d.task}</p>
+      <pre className="bg-code-900 text-[#D7DEF2] rounded-2xl p-3 font-mono text-xs overflow-x-auto" dangerouslySetInnerHTML=${{ __html: highlight(d.solution) }}></pre>
+      <div className="grid gap-1">${d.tests.map((t, i) => { const r = c?.results[i]; return html`<div key=${i} className="flex items-center gap-2 text-xs font-mono"><span className=${cls("w-5 h-5 rounded-full grid place-items-center", !r ? "bg-ink-100" : r.status === "OK" ? "bg-mint-500 text-white" : "bg-rose-500 text-white")}>${r ? html`<${Icon} name=${r.status === "OK" ? "Check" : "X"} size=${11} strokeWidth=${3} />` : null}</span>${d.fn}(${t.args.slice(1, -1)}) → ${t.expected}</div>`; })}</div>
+      ${c ? html`<div className=${cls("rounded-xl px-3 py-2 text-sm font-extrabold", ok ? "bg-mint-100 text-mint-600" : "bg-rose-100 text-rose-500")}>${ok ? "Nümunə həll " + c.passed + "/" + d.tests.length + " testdən keçdi (real Python)" : "Xəta: testlər keçmədi"}</div>` : null}
+      <div className="flex flex-wrap items-center gap-2 mt-auto">
+        ${!c ? html`<${Btn} kind="soft" size="sm" disabled=${busy === d.id} onClick=${() => validate(d)}>${busy === d.id ? html`<${Icon} name="LoaderCircle" size=${15} className="animate-spin" />Yoxlanır…` : html`<${Icon} name="FlaskConical" size=${15} />Testlərlə yoxla`}<//>` : null}
+        <${ModeSel} id=${d.id} value=${modes[d.id] || "hint"} onChange=${v => setModes(m => ({ ...m, [d.id]: v }))} />
+        <${Btn} size="sm" disabled=${!ok} onClick=${() => approve(d)} className="ml-auto"><${Icon} name="Send" size=${15} />Təsdiqlə və göndər<//>
+      </div><//>`; })}</div>` : html`<${Card} className="text-center text-ink-500">Bütün tapşırıqlar göndərilib.<//>`}
+    <div><h2 className="font-display text-2xl font-extrabold">Aktiv tapşırıqlar <span className="text-ink-400">${live.length}</span></h2></div>
+    <${Card} className="p-0 overflow-x-auto"><table className="w-full min-w-[620px] text-sm"><thead className="bg-ink-50"><tr>${["Tapşırıq", "Modul", "Çətinlik", "Həll edən", "AI rejimi"].map(h => html`<th key=${h} className="text-left px-4 py-3 font-extrabold text-ink-500">${h}</th>`)}</tr></thead>
+      <tbody>${live.map(q => html`<tr key=${q.id} className="border-t border-ink-200"><td className="px-4 py-2.5 font-extrabold">${q.title}${st.published.includes(q.id) ? html` <span className="text-xs text-capy-600">· yeni</span>` : null}</td><td className="px-4">${MODULES.find(m => m.id === q.module).name}</td><td className="px-4"><${DiffTag} d=${q.diff} /></td><td className="px-4 font-mono">${st.completed[q.id] ? "1 (canlı)" : "0"}</td><td className="px-4 py-2"><${ModeSel} id=${q.id} value=${st.modes[q.id] || "hint"} onChange=${v => setMode(q.id, v)} /></td></tr>`)}</tbody></table><//>
+  </div>`;
+}
+
+function TClass({ st }) {
+  const rows = classRows(st);
+  const [sel, setSel] = useState(0);
+  const r = rows[sel];
+  const avg = row => Math.round(MODULES.slice(0, 6).reduce((a, m) => a + (row.m[m.id] || 0), 0) / 6);
+  return html`<div className="gutter-x py-6 max-w-6xl mx-auto grid lg:grid-cols-[1fr_360px] gap-5">
+    <${Card} className="p-0 overflow-hidden"><div className="divide-y divide-ink-200">${rows.map((row, i) => html`<button key=${row.name} onClick=${() => setSel(i)} className=${cls("w-full flex items-center gap-4 px-5 py-4 text-left", sel === i ? "bg-brand-50" : "hover:bg-ink-50")}><span className=${cls("w-11 h-11 rounded-2xl grid place-items-center font-extrabold text-white", row.live ? "bg-brand-500" : "bg-ink-400")}>${row.name.split(" ").map(s => s[0]).join("").slice(0, 2)}</span><div className="flex-1 min-w-0"><b className="block truncate">${row.name}</b><div className="h-2 mt-1.5 rounded-full bg-ink-100 overflow-hidden"><div className="h-full rounded-full" style=${{ width: avg(row) + "%", background: mColor(avg(row)) }}></div></div></div><span className="font-mono font-bold w-10 text-right">${avg(row)}</span></button>`)}</div><//>
+    <${Card} key=${sel} className="self-start rise">
+      <h3 className="font-display text-2xl font-extrabold">${r.name}</h3><p className="text-sm text-ink-500 mb-4">${r.live ? "Bu şagirdin məlumatları canlı yenilənir" : "Nümunə şagird"}</p>
+      <div className="grid gap-2.5">${MODULES.map(m => { const v = r.m[m.id] || 0; return html`<div key=${m.id} className="flex items-center gap-3"><span className="w-24 text-sm font-extrabold">${m.name}</span><div className="flex-1 h-2.5 rounded-full bg-ink-100 overflow-hidden"><div className="h-full rounded-full" style=${{ width: v + "%", background: mColor(v) }}></div></div><span className="w-8 text-right font-mono text-xs">${v || "—"}</span></div>`; })}</div>
+      ${r.live && Object.keys(st.misconceptions).length ? html`<div className="mt-4 rounded-2xl bg-rose-100 p-4 text-sm"><b className="text-rose-500">AI aşkarladı:</b> ${Object.values(st.misconceptions).map(x => x.label + " (" + x.count + ")").join(", ")}</div>` : null}
+    <//>
+  </div>`;
+}
+
+// ================= APP =================
+function App() {
+  const [st, setSt] = useState(load);
+  const [route, setRoute] = useState(() => { try { return localStorage.getItem(KEY + ":route") || "home"; } catch (e) { return "home"; } });
+  const [qid, setQid] = useState(null);
+  const [lessonId, setLessonId] = useState(null);
+  const [toasts, setToasts] = useState([]);
+  const update = useCallback(fn => setSt(s => { const n = normalizeDay(fn(s)); save(n); return n; }), []);
+  const toast = useCallback(t => { const id = Date.now() + Math.random(); setToasts(x => [...x, { ...t, id }]); setTimeout(() => setToasts(x => x.filter(y => y.id !== id)), 3600); }, []);
+  const go = r => { setRoute(r); setQid(null); setLessonId(null); try { localStorage.setItem(KEY + ":route", r); } catch (e) {} };
+
+  const celebrate = useCallback((q, { attempts, hints }) => {
+    update(s => {
+      if (s.completed[q.id]) return s;
+      const prevLevel = levelOf(s.xp);
+      const xp = s.xp + q.xp;
+      const gain = Math.max(5, DIFF[q.diff].gain - hints * 4);
+      const mastery = { ...s.mastery, [q.module]: Math.min(100, (s.mastery[q.module] || 0) + gain) };
+      const completed = { ...s.completed, [q.id]: { attempts, hints } };
+      const dated = awardXP(s, q.xp);
+      const ach = new Set(s.achievements); const before = new Set(s.achievements);
+      const n = Object.keys(completed).length;
+      if (n >= 1) ach.add("first"); if (n >= 3) ach.add("three"); if (n >= 5) ach.add("five");
+      if (attempts === 1) ach.add("perfect"); if (hints === 0) ach.add("nohint"); if (attempts > 1) ach.add("comeback");
+      if (q.module === "loops" && mastery.loops >= 80) ach.add("loops"); if (levelOf(xp) >= 3) ach.add("lvl3");
+      const misconceptions = { ...s.misconceptions };
+      if (attempts > 1) Object.keys(misconceptions).forEach(k => { if (k.startsWith(q.module + ":")) { misconceptions[k] = { ...misconceptions[k], count: misconceptions[k].count - 1 }; if (misconceptions[k].count <= 0) delete misconceptions[k]; } });
+      const newAch = [...ach].filter(a => !before.has(a));
+      setTimeout(() => {
+        toast({ title: "Kvest tamamlandı!", sub: "+" + q.xp + " XP · " + q.title, icon: "Trophy" });
+        if (levelOf(xp) > prevLevel) setTimeout(() => toast({ kind: "level", title: "Səviyyə " + levelOf(xp) + "!", sub: "Yeni səviyyəyə çatdın", icon: "Crown" }), 500);
+        newAch.forEach((a, i) => setTimeout(() => { const A = ACH.find(x => x.id === a); toast({ kind: "ach", title: "Yeni nişan: " + A.title, sub: A.desc, icon: A.icon }); }, 900 + i * 500));
+        if (!s.streakToday) setTimeout(() => toast({ kind: "ach", title: "Ardıcıllıq " + dated.streak + " gün!", sub: "Bu günü qorudun", icon: "Flame" }), 300);
+      }, 50);
+      return { ...dated, mastery, completed, achievements: [...ach], misconceptions,
+        activity: [{ who: s.user.name, text: q.title + " həll olundu · +" + q.xp + " XP", ok: true, time: nowStr() }, ...s.activity].slice(0, 30) };
+    });
+  }, [update, toast]);
+
+  useEffect(() => {
+    const refresh = () => setSt(s=>normalizeDay(withCourse(s)));
+    const timer = setInterval(refresh,60000);
+    window.addEventListener("focus",refresh); window.addEventListener("storage",refresh);
+    return () => {clearInterval(timer); window.removeEventListener("focus",refresh); window.removeEventListener("storage",refresh);};
+  },[update]);
+  const finishLesson = (id, mistakes) => update(s => {
+    if(s.lessons[id])return s;
+    const n=awardXP(s,50);
+    return {...n,lessons:{...s.lessons,[id]:{mistakes,date:dayKey()}},mastery:{...s.mastery,[id]:Math.min(100,(s.mastery[id]||0)+10)}};
+  });
+  if (!st.user) return html`<${Login} onLogin=${(name, role, track) => { update(() => loginState(name,role,track)); go(role === "teacher" ? "t-home" : "home"); }} /><${Toasts} items=${toasts} />`;
+  if (st.user.role === "student" && !st.onboarded) return html`<${Onboarding} name=${st.user.name} onDone=${score => { update(s => ({ ...s, onboarded: true, mastery: { ...score }, achievements: [...new Set([...s.achievements, "quiz"])] })); go("path"); toast({ kind: "ach", title: "Yeni nişan: Diaqnoz", sub: "Giriş testini tamamladın", icon: "Stethoscope" }); }} /><${Toasts} items=${toasts} />`;
+
+  const openQuest = id => { setLessonId(null); setQid(id); };
+  const openLesson = id => {setQid(null);setLessonId(id);};
+  const switchRole = () => { const role = st.user.role === "teacher" ? "student" : "teacher"; update(s => withCourse({ ...s, track: "class", user: { ...s.user, role } })); go(role === "teacher" ? "t-home" : "home"); };
+  const logout = () => { save(st); update(() => fresh()); setQid(null); setLessonId(null); };
+  const titles = { home: "Öyrənmə yolum", path: "Mövzuları kəşf et", quests: "Kvestlər", ach: "Nailiyyətlər", profile: "Profil", "t-home": "Müəllim paneli", "t-material": "Kurs materialı", "t-labs": "Tapşırıqlar", "t-class": "Sinif" };
+  let body, title = titles[route] || "Codigo", full = false;
+  const r = st.user.role === "teacher" ? (route.startsWith("t-") || route === "profile" ? route : "t-home") : (route.startsWith("t-") ? "home" : route);
+  if (lessonId && st.user.role === "student") { body = html`<${Lesson} key=${lessonId} moduleId=${lessonId} st=${st} finish=${finishLesson} back=${()=>setLessonId(null)} openQuest=${openQuest}/>`; title="İnteraktiv dərs"; }
+  else if (qid && st.user.role === "student") { body = html`<${Workspace} key=${qid} st=${st} qid=${qid} update=${update} back=${() => setQid(null)} toast=${toast} celebrate=${celebrate} />`; title = "Kvest"; full = true; }
+  else if (r === "home") body = html`<${Journey} st=${st} openQuest=${openQuest} openLesson=${openLesson} update=${update} />`;
+  else if (r === "path") body = html`<${Journey} st=${st} openQuest=${openQuest} openLesson=${openLesson} update=${update} />`;
+  else if (r === "quests") body = html`<${QuestList} st=${st} openQuest=${openQuest} />`;
+  else if (r === "ach") body = html`<${Achievements} st=${st} />`;
+  else if (r === "profile") body = html`<${Profile} st=${st} update=${update} logout=${logout} switchRole=${switchRole} />`;
+  else if (r === "t-home") body = html`<${THome} st=${st} go=${go} />`;
+  else if (r === "t-material") body = html`<${TMaterial} st=${st} update=${update} toast=${toast} />`;
+  else if (r === "t-labs") body = html`<${TLabs} st=${st} update=${update} toast=${toast} />`;
+  else if (r === "t-class") body = html`<${TClass} st=${st} />`;
+  return html`<${Shell} st=${st} route=${qid ? "quests" : r} go=${go} title=${titles[r] && !qid && !lessonId ? titles[r] : title} full=${full}>${body}<//><${Toasts} items=${toasts} />`;
+}
+
+const { Login, Journey, Lesson } = window.CodigoJourney({React,html,Icon,Capy,Wordmark,MODULES,allQuests,unlocked,dayKey});
+ReactDOM.createRoot(document.getElementById("root")).render(html`<${App} />`);
+})();
+</script>

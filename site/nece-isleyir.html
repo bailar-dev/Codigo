@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="az" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Necə işləyir · Codigo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Montserrat:wght@600;800&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="play.css">
+<link rel="stylesheet" href="pricing.css">
+<link rel="stylesheet" href="team.css">
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script></head>
+<body>
+
+
+<header class="nav wrap">
+  <div class="inner bar">
+    <a class="brand" href="index.html" aria-label="Codigo ana səhifə"><img aria-hidden="true" src="icon.webp" alt=""><b class="wordmark">CODIGO<small>Sənin kod yoldaşın</small></b></a>
+    <nav class="links" aria-label="Səhifələr">
+      <a href="index.html">Ana səhifə</a>
+      <a href="haqqimizda.html">Haqqımızda</a>
+      <a href="missiya.html">Missiya</a>
+      <a href="nece-isleyir.html" aria-current="page">Necə işləyir</a>
+      <a href="imkanlar.html">İmkanlar</a>
+      <a href="kimler-ucun.html">Kimlər üçün</a>
+      <a href="qiymetler.html">Qiymətlər</a>
+      <a href="suallar.html">Suallar</a>
+    </nav>
+    <a class="btn primary" href="app.html">Platformanı sına <i data-lucide="arrow-right"></i></a>
+    <button class="menu-btn" id="menuBtn" aria-label="Menyunu aç" aria-expanded="false" aria-controls="mobileMenu"><i data-lucide="menu"></i></button>
+  </div>
+  <div class="inner mobile-menu" id="mobileMenu"><a href="index.html"><i data-lucide="house"></i>Ana səhifə</a><a href="haqqimizda.html"><i data-lucide="book-open"></i>Haqqımızda</a><a href="missiya.html"><i data-lucide="compass"></i>Missiya</a><a href="nece-isleyir.html" aria-current="page"><i data-lucide="route"></i>Necə işləyir</a><a href="imkanlar.html"><i data-lucide="sparkles"></i>İmkanlar</a><a href="kimler-ucun.html"><i data-lucide="users"></i>Kimlər üçün</a><a href="qiymetler.html"><i data-lucide="wallet"></i>Qiymətlər</a><a href="suallar.html"><i data-lucide="message-circle-question"></i>Suallar</a><a class="btn primary" href="app.html">Platformanı sına</a></div>
+</header>
+<main>
+<section class="page-hero wrap">
+  <div class="inner">
+    <div>
+      <nav class="crumbs" aria-label="Yol"><a href="index.html">Ana səhifə</a><i data-lucide="chevron-right"></i><span>Necə işləyir</span></nav>
+      <h1>Necə işləyir?</h1>
+      <p class="lead">Müəllimin yüklədiyi materialdan şagirdin fərdi kvestinə qədər bütün yol.</p>
+    </div>
+    <div class="ph-art" aria-hidden="true"><span class="disc"></span><img class="capy" aria-hidden="true" src="icon.webp" alt=""><span class="badge"><i data-lucide="route"></i>4 addım</span></div>
+  </div>
+</section>
+<section class="sec wrap">
+  <div class="inner">
+    <div class="head"><span class="kicker"><i data-lucide="workflow"></i>Addım-addım</span><h2>Kim nə edir?</h2></div>
+    <div class="seg" role="tablist" data-tabs="flow">
+      <button role="tab" data-tab="teacher" aria-selected="true"><i data-lucide="presentation"></i>Müəllim üçün</button>
+      <button role="tab" data-tab="student" aria-selected="false"><i data-lucide="graduation-cap"></i>Şagird üçün</button>
+    </div>
+    <div data-panel="flow" data-key="teacher" class="steps">
+      <div class="step"><span class="num">1</span><h3>Materialı yüklə</h3><p>Sillabus, slayd, PDF və ya nümunə kod. Codigo mövzuları və həftəlik planı özü çıxarır.</p></div>
+      <div class="step"><span class="num">2</span><h3>Planı yoxla</h3><p>Mövzuların sırasını və əlaqəsini gör, lazım olsa dəyiş. Bugünkü dərsi seç.</p></div>
+      <div class="step"><span class="num">3</span><h3>Tapşırıqları təsdiqlə</h3><p>Hər lab üç çətinlikdə, gizli testlərlə hazırlanır. Nümunə həll testlərdən keçmirsə, lab sənə gəlmir.</p></div>
+      <div class="step"><span class="num">4</span><h3>Sinfi izlə</h3><p>Panel kimin harada ilişdiyini göstərir. Köməyə ehtiyacı olan şagirdlər ayrıca qeyd olunur.</p></div>
+    </div>
+    <div data-panel="flow" data-key="student" class="steps" hidden>
+      <div class="step"><span class="num">1</span><h3>Sinifə qoşul</h3><p>Müəllimin verdiyi kodla daxil ol. Quraşdırma lazım deyil, hər şey brauzerdədir.</p></div>
+      <div class="step"><span class="num">2</span><h3>Giriş testini keç</h3><p>8-15 suallıq adaptiv test. Düz cavab versən, sual çətinləşir. Səviyyən müəyyən olunur.</p></div>
+      <div class="step"><span class="num">3</span><h3>Kvestləri həll et</h3><p>Kodu yaz, işə sal, testlərin nəticəsini dərhal gör. Çətinlikdə AI-dən ipucu al.</p></div>
+      <div class="step"><span class="num">4</span><h3>İnkişafını gör</h3><p>XP qazan, səviyyə atla. Səhvlərinə görə yolun yenilənir, zəif mövzular əlavə olunur.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt wrap">
+  <div class="inner modes">
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <span class="kicker"><i data-lucide="bot"></i>AI rejimləri</span>
+      <h2>AI nə qədər kömək edəcəyini müəllim seçir</h2>
+      <p class="lead">Şagird eyni sualı versə də, cavab müəllimin seçdiyi rejimə görə dəyişir. Rejimə bas və fərqi gör.</p>
+      <div class="mode-list" role="tablist" aria-label="AI rejimi">
+        <button class="mode-tab" role="tab" aria-selected="true" data-mode="hint"><span class="ic sm blue"><i data-lucide="lightbulb"></i></span><span><b>İpucu</b><span class="d">Sual verir, səhvin yerinə işarə edir, kod yazmır.</span></span></button>
+        <button class="mode-tab" role="tab" aria-selected="false" data-mode="off"><span class="ic sm capy"><i data-lucide="bell-off"></i></span><span><b>Söndürülüb</b><span class="d">Şagird yalnız testlərin nəticəsini görür.</span></span></button>
+        <button class="mode-tab" role="tab" aria-selected="false" data-mode="exam"><span class="ic sm rose"><i data-lucide="lock"></i></span><span><b>İmtahan</b><span class="d">AI bağlıdır, yalnız bal görünür.</span></span></button>
+      </div>
+    </div>
+    <div class="chat" aria-live="polite">
+      <div class="ctx"><span>Leyla · Həftə 3 · sum_even</span><span>3/5 test keçib</span></div>
+      <div class="msg me">Kodum işləmir, düzgün variantı yaz.</div>
+      <div id="aiReply"></div>
+      <div class="chat-foot" id="aiFoot"></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec wrap">
+  <div class="inner">
+    <div class="head"><span class="kicker"><i data-lucide="git-fork"></i>Fərdi yol</span><h2>Eyni sinif, eyni dərs, iki fərqli növbəti addım</h2><p class="lead">Codigo hər mövzu üzrə 0-100 arası bilik səviyyəsi saxlayır. Nümunə şagirdlər uydurmadır.</p></div>
+    <div class="grid g2">
+      <div class="path">
+        <div class="path-head"><h3>Murad</h3><small>güclü başlayıb · 2 ipucu</small></div>
+        <div class="nodes"><div class="node hi"><span class="dot">94</span>Dəyişən</div><div class="node hi"><span class="dot">88</span>Şərt</div><div class="node hi now"><span class="dot">91</span>Dövr</div><div class="node"><span class="dot">·</span>Siyahı</div><div class="node"><span class="dot">·</span>Funksiya</div><div class="node"><span class="dot">·</span>Rekursiya</div></div>
+        <div class="next">Növbəti: <b>Dövrlər · çətin kvest</b>, sonra Siyahılara erkən keçid.</div>
+      </div>
+      <div class="path">
+        <div class="path-head"><h3>Leyla</h3><small>şərtlərdə boşluq · 6 ipucu</small></div>
+        <div class="nodes"><div class="node hi"><span class="dot">82</span>Dəyişən</div><div class="node lo"><span class="dot">41</span>Şərt</div><div class="node mid now"><span class="dot">58</span>Dövr</div><div class="node"><span class="dot">·</span>Siyahı</div><div class="node"><span class="dot">·</span>Funksiya</div><div class="node"><span class="dot">·</span>Rekursiya</div></div>
+        <div class="next">Növbəti: <b>Şərtlər · asan təkrar</b>, sonra Dövrlər. Müəllimə bildiriş gedir.</div>
+      </div>
+    </div>
+    <div class="legend"><span class="l1">0–49 kömək lazımdır</span><span class="l2">50–79 inkişafda</span><span class="l3">80–100 mənimsəyib</span></div>
+  </div>
+</section>
+
+<section class="sec tight wrap"><div class="inner pager"><a href="missiya.html"><small><i data-lucide="arrow-left"></i>Əvvəlki</small><b>Missiya</b></a><a class="next" href="imkanlar.html"><small>Növbəti<i data-lucide="arrow-right"></i></small><b>İmkanlar</b></a></div></section>
+</main>
+<section class="end-cta wrap">
+  <div class="inner box">
+    <img aria-hidden="true" src="icon.webp" alt="">
+    <div><h2>Codigo-nu öz dərsinizdə sınayın</h2><p>Pilot proqrama ilk müəssisələri qəbul edirik. Planlaşdırılan pilot: 30 gün, 25 şagirdədək, 2 müəllim.</p></div>
+    <div class="cta-row"><a class="btn white" href="app.html"><i data-lucide="play"></i>Platformanı sına</a><a class="btn outline-white" href="suallar.html#pilot">Pilota müraciət</a></div>
+  </div>
+</section>
+<footer class="site wrap">
+  <div class="inner">
+    <div class="fgrid">
+      <div><a class="brand" href="index.html" aria-label="Codigo"><img aria-hidden="true" src="icon.webp" alt=""><b class="wordmark">CODIGO<small>Sənin kod yoldaşın</small></b></a><p>Proqramlaşdırmanı müəllimin öz materialından, hər şagirdin öz tempində öyrədən platforma.</p></div>
+      <div><h4>Səhifələr</h4><ul><li><a href="haqqimizda.html">Haqqımızda</a></li><li><a href="missiya.html">Missiya</a></li><li><a href="nece-isleyir.html">Necə işləyir</a></li><li><a href="imkanlar.html">İmkanlar</a></li><li><a href="kimler-ucun.html">Kimlər üçün</a></li><li><a href="qiymetler.html">Qiymətlər</a></li><li><a href="suallar.html">Suallar</a></li></ul></div>
+      <div><h4>Platforma</h4><ul><li><a href="haqqimizda.html#komanda">Qurucular və komanda</a></li><li><a href="app.html">Şagird platforması</a></li><li><a href="muellim-demo.html">Müəllim demosu</a></li><li><a href="suallar.html#pilot">Pilot proqram</a></li></ul></div>
+    </div>
+    <div class="fbottom"><span>© 2026 Codigo · Bakı</span><span>Məktəblər, universitetlər və IT kursları üçün</span></div>
+  </div>
+</footer>
+<script src="site.js"></script>
+<script src="pricing.js"></script>
+</body>
+</html>
